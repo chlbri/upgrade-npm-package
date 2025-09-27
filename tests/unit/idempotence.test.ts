@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { sortVersionsNewestToOldest } from '../../src/lib/semver-utils';
+import { sortVersionsNewestToOldest } from '../../src/libs/semver-utils';
 
 describe('Idempotence Behavior', () => {
   it('should skip already-accepted upgrades on reruns', () => {

@@ -4,7 +4,7 @@ import {
   logPeerConflict,
   logRegistryWarning,
   logUpgradeAttempt,
-} from '../../src/lib/report';
+} from '../../src/libs/report';
 import { SummaryReport } from '../../src/models/types';
 
 describe('SummaryReport Shape and Content', () => {

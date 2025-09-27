@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { filterStableVersions } from '../../src/lib/semver-utils';
+import { filterStableVersions } from '../../src/libs/semver-utils';
 import {
   detectCustomRegistry,
   fetchPackageVersions,

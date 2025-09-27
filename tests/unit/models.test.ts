@@ -12,13 +12,13 @@ describe('Data Models', () => {
         name: 'lodash',
         section: 'dependencies',
         currentVersion: '^4.17.21',
-        availableNewer: ['4.17.22', '4.17.23'],
+        availableNewers: ['4.17.22', '4.17.23'],
       };
 
       expect(dep.name).toBe('lodash');
       expect(dep.section).toBe('dependencies');
       expect(dep.currentVersion).toBe('^4.17.21');
-      expect(dep.availableNewer).toHaveLength(2);
+      expect(dep.availableNewers).toHaveLength(2);
     });
 
     it('should enforce valid section enum', () => {
@@ -30,7 +30,7 @@ describe('Data Models', () => {
           name: 'test',
           section: section,
           currentVersion: '1.0.0',
-          availableNewer: [],
+          availableNewers: [],
         };
         expect(validSections).toContain(dep.section);
       });

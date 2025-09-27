@@ -3,7 +3,7 @@ import {
   filterStableVersions,
   preserveOperatorAndBumpVersion,
   sortVersionsNewestToOldest,
-} from '../../src/lib/semver-utils';
+} from '../../src/libs/semver-utils';
 
 describe('Semver Policy', () => {
   it('should preserve ^ operator while bumping min version', () => {

@@ -5,7 +5,7 @@ import {
   logPeerConflict,
   logRegistryWarning,
   logUpgradeAttempt,
-} from '../../src/lib/report';
+} from '../../src/libs/report';
 
 describe('Logs Clarity', () => {
   it('should include dependency name and version in failure messages', () => {
