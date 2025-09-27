@@ -1,14 +1,14 @@
 <!--
 Sync Impact Report
-- Version change: none → 1.0.0
-- Modified principles: n/a (initial ratification)
-- Added sections: Core Principles; Project Constraints; Development Workflow & Quality Gates; Governance
+- Version change: 1.0.0 → 1.1.0
+- Modified principles: added new Principle VI (Test-Driven Development)
+- Added sections: none (new principle added under Core Principles)
 - Removed sections: none
 - Templates requiring updates:
-	- .specify/templates/plan-template.md: ✅ updated to reference Constitution v1.0.0
-	- .specify/templates/spec-template.md: ✅ reviewed (no constitution-version reference)
-	- .specify/templates/tasks-template.md: ✅ reviewed (no constitution-version reference)
-	- .specify/templates/agent-file-template.md: ✅ reviewed (no changes required)
+  - .specify/templates/plan-template.md: ✅ updated to reference Constitution v1.1.0
+  - .specify/templates/spec-template.md: ✅ reviewed (no constitution-version reference)
+  - .specify/templates/tasks-template.md: ✅ reviewed (already enforces TDD in tests-first section)
+  - .specify/templates/agent-file-template.md: ✅ reviewed (no changes required)
 - Follow-up TODOs: none
 -->
 
@@ -60,6 +60,18 @@ migration notes. Feature additions are MINOR, and fixes/chores are PATCH.
 
 Rationale: Predictable releases for consumers.
 
+### VI. Test-Driven Development (NON-NEGOTIABLE)
+
+All new or changed behavior MUST be implemented using TDD:
+
+- Write failing tests first that capture the intended behavior.
+- Implement the minimal code to pass those tests (Red → Green).
+- Refactor safely with tests guarding behavior (Refactor).
+- No feature work is accepted without accompanying tests.
+
+Rationale: TDD improves design, prevents regressions, and ensures
+requirements are executable and verifiable.
+
 ## Project Constraints
 
 - Package Manager: pnpm
@@ -78,6 +90,7 @@ Rationale: Predictable releases for consumers.
 
 ## Development Workflow & Quality Gates
 
+0. TDD: Write failing tests first; follow Red‑Green‑Refactor before merge.
 1. Branch, implement, and keep changes scoped and tested.
 2. Run `pnpm run ci` locally; fix lint, tests, and formatting.
 3. Ensure size-limit passes; if not, justify and plan optimization prior to
@@ -104,5 +117,5 @@ Rationale: Predictable releases for consumers.
   Principles. CI MUST be green. Violations require explicit justification
   and follow-up.
 
-**Version**: 1.0.0 | **Ratified**: 2025-09-27 | **Last Amended**:
+**Version**: 1.1.0 | **Ratified**: 2025-09-27 | **Last Amended**:
 2025-09-27

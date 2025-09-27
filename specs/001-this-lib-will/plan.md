@@ -1,7 +1,8 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: Safe dependency upgrader with fallback
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Branch**: `001-this-lib-will` | **Date**: 2025-09-27 | **Spec**:
+[spec.md](./spec.md) **Input**: Feature specification from
+`/specs/001-this-lib-will/spec.md`
 
 ## Execution Flow (/plan command scope)
 
@@ -26,40 +27,113 @@
 9. STOP - Ready for /tasks command
 ```
 
-**IMPORTANT**: The /plan command STOPS at step 7. Phases 2-4 are executed
+**IMPORTANT**: The /plan command STOPS at step 8. Phases 2-4 are executed
 by other commands:
 
 - Phase 2: /tasks command creates tasks.md
 - Phase 3-4: Implementation execution (manual or via tools)
 
+## Progress Tracking
+
+✅ **Step 1**: Feature spec loaded from input path  
+✅ **Step 2**: Technical context filled with cmd-ts requirement
+integrated  
+✅ **Step 3**: Constitution check completed - PASS (no violations)  
+✅ **Step 4**: Initial constitution evaluation completed  
+✅ **Step 5**: Phase 0 research.md updated with cmd-ts decisions  
+✅ **Step 6**: Phase 1 artifacts generated - data-model.md, quickstart.md,
+contracts/openapi.yaml updated  
+✅ **Step 7**: Post-design constitution re-check - PASS (compliance
+maintained)  
+✅ **Step 8**: Phase 2 planning described below
+
+## Phase 2 Planning (Task Generation Approach)
+
+The /tasks command will generate tasks.md with TDD-ordered implementation
+tasks:
+
+### Implementation Order (TDD Required)
+
+1. **Models & Types**: Define TypeScript interfaces first
+2. **Unit Tests**: Write failing tests for each service/utility
+3. **Core Services**: Implement PackageJsonService, RegistryService,
+   CiRunnerService
+4. **Orchestration**: Implement UpgradeOrchestrator with business logic
+5. **CLI Interface**: Implement cmd-ts command parsing and main entry point
+6. **Integration Tests**: End-to-end workflow validation
+7. **Contract Tests**: Validate against OpenAPI spec
+
+### Testing Strategy
+
+- **Unit Tests**: Mock external dependencies, test service isolation
+- **Integration Tests**: Use fixture package.json files, test real
+  workflows
+- **Contract Tests**: Validate data structures match OpenAPI definitions
+- **TDD Enforcement**: All tests written before implementation per
+  Constitution Principle VI
+
+Ready for /tasks command execution.
+
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from
-research]
+A safe dependency upgrader that lists newer versions from npm registry and
+performs iterative upgrades with CI gating. Features include: fast-path
+admin mode, fallback iterative upgrading, peer dependency conflict
+handling, and comprehensive reporting. CLI interface using cmd-ts library
+for type-safe argument parsing.
 
 ## Technical Context
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS
-CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS
-CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS
-CLARIFICATION] **Project Type**: [single/web/mobile - determines source
-structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec,
-60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory,
-offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or
-NEEDS CLARIFICATION]
+**Language/Version**: TypeScript 5.x, Node.js >= 20  
+**Primary Dependencies**: edit-json-file (typed), semver (typed), shelljs +
+@types/shelljs, cmd-ts for CLI  
+**Storage**: package.json manipulation, backup files for safe operations  
+**Testing**: Vitest (unit/integration/contract), TDD enforced by
+constitution  
+**Target Platform**: Node.js CLI tool, cross-platform (macOS, Linux,
+Windows)  
+**Project Type**: single - npm library with CLI interface  
+**Performance Goals**: Fast dependency analysis, minimal network requests
+to npmjs.org  
+**Constraints**: pnpm-first, ESM-first with CJS compatibility, <10KB bundle
+size per output  
+**Scale/Scope**: Single package.json processing, supports typical Node.js
+project dependency counts
+
+**User Argument Integration**: CLI must use lib cmd-ts (type-driven command
+line argument parser with TypeScript support)
 
 ## Constitution Check
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-[Gates determined based on constitution file]
+**Initial Check (Pre-Phase 0):** ✅ **Principle I** (pnpm-first, Node 20+,
+ESM-first): Compliant - using pnpm, Node >= 20, ESM-first with CJS
+compatibility  
+✅ **Principle II** (Minimal runtime dependencies): Compliant - only
+essential deps: edit-json-file, semver, shelljs, cmd-ts  
+✅ **Principle III** (Automated upgrades): Compliant - this tool enables
+automated dependency upgrades  
+✅ **Principle IV** (Test, lint, size discipline): Compliant - Vitest
+testing, size-limit <10KB enforced  
+✅ **Principle V** (API stability): Compliant - semantic versioning
+planned  
+✅ **Principle VI** (TDD): Compliant - TDD enforced, tests-first
+development required
+
+**Post-Phase 1 Re-check:** ✅ **Service Architecture**: Single project
+structure aligns with constitutional constraints  
+✅ **CLI Design**: cmd-ts provides type safety and superior error
+handling  
+✅ **Testing Strategy**: Unit/integration/contract tests planned for TDD
+compliance  
+✅ **Build System**: Rollup configuration supports <10KB bundle size
+requirement  
+✅ **Dependencies**: All runtime deps justified and minimal
+(edit-json-file, semver, shelljs, cmd-ts)
+
+**Status**: PASS - Design maintains constitutional compliance. No
+violations introduced in Phase 1.
 
 ## Project Structure
 
@@ -86,18 +160,21 @@ specs/[###-feature]/
 
 _Based on Constitution v1.1.0 - See `/memory/constitution.md`_
 
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+**Structure Decision**: Single project (npm library with CLI)
 
-src/ ├── models/ ├── services/ ├── cli/ └── lib/
+```
+src/
+├── models/              # TypeScript interfaces and types
+├── services/            # Core business logic services
+├── cli/                 # Command-line interface using cmd-ts
+└── lib/                 # Shared utilities and helpers
 
-tests/ ├── contract/ ├── integration/ └── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-
-backend/ ├── src/ │ ├── models/ │ ├── services/ │ └── api/ └── tests/
-
-frontend/ ├── src/ │ ├── components/ │ ├── pages/ │ └── services/ └──
 tests/
+├── contract/            # API contract tests
+├── integration/         # End-to-end workflow tests
+├── unit/                # Isolated component tests
+└── fixtures/            # Test data and mock packages
+```
 
 # [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
 
