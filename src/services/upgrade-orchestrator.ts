@@ -2,7 +2,7 @@ import { gt } from 'semver';
 import {
   preserveOperatorAndBumpVersion,
   sortVersionsNewestToOldest,
-} from '../lib/semver-utils.js';
+} from '../libs/semver-utils.js';
 import { Dependency, SummaryReport } from '../models/types.js';
 import { CiRunnerService } from './ci-runner.js';
 import { PackageJsonService } from './package-json.js';

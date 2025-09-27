@@ -1,5 +1,5 @@
 import { boolean, command, flag, option, run, string } from 'cmd-ts';
-import { formatSummaryReport } from '../lib/report.js';
+import { formatSummaryReport } from '../libs/report.js';
 import { UpgradeOrchestrator } from '../services/upgrade-orchestrator.js';
 
 export const upgradeCommand = command({
