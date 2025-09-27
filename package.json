@@ -90,7 +90,6 @@
     "@types/edit-json-file": "^1.7.3",
     "@types/node": "^24.5.2",
     "@types/semver": "^7.7.1",
-    "@types/shelljs": "^0.8.17",
     "@typescript-eslint/eslint-plugin": "^8.44.1",
     "@typescript-eslint/parser": "^8.44.1",
     "@vitest/coverage-v8": "^3.2.4",
@@ -114,8 +113,11 @@
     ]
   },
   "dependencies": {
+    "cmd-ts": "^0.14.2",
     "edit-json-file": "^1.8.1",
-    "semver": "^7.7.2",
-    "shelljs": "^0.10.0"
-  }
+    "execa": "^9.6.0",
+    "semver": "^7.7.2"
+  },
+  "optionalDependencies": {},
+  "devDependencies.@eslint/js": "^10.0.0"
 }

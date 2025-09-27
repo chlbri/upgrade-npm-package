@@ -2,7 +2,7 @@ export interface Dependency {
   name: string;
   section: 'dependencies' | 'devDependencies' | 'optionalDependencies';
   currentVersion: string;
-  availableNewer: string[];
+  availableNewers: string[];
 }
 
 export interface AttemptResult {

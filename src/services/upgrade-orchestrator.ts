@@ -35,7 +35,7 @@ export class UpgradeOrchestrator {
     const warnings = detectCustomRegistry();
 
     // Fast-path: try ci:admin first
-    const adminResult = this.ciRunner.runCiAdmin();
+    const adminResult = await this.ciRunner.runCiAdmin();
     if (adminResult.success) {
       return {
         upgraded: [],
@@ -94,7 +94,7 @@ export class UpgradeOrchestrator {
   }> {
     const backup = this.packageJsonService.backup();
 
-    for (const candidateVersion of dep.availableNewer) {
+    for (const candidateVersion of dep.availableNewers) {
       try {
         // Update package.json
         const newVersionString = preserveOperatorAndBumpVersion(
@@ -108,13 +108,13 @@ export class UpgradeOrchestrator {
         );
 
         // Sync lockfile and run CI
-        const syncResult = this.ciRunner.syncLockfile();
+        const syncResult = await this.ciRunner.syncLockfile();
         if (!syncResult.success) {
           this.packageJsonService.restore(backup);
           continue;
         }
 
-        const ciResult = this.ciRunner.runCi();
+        const ciResult = await this.ciRunner.runCi();
 
         if (ciResult.success) {
           // Success! Keep this version
@@ -170,7 +170,7 @@ export class UpgradeOrchestrator {
             sortVersionsNewestToOldest(stableVersions);
 
           // Find versions newer than current
-          const availableNewer = sortedVersions.filter(version => {
+          const availableNewers = sortedVersions.filter(version => {
             try {
               return gt(version, currentVersion.replace(/^[\^~]/, ''));
             } catch {
@@ -178,12 +178,12 @@ export class UpgradeOrchestrator {
             }
           });
 
-          if (availableNewer.length > 0) {
+          if (availableNewers.length > 0) {
             dependencies.push({
               name,
               section,
               currentVersion,
-              availableNewer,
+              availableNewers,
             });
           }
         } catch (error) {

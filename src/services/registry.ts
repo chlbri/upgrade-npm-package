@@ -1,4 +1,4 @@
-const NPM_REGISTRY_URL = 'https://registry.npmjs.org';
+export const NPM_REGISTRY_URL = 'https://registry.npmjs.org';
 
 /**
  * Fetch package versions from npm registry
@@ -13,7 +13,12 @@ export async function fetchPackageVersions(
     }
 
     const data = await response.json();
-    return Object.keys(data.versions || {});
+    const versions = Object.entries(data.versions || {})
+      .filter(([, obj]) => {
+        return (obj as any).deprecated === undefined;
+      })
+      .map(([version]) => version);
+    return versions;
   } catch (error) {
     throw new Error(`Registry error for ${packageName}: ${error}`);
   }
