@@ -1,7 +1,8 @@
-# Implementation Plan: [FEATURE]
+# Implementation Plan: Enhanced Dependency State Management and Rollback
 
-**Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
-**Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+**Branch**: `002-spec-validate-bullet` | **Date**: 2025-09-28 | **Spec**:
+[./spec.md](./spec.md) **Input**: Feature specification from
+`/specs/002-spec-validate-bullet/spec.md`
 
 ## Execution Flow (/plan command scope)
 
@@ -24,6 +25,32 @@
    → Update Progress Tracking: Post-Design Constitution Check
 8. Plan Phase 2 → Describe task generation approach (DO NOT create tasks.md)
 9. STOP - Ready for /tasks command
+
+## Phase 2 Task Generation Approach
+
+### Task Breakdown Strategy
+The `/tasks` command will generate implementation tasks based on the research findings, data model, and contracts from Phase 1. Tasks will be organized by:
+
+1. **Core Service Development**: DependencyStateManager, PackageManagerAdapter services
+2. **CLI Enhancement**: Updated command interface supporting simplified script configuration
+3. **State Management**: Atomic operations with rollback mechanisms
+4. **Integration Testing**: Additional scripts positioned for testing validation
+5. **Documentation**: Implementation guides and API documentation
+
+### Task Prioritization
+- **Priority 1**: State capture and rollback foundation (blocking for all other features)
+- **Priority 2**: Package manager abstraction and auto-detection logic
+- **Priority 3**: Simplified script configuration implementation
+- **Priority 4**: CLI interface updates and integration testing
+- **Priority 5**: Documentation and edge case handling
+
+### Constitutional Compliance Integration
+Each task will include constitutional validation steps ensuring:
+- String union types for all configuration options
+- Rollback safety validation in state management operations
+- TDD approach with contract-first test development
+
+This approach ensures systematic implementation while maintaining the constitutional principles established in the research phase.
 ```
 
 **IMPORTANT**: The /plan command STOPS at step 7. Phases 2-4 are executed
@@ -34,32 +61,64 @@ by other commands:
 
 ## Summary
 
-[Extract from feature spec: primary requirement + technical approach from
-research]
+Enhanced dependency state management system with rollback capabilities for
+the upgrade-npm-package CLI tool. The system captures initial dependency
+states (including semver signs), performs atomic upgrades with configurable
+script validation, and automatically rollbacks on failures. Key technical
+changes: script configuration simplification (user provides only test and
+build scripts, install scripts auto-generated from package manager type),
+repositioning of additional scripts for testing rather than setup, and
+enhanced dependency state tracking with rollback safety.
 
 ## Technical Context
 
-**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS
-CLARIFICATION]  
-**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS
-CLARIFICATION]  
-**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]  
-**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]  
-**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS
-CLARIFICATION] **Project Type**: [single/web/mobile - determines source
-structure]  
-**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec,
-60 fps or NEEDS CLARIFICATION]  
-**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory,
-offline-capable or NEEDS CLARIFICATION]  
-**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or
-NEEDS CLARIFICATION]
+**Language/Version**: TypeScript 5.x with Node.js >= 20 (ESM-first)  
+**Primary Dependencies**: cmd-ts, execa, semver parsing utilities  
+**Storage**: In-memory state management during upgrade process (no
+persistent storage)  
+**Testing**: Vitest (unit and integration tests with TDD approach)  
+**Target Platform**: Node.js CLI tool supporting npm, yarn, pnpm, bun  
+**Project Type**: Single library project - CLI tool with service layer
+architecture  
+**Performance Goals**: State capture < 5 seconds, rollback operations < 30
+seconds  
+**Constraints**: Atomic operations only, rollback safety mandatory,
+constitutional compliance  
+**Scale/Scope**: CLI tool processing typical Node.js project dependencies
+(10-500 packages)
+
+**User Input Details**:
+
+- Script configuration simplified: User provides only test and build
+  scripts
+- Install scripts must be auto-generated based on detected package manager
+  type
+- Additional scripts repositioned for testing purposes within
+  upgradeWithRollback method (not setup)
+- Enhanced rollback mechanism with dependency state tracking including
+  semver signs
 
 ## Constitution Check
 
 _GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
-[Gates determined based on constitution file]
+**✅ Constitutional Compliance Assessment**:
+
+- **Principle I (pnpm-first, Node 20+, ESM-first)**: ✅ PASS - TypeScript
+  5.x with Node.js >= 20, ESM-first architecture
+- **Principle II (Minimal runtime dependencies)**: ✅ PASS - cmd-ts, execa,
+  semver are minimal necessary dependencies
+- **Principle VI (Test-Driven Development)**: ✅ PASS - TDD approach
+  specified for all new functionality
+- **Principle VII (Rollback Safety & Atomic Operations)**: ✅ PASS - Core
+  feature requirement, full rollback capabilities with
+  DependencyStateManager
+- **Principle VIII (String Union Types over Enums)**: ✅ PASS - Package
+  manager types as string unions ('npm' | 'yarn' | 'pnpm' | 'bun')
+- **CLI Requirements**: ✅ PASS - Enhanced mode with configurable scripts,
+  rollback enabled by default
+
+**No violations detected** - Feature aligns with constitutional principles.
 
 ## Project Structure
 
@@ -84,40 +143,39 @@ specs/[###-feature]/
   not include Option labels.
 -->
 
-_Based on Constitution v1.1.0 - See `/memory/constitution.md`_
+_Based on Constitution v1.2.0 - See `/memory/constitution.md`_
 
-# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
-
-src/ ├── models/ ├── services/ ├── cli/ └── lib/
-
-tests/ ├── contract/ ├── integration/ └── unit/
-
-# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
-
-backend/ ├── src/ │ ├── models/ │ ├── services/ │ └── api/ └── tests/
-
-frontend/ ├── src/ │ ├── components/ │ ├── pages/ │ └── services/ └──
-tests/
-
-# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
-
-api/ └── [same as backend above]
-
-ios/ or android/ └── [platform-specific structure: feature modules, UI
-flows, platform tests]
+**Single Project Structure (Selected)**:
 
 ```
+src/
+├── models/          # Type definitions, interfaces
+├── services/        # Core business logic services
+├── cli/            # Command-line interface
+└── libs/           # Utility libraries
 
-**Structure Decision**: [Document the selected structure and reference the real
-directories captured above]
+tests/
+├── contract/       # API contract validation tests
+├── integration/    # End-to-end workflow tests
+└── unit/          # Isolated component tests
+```
+
+**Structure Decision**: Single project structure selected as this is a CLI
+library tool. The existing structure aligns perfectly with constitutional
+requirements and feature needs - services layer for business logic
+(DependencyStateManager, ScriptExecutionService), CLI layer for user
+interface, and comprehensive test coverage across contract, integration,
+and unit levels.
 
 ## Phase 0: Outline & Research
+
 1. **Extract unknowns from Technical Context** above:
    - For each NEEDS CLARIFICATION → research task
    - For each dependency → best practices task
    - For each integration → patterns task
 
 2. **Generate and dispatch research agents**:
+
 ```
 
 For each unknown in Technical Context: Task: "Research {unknown} for
@@ -127,6 +185,7 @@ for {tech} in {domain}"
 ```
 
 3. **Consolidate findings** in `research.md` using format:
+
 - Decision: [what was chosen]
 - Rationale: [why chosen]
 - Alternatives considered: [what else evaluated]
@@ -134,50 +193,63 @@ for {tech} in {domain}"
 **Output**: research.md with all NEEDS CLARIFICATION resolved
 
 ## Phase 1: Design & Contracts
-*Prerequisites: research.md complete*
+
+_Prerequisites: research.md complete_
 
 1. **Extract entities from feature spec** → `data-model.md`:
+
 - Entity name, fields, relationships
 - Validation rules from requirements
 - State transitions if applicable
 
 2. **Generate API contracts** from functional requirements:
+
 - For each user action → endpoint
 - Use standard REST/GraphQL patterns
 - Output OpenAPI/GraphQL schema to `/contracts/`
 
 3. **Generate contract tests** from contracts:
+
 - One test file per endpoint
 - Assert request/response schemas
 - Tests must fail (no implementation yet)
 
 4. **Extract test scenarios** from user stories:
+
 - Each story → integration test scenario
 - Quickstart test = story validation steps
 
 5. **Update agent file incrementally** (O(1) operation):
+
 - Run `.specify/scripts/bash/update-agent-context.sh copilot`
-  **IMPORTANT**: Execute it exactly as specified above. Do not add or remove any arguments.
+  **IMPORTANT**: Execute it exactly as specified above. Do not add or
+  remove any arguments.
 - If exists: Add only NEW tech from current plan
 - Preserve manual additions between markers
 - Update recent changes (keep last 3)
 - Keep under 150 lines for token efficiency
 - Output to repository root
 
-**Output**: data-model.md, /contracts/*, failing tests, quickstart.md, agent-specific file
+**Output**: data-model.md, /contracts/\*, failing tests, quickstart.md,
+agent-specific file
 
 ## Phase 2: Task Planning Approach
-*This section describes what the /tasks command will do - DO NOT execute during /plan*
+
+_This section describes what the /tasks command will do - DO NOT execute
+during /plan_
 
 **Task Generation Strategy**:
+
 - Load `.specify/templates/tasks-template.md` as base
-- Generate tasks from Phase 1 design docs (contracts, data model, quickstart)
+- Generate tasks from Phase 1 design docs (contracts, data model,
+  quickstart)
 - Each contract → contract test task [P]
 - Each entity → model creation task [P]
 - Each user story → integration test task
 - Implementation tasks to make tests pass
 
 **Ordering Strategy**:
+
 - TDD order: Tests before implementation
 - Dependency order: Models before services before UI
 - Mark [P] for parallel execution (independent files)
@@ -187,38 +259,48 @@ for {tech} in {domain}"
 **IMPORTANT**: This phase is executed by the /tasks command, NOT by /plan
 
 ## Phase 3+: Future Implementation
-*These phases are beyond the scope of the /plan command*
 
-**Phase 3**: Task execution (/tasks command creates tasks.md)
-**Phase 4**: Implementation (execute tasks.md following constitutional principles)
-**Phase 5**: Validation (run tests, execute quickstart.md, performance validation)
+_These phases are beyond the scope of the /plan command_
+
+**Phase 3**: Task execution (/tasks command creates tasks.md) **Phase 4**:
+Implementation (execute tasks.md following constitutional principles)
+**Phase 5**: Validation (run tests, execute quickstart.md, performance
+validation)
 
 ## Complexity Tracking
-*Fill ONLY if Constitution Check has violations that must be justified*
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
-| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
+_Fill ONLY if Constitution Check has violations that must be justified_
 
+| Violation                  | Why Needed         | Simpler Alternative Rejected Because |
+| -------------------------- | ------------------ | ------------------------------------ |
+| [e.g., 4th project]        | [current need]     | [why 3 projects insufficient]        |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient]  |
 
 ## Progress Tracking
-*This checklist is updated during execution flow*
+
+_This checklist is updated during execution flow_
 
 **Phase Status**:
-- [ ] Phase 0: Research complete (/plan command)
+
+- [x] Phase 0: Research complete (/plan command)
 - [ ] Phase 1: Design complete (/plan command)
-- [ ] Phase 2: Task planning complete (/plan command - describe approach only)
+- [ ] Phase 2: Task planning complete (/plan command - describe approach
+      only)
 - [ ] Phase 3: Tasks generated (/tasks command)
 - [ ] Phase 4: Implementation complete
 - [ ] Phase 5: Validation passed
 
 **Gate Status**:
-- [ ] Initial Constitution Check: PASS
+
+- [x] Initial Constitution Check: PASS
 - [ ] Post-Design Constitution Check: PASS
 - [ ] All NEEDS CLARIFICATION resolved
 - [ ] Complexity deviations documented
 
 ---
-*Based on Constitution v1.1.0 - See `/memory/constitution.md`*
+
+_Based on Constitution v1.2.0 - See `/memory/constitution.md`_
+
+```
+
 ```

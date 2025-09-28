@@ -1,0 +1,338 @@
+openapi: 3.1.0
+info:
+  title: Enhanced Dependency State Management API
+  description:
+    Internal API contracts for dependency state management and rollback
+    functionality
+  version: 1.0.0
+
+components:
+  schemas:
+    DependencyState:
+      type: object
+      required:
+        - packageName
+        - version
+        - semverSign
+        - dependencyType
+      properties:
+        packageName:
+          type: string
+          pattern: '^[a-z0-9]([a-z0-9\-_])*$'
+          description: Valid npm package name
+          example: 'lodash'
+        version:
+          type: string
+          pattern: '^\d+\.\d+\.\d+(-[\w\.-]+)?(\+[\w\.-]+)?$'
+          description: Semantic version string without semver sign
+          example: '4.17.21'
+        semverSign:
+          type: string
+          enum: ['^', '~', 'exact']
+          description: Semver sign prefix
+          example: '^'
+        dependencyType:
+          type: string
+          enum: ['dependencies', 'devDependencies', 'optionalDependencies']
+          description: Package.json dependency section
+          example: 'dependencies'
+
+    ScriptConfig:
+      type: object
+      required:
+        - type
+        - command
+      properties:
+        type:
+          type: string
+          enum: ['npm', 'yarn', 'pnpm', 'bun', 'shell']
+          description: Script execution type
+          example: 'npm'
+        command:
+          type: string
+          minLength: 1
+          description: Command to execute
+          example: 'test'
+        timeout:
+          type: integer
+          minimum: 1000
+          maximum: 3600000
+          default: 300000
+          description: Timeout in milliseconds
+          example: 300000
+
+    UpgradeOptions:
+      type: object
+      required:
+        - testScript
+        - buildScript
+      properties:
+        workingDir:
+          type: string
+          description: Working directory path
+          example: '/path/to/project'
+        dryRun:
+          type: boolean
+          default: false
+          description: Perform dry run without changes
+        verbose:
+          type: boolean
+          default: false
+          description: Enable verbose logging
+        admin:
+          type: boolean
+          default: false
+          description: Enable admin mode
+        testScript:
+          $ref: '#/components/schemas/ScriptConfig'
+          description: Required test script
+        buildScript:
+          $ref: '#/components/schemas/ScriptConfig'
+          description: Required build script
+        packageManager:
+          type: string
+          enum: ['npm', 'yarn', 'pnpm', 'bun']
+          description:
+            Package manager type for auto-generating install commands
+          example: 'pnpm'
+        installScript:
+          $ref: '#/components/schemas/ScriptConfig'
+          description: Auto-generated install script (read-only)
+        additionalScripts:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScriptConfig'
+          description: Additional optional scripts to execute
+        rollbackOnFailure:
+          type: boolean
+          default: true
+          description: Enable automatic rollback on failure
+
+    PackageUpgrade:
+      type: object
+      required:
+        - packageName
+        - oldVersion
+        - newVersion
+        - strategy
+        - rollbackAvailable
+      properties:
+        packageName:
+          type: string
+          description: Package name
+          example: 'lodash'
+        oldVersion:
+          type: string
+          description: Previous version
+          example: '4.17.20'
+        newVersion:
+          type: string
+          description: Upgraded version
+          example: '4.17.21'
+        strategy:
+          type: string
+          enum: ['patch', 'minor', 'major']
+          description: Upgrade strategy used
+          example: 'patch'
+        rollbackAvailable:
+          type: boolean
+          description: Whether rollback is available
+          example: true
+
+    UpgradeResult:
+      type: object
+      required:
+        - upgraded
+        - warnings
+        - errors
+      properties:
+        upgraded:
+          type: array
+          items:
+            $ref: '#/components/schemas/PackageUpgrade'
+          description: Successfully upgraded packages
+        warnings:
+          type: array
+          items:
+            type: string
+          description: Non-fatal warnings
+          example: ['Skipping react-router: peer dependency conflict']
+        errors:
+          type: array
+          items:
+            type: string
+          description: Error messages
+          example: ['Failed to upgrade lodash: CI failed']
+        rollbackPerformed:
+          type: boolean
+          description: Whether rollback was performed
+          example: false
+        initialState:
+          type: array
+          items:
+            $ref: '#/components/schemas/DependencyState'
+          description: Captured initial state (if rollback performed)
+        rollbackErrors:
+          type: array
+          items:
+            type: string
+          description: Errors during rollback process
+
+    ExecutionResult:
+      type: object
+      required:
+        - success
+        - exitCode
+        - stdout
+        - stderr
+        - duration
+      properties:
+        success:
+          type: boolean
+          description: Whether execution succeeded
+          example: true
+        exitCode:
+          type: integer
+          description: Process exit code
+          example: 0
+        stdout:
+          type: string
+          description: Standard output
+          example: 'All tests passed'
+        stderr:
+          type: string
+          description: Standard error output
+          example: ''
+        duration:
+          type: integer
+          description: Execution duration in milliseconds
+          example: 5000
+
+    UpgradeError:
+      type: object
+      required:
+        - type
+        - message
+        - rollbackAvailable
+      properties:
+        type:
+          type: string
+          enum:
+            - 'STATE_CAPTURE_FAILED'
+            - 'SCRIPT_EXECUTION_FAILED'
+            - 'ROLLBACK_FAILED'
+            - 'VALIDATION_FAILED'
+            - 'PACKAGE_MANAGER_ERROR'
+          description: Error category
+          example: 'SCRIPT_EXECUTION_FAILED'
+        message:
+          type: string
+          description: Human-readable error message
+          example: 'Test script failed with exit code 1'
+        details:
+          type: object
+          description: Additional error details
+        rollbackAvailable:
+          type: boolean
+          description: Whether rollback is available
+          example: true
+
+paths:
+  /api/dependency-state:
+    post:
+      summary: Capture initial dependency state
+      operationId: captureInitialState
+      responses:
+        '200':
+          description: State captured successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DependencyState'
+        '400':
+          description: Invalid project structure
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpgradeError'
+
+    get:
+      summary: Get current dependency state
+      operationId: getCurrentState
+      responses:
+        '200':
+          description: Current state retrieved
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DependencyState'
+
+  /api/dependency-state/rollback:
+    post:
+      summary: Rollback to initial state
+      operationId: rollbackToInitialState
+      responses:
+        '200':
+          description: Rollback completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionResult'
+        '400':
+          description: Rollback failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpgradeError'
+
+  /api/scripts/execute:
+    post:
+      summary: Execute configured script
+      operationId: executeScript
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScriptConfig'
+      responses:
+        '200':
+          description: Script executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionResult'
+        '400':
+          description: Script execution failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpgradeError'
+
+  /api/upgrade:
+    post:
+      summary: Perform package upgrade with rollback support
+      operationId: upgradeWithRollback
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpgradeOptions'
+      responses:
+        '200':
+          description: Upgrade completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpgradeResult'
+        '400':
+          description: Upgrade failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UpgradeError'

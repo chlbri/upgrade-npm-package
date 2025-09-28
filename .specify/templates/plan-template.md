@@ -84,7 +84,7 @@ specs/[###-feature]/
   not include Option labels.
 -->
 
-_Based on Constitution v1.1.0 - See `/memory/constitution.md`_
+_Basé sur Constitution v1.3.0 - Voir `/memory/constitution.md`_
 
 # [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
 
@@ -220,5 +220,5 @@ for {tech} in {domain}"
 - [ ] Complexity deviations documented
 
 ---
-*Based on Constitution v1.1.0 - See `/memory/constitution.md`*
+*Basé sur Constitution v1.3.0 - Voir `/memory/constitution.md`*
 ```

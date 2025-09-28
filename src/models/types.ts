@@ -20,3 +20,76 @@ export interface SummaryReport {
   remainingOutdated: string[];
   warnings: string[];
 }
+
+// Enhanced Dependency State Management Types
+export interface DependencyState {
+  packageName: string; // e.g., "lodash"
+  version: string; // e.g., "4.17.21" (without semver sign)
+  semverSign: '^' | '~' | 'exact';
+  dependencyType:
+    | 'dependencies'
+    | 'devDependencies'
+    | 'optionalDependencies';
+}
+
+export interface ScriptConfig {
+  type: 'npm' | 'yarn' | 'pnpm' | 'bun' | 'shell';
+  command: string; // Command to execute
+  timeout?: number; // Optional timeout in milliseconds (default: 300000)
+}
+
+export interface UpgradeOptions {
+  // Existing options
+  workingDir?: string;
+  dryRun?: boolean;
+  verbose?: boolean;
+  admin?: boolean;
+
+  // Required inner scripts (3 mandatory)
+  testScript: ScriptConfig;
+  buildScript: ScriptConfig;
+  installScript: ScriptConfig;
+
+  // Optional additional scripts
+  additionalScripts?: ScriptConfig[];
+  rollbackOnFailure?: boolean; // Default: true
+}
+
+export interface PackageUpgrade {
+  packageName: string;
+  oldVersion: string;
+  newVersion: string;
+  rollbackAvailable: boolean; // New field
+}
+
+export interface UpgradeResult {
+  // Existing fields
+  upgraded: PackageUpgrade[];
+  warnings: string[];
+  errors: string[];
+
+  // New fields for this feature
+  rollbackPerformed?: boolean;
+  initialState?: DependencyState[];
+  rollbackErrors?: string[];
+}
+
+export interface ExecutionResult {
+  success: boolean;
+  exitCode: number;
+  stdout: string;
+  stderr: string;
+  duration: number;
+}
+
+export interface UpgradeError {
+  type:
+    | 'STATE_CAPTURE_FAILED'
+    | 'SCRIPT_EXECUTION_FAILED'
+    | 'ROLLBACK_FAILED'
+    | 'VALIDATION_FAILED'
+    | 'PACKAGE_MANAGER_ERROR';
+  message: string;
+  details?: any;
+  rollbackAvailable: boolean;
+}

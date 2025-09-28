@@ -1,121 +1,203 @@
 <!--
 Sync Impact Report
-- Version change: 1.0.0 → 1.1.0
-- Modified principles: added new Principle VI (Test-Driven Development)
-- Added sections: none (new principle added under Core Principles)
+- Version change: 1.2.0 → 1.3.0
+- Modified principles: Principe VII (CLI Requirements - Configuration Simplifiée des Scripts)
+- Added sections: Principe IX (Configuration Simplifiée des Scripts)
 - Removed sections: none
 - Templates requiring updates:
-  - .specify/templates/plan-template.md: ✅ updated to reference Constitution v1.1.0
+  - .specify/templates/plan-template.md: ✅ updated to reference Constitution v1.3.0
   - .specify/templates/spec-template.md: ✅ reviewed (no constitution-version reference)
-  - .specify/templates/tasks-template.md: ✅ reviewed (already enforces TDD in tests-first section)
+  - .specify/templates/tasks-template.md: ✅ reviewed (enforces simplified script approach)
   - .specify/templates/agent-file-template.md: ✅ reviewed (no changes required)
 - Follow-up TODOs: none
 -->
 
-# upgrade-npm-package Constitution
+# Constitution upgrade-npm-package
 
-## Core Principles
+## Principes Fondamentaux
 
-### I. pnpm-first, Node 20+, ESM-first library
+### I. Bibliothèque pnpm-first, Node 20+, ESM-first
 
-This package is built and maintained as an npm library using pnpm. Runtime
-targets MUST support Node.js >= 20. The codebase is ESM-first (package.json
-"type":"module"), with CJS output provided for compatibility as needed by
-the build.
+Ce package est construit et maintenu comme une bibliothèque npm utilisant
+pnpm. L'environnement d'exécution DOIT supporter Node.js >= 20. La base de
+code est ESM-first (package.json "type":"module"), avec une sortie CJS
+fournie pour la compatibilité selon les besoins de la construction.
 
-Rationale: Ensures modern language features, faster installs, and
-compatibility with current tooling while keeping consumers unblocked.
+Justification : Assure des fonctionnalités de langage modernes, des
+installations plus rapides, et la compatibilité avec les outils actuels
+tout en gardant les consommateurs non bloqués.
 
-### II. Minimal runtime dependencies, zero-cost defaults
+### II. Dépendances d'exécution minimales, valeurs par défaut zéro-coût
 
-Runtime dependencies MUST be kept minimal or zero when possible. Prefer
-devDependencies for tooling and build-time features. Optional functionality
-MAY use optionalDependencies, but MUST degrade gracefully when not present.
+Les dépendances d'exécution DOIVENT être maintenues minimales ou nulles
+quand possible. Préférer devDependencies pour les outils et fonctionnalités
+de build. Les fonctionnalités optionnelles PEUVENT utiliser
+optionalDependencies, mais DOIVENT se dégrader gracieusement quand elles ne
+sont pas présentes.
 
-Rationale: Reduces attack surface, improves install speed, and simplifies
-maintenance.
+Justification : Réduit la surface d'attaque, améliore la vitesse
+d'installation, et simplifie la maintenance.
 
-### III. Automated upgrades, including optional dependencies
+### III. Mises à jour automatisées, incluant les dépendances optionnelles
 
-The `upgrade` script uses `pnpm upgrade --latest` and MUST upgrade all
-declared dependencies, including `optionalDependencies` when present. After
-any upgrade, CI MUST pass (lint, tests, size-limit) before merge.
+Le script `upgrade` utilise `pnpm upgrade --latest` et DOIT mettre à jour
+toutes les dépendances déclarées, incluant `optionalDependencies` quand
+présentes. Après toute mise à jour, CI DOIT passer (lint, tests,
+size-limit) avant fusion.
 
-Rationale: Keeps the library current and secure without drift; optional
-features stay compatible.
+Justification : Maintient la bibliothèque à jour et sécurisée sans dérive ;
+les fonctionnalités optionnelles restent compatibles.
 
-### IV. Test, lint, and size discipline
+### IV. Discipline de test, lint, et taille
 
-All changes MUST include tests (Vitest). ESLint + Prettier formatting MUST
-pass. Built artifacts MUST respect the size limit budget (currently 10 KB
-per output file) enforced by size-limit. Changes exceeding budget require
-explicit justification and a follow-up optimization task before release.
+Tous les changements DOIVENT inclure des tests (Vitest). Le formatage
+ESLint + Prettier DOIT passer. Les artefacts construits DOIVENT respecter
+le budget de limite de taille (actuellement 10 KB par fichier de sortie)
+imposé par size-limit. Les changements dépassant le budget nécessitent une
+justification explicite et une tâche d'optimisation de suivi avant la
+publication.
 
-Rationale: Guards quality, regression safety, and consumer performance.
+Justification : Protège la qualité, la sécurité de régression, et les
+performances pour les consommateurs.
 
-### V. API stability and semantic versioning
+### V. Stabilité de l'API et versioning sémantique
 
-Public API changes follow semver. Breaking changes require a MAJOR bump and
-migration notes. Feature additions are MINOR, and fixes/chores are PATCH.
+Les changements d'API publique suivent semver. Les changements cassants
+nécessitent un bump MAJOR et des notes de migration. Les ajouts de
+fonctionnalités sont MINOR, et les corrections/tâches sont PATCH.
 
-Rationale: Predictable releases for consumers.
+Justification : Publications prévisibles pour les consommateurs.
 
-### VI. Test-Driven Development (NON-NEGOTIABLE)
+### VI. Développement Piloté par les Tests (NON-NÉGOCIABLE)
 
-All new or changed behavior MUST be implemented using TDD:
+Tout nouveau comportement ou changé DOIT être implémenté en utilisant TDD :
 
-- Write failing tests first that capture the intended behavior.
-- Implement the minimal code to pass those tests (Red → Green).
-- Refactor safely with tests guarding behavior (Refactor).
-- No feature work is accepted without accompanying tests.
+- Écrire d'abord des tests qui échouent et capturent le comportement
+  souhaité.
+- Implémenter le code minimal pour faire passer ces tests (Rouge → Vert).
+- Refactoriser en sécurité avec des tests protégeant le comportement
+  (Refactorisation).
+- Aucun travail de fonctionnalité n'est accepté sans tests
+  d'accompagnement.
 
-Rationale: TDD improves design, prevents regressions, and ensures
-requirements are executable and verifiable.
+Justification : TDD améliore la conception, prévient les régressions, et
+assure que les exigences sont exécutables et vérifiables.
 
-## Project Constraints
+### VII. Sécurité de Rollback et Opérations Atomiques
 
-- Package Manager: pnpm
-- Language/Module: TypeScript, ESM-first with CJS compatibility via Rollup
-- Node Engine: >= 20 (enforced via package.json engines)
-- Build: Rollup configuration in `rollup.config.mjs`
-- Tests: Vitest (unit and coverage) with helpers from `@bemedev/*`
-- Lint/Format: ESLint + Prettier
-- Size Budget: size-limit capped at 10 KB per bundle output
-- Scripts of record:
-  - `build`: clean `lib/` then bundle with Rollup
-  - `ci`: offline install, lint, test, format, pretty-quick
-  - `upgrade`: `pnpm upgrade --latest` (MUST include optionalDependencies
-    when present)
-  - `rinit`/`rinit:off`: reinstall/reset workflows
+Toutes les opérations qui changent l'état DOIVENT être atomiques avec des
+capacités complètes de rollback :
 
-## Development Workflow & Quality Gates
+- Capturer l'état initial avant toute modification en utilisant
+  DependencyStateManager.
+- Chaque opération de mise à jour DOIT être réversible via
+  rollbackToState().
+- Les opérations échouées DOIVENT automatiquement déclencher un rollback
+  (rollbackOnFailure: true par défaut).
+- Les modifications d'état sont considérées comme des unités atomiques -
+  soit réussir complètement soit revenir complètement.
+- Les erreurs de rollback DOIVENT être capturées et rapportées séparément
+  des erreurs d'opération.
 
-0. TDD: Write failing tests first; follow Red‑Green‑Refactor before merge.
-1. Branch, implement, and keep changes scoped and tested.
-2. Run `pnpm run ci` locally; fix lint, tests, and formatting.
-3. Ensure size-limit passes; if not, justify and plan optimization prior to
-   release.
-4. Open a PR. Reviewers MUST check compliance with all Core Principles and
-   Constraints.
-5. For dependency updates (including optionals), ensure no regressions. If
-   a regression is found, pin or revert with clear rationale and follow-up
-   tasks.
+Justification : Assure la stabilité du projet et prévient les états
+partiels de mise à jour qui pourraient laisser la base de code dans un état
+incohérent ou cassé.
 
-## Governance
+### VIII. Types Union String plutôt qu'Enums
 
-- Authority: This Constitution supersedes ad-hoc practices for this
-  repository.
-- Amendments: Proposed via PR. Each amendment MUST include rationale,
-  impact assessment, and, if changing principles, a version bump per policy
-  below.
-- Versioning (constitution):
-  - MAJOR: Backward-incompatible governance/principle removals or
-    redefinitions.
-  - MINOR: New principle/section added or materially expanded guidance.
-  - PATCH: Clarifications, wording, typo fixes, non-semantic refinements.
-- Compliance: All PRs MUST include a checklist referencing the Core
-  Principles. CI MUST be green. Violations require explicit justification
-  and follow-up.
+Les définitions de types DOIVENT utiliser des types union string au lieu
+des enums TypeScript :
 
-**Version**: 1.1.0 | **Ratified**: 2025-09-27 | **Last Amended**:
-2025-09-27
+- Utiliser `'npm' | 'yarn' | 'pnpm' | 'bun' ` au lieu de enum
+  PackageManagerType.
+- Utiliser `'dependencies' | 'devDependencies' | 'optionalDependencies'` au
+  lieu de enum DependencyType.
+- Les unions string fournissent une meilleure sérialisation JSON, un
+  débogage plus simple, et un comportement runtime plus propre.
+- Exception : Les enums basés sur des nombres sont acceptables quand ils
+  représentent de vraies constantes numériques.
+
+Justification : Simplifie le comportement runtime, améliore
+l'interopérabilité JSON, et réduit la taille du bundle tout en maintenant
+la sécurité de type.
+
+### IX. Configuration Simplifiée des Scripts
+
+L'architecture de configuration des scripts DOIT suivre le principe de
+"convention over configuration" :
+
+- Les utilisateurs ne fournissent que DEUX scripts : --test-script et
+  --build-script
+- Les scripts d'installation DOIVENT être auto-générés basés sur le type de
+  gestionnaire de packages détecté
+- La détection automatique des gestionnaires de packages se base sur les
+  fichiers de lock présents
+- Les scripts additionnels sont positionnés pour les tests d'intégration,
+  PAS pour la configuration initiale
+- Le mode enhanced nécessite seulement les deux scripts utilisateur,
+  l'installation étant auto-configurée
+
+Justification : Réduit la charge cognitive utilisateur, élimine les erreurs
+de configuration, et suit le principe de convention over configuration tout
+en maintenant la flexibilité nécessaire.
+
+## Contraintes du Projet
+
+- Gestionnaire de Packages : pnpm
+- Langage/Module : TypeScript, ESM-first avec compatibilité CJS via Rollup
+- Moteur Node : >= 20 (imposé via package.json engines)
+- Build : Configuration Rollup dans `rollup.config.mjs`
+- Tests : Vitest (unit et coverage) avec helpers de `@bemedev/*`
+- Lint/Format : ESLint + Prettier
+- Budget de Taille : size-limit plafonné à 10 KB par sortie de bundle
+- Scripts de référence :
+  - `build` : nettoyer `lib/` puis bundler avec Rollup
+  - `ci` : installation offline, lint, test, format, pretty-quick
+  - `upgrade` : `pnpm upgrade --latest` (DOIT inclure optionalDependencies
+    quand présentes)
+  - `rinit`/`rinit:off` : workflows de réinstallation/reset
+- Exigences CLI :
+  - Le mode enhanced nécessite SEULEMENT deux scripts obligatoires :
+    --test-script, --build-script
+  - Les scripts d'installation sont auto-générés basés sur le gestionnaire
+    de packages détecté
+  - Le mécanisme de rollback DOIT être activé par défaut (--rollback=true)
+  - Le type de gestionnaire de packages DOIT être configurable (npm, yarn,
+    pnpm, bun, shell)
+  - L'exécution de scripts DOIT supporter des timeouts configurables
+    (défaut : 300000ms)
+
+## Workflow de Développement et Portails de Qualité
+
+0. TDD : Écrire d'abord des tests qui échouent ; suivre
+   Rouge-Vert-Refactorisation avant fusion.
+1. Brancher, implémenter, et garder les changements délimités et testés.
+2. Exécuter `pnpm run ci` localement ; corriger lint, tests, et formatage.
+3. S'assurer que size-limit passe ; sinon, justifier et planifier
+   l'optimisation avant la publication.
+4. Ouvrir une PR. Les reviewers DOIVENT vérifier la conformité avec tous
+   les Principes Fondamentaux et Contraintes.
+5. Pour les mises à jour de dépendances (incluant optionnelles), s'assurer
+   qu'il n'y a pas de régressions. Si une régression est trouvée, épingler
+   ou revenir avec une justification claire et des tâches de suivi.
+
+## Gouvernance
+
+- Autorité : Cette Constitution supersède les pratiques ad-hoc pour ce
+  dépôt.
+- Amendements : Proposés via PR. Chaque amendement DOIT inclure une
+  justification, une évaluation d'impact, et, si les principes changent, un
+  bump de version selon la politique ci-dessous.
+- Versioning (constitution) :
+  - MAJOR : Suppressions ou redéfinitions de gouvernance/principes
+    incompatibles en arrière.
+  - MINOR : Nouveau principe/section ajouté ou guidance matériellement
+    étendue.
+  - PATCH : Clarifications, formulation, corrections de fautes de frappe,
+    affinements non-sémantiques.
+- Conformité : Toutes les PRs DOIVENT inclure une checklist référençant les
+  Principes Fondamentaux. CI DOIT être vert. Les violations nécessitent une
+  justification explicite et un suivi.
+
+**Version** : 1.3.0 | **Ratifiée** : 2025-09-27 | **Dernière Modification**
+: 2025-09-28
