@@ -1,147 +1,120 @@
-# Phase 0 Research: Safe dependency upgrader with fallback
+# Recherche Phase 0 : Outil sûr de mise à niveau des dépendances avec fallback
 
-Date: 2025-09-27 Branch: 001-this-lib-will Input Spec:
+Date : 2025-09-27 Branche : 001-this-lib-will Entrée :
 /Users/chlbri/Documents/github/NODE JS/Librairies
 bemedev/upgrade-npm-package/specs/001-this-lib-will/spec.md
 
-## Unknowns Extracted from Technical Context
+## Points inconnus extraits du contexte technique
 
-- Project Type: Library/CLI in Node.js (TypeScript, pnpm) → inferred from
-  repo
-- Primary Dependency: edit-json-file → required by FR-006
-- Testing: Vitest → per Constitution
-- Package Manager: pnpm → per Constitution
-- Target Platform: Node.js >= 20 → per Constitution
-- Performance Goals: Not explicitly defined → keep operations bounded to
-  direct deps
-- Constraints: Stable-only versions, npmjs.org registry, no peer auto-fix
+- Type de projet : Bibliothèque/CLI en Node.js (TypeScript, pnpm) → inféré depuis le dépôt
+- Dépendance principale : edit-json-file → requis par FR-006
+- Tests : Vitest → selon la Constitution
+- Gestionnaire de paquets : pnpm → selon la Constitution
+- Plateforme cible : Node.js >= 20 → selon la Constitution
+- Objectifs de performance : non définis explicitement → limiter les opérations aux dépendances directes
+- Contraintes : versions stables uniquement, registre npmjs.org, pas d'ajustement automatique des peers
 
-All critical ambiguities are addressed in Clarifications of the feature
-spec.
+Toutes les ambiguïtés critiques ont été résolues dans la section Clarifications de la spécification.
 
-## Decisions and Rationale
+## Décisions et justification
 
-1. Stable-only (exclude prereleases)
+1. Versions stables uniquement (exclure les pré-releases)
 
-- Decision: Exclude prereleases from listing and attempts.
-- Rationale: Aligns with risk-averse upgrade path; reduces CI flakiness.
-- Alternatives: Allow prereleases behind a flag (deferred option).
+- Décision : Exclure les pré-releases de la liste et des tentatives.
+- Justification : Conforme à une stratégie d'upgrade prudente ; réduit la fragilité de la CI.
+- Alternatives : Autoriser les pré-releases derrière un flag (option différée).
 
-2. Registry policy
+2. Politique du registre
 
-- Decision: Use npmjs.org only for queries and upgrades; warn if custom
-  .npmrc is detected.
-- Rationale: Ensures deterministic behavior; avoids private registry
-  surprises.
-- Alternatives: Respect .npmrc but increases variability across
-  environments.
+- Décision : Utiliser uniquement npmjs.org pour les requêtes et les mises à jour ; avertir si un .npmrc personnalisé est détecté.
+- Justification : Assure un comportement déterministe ; évite les surprises liées aux registres privés.
+- Alternatives : Respecter .npmrc mais augmente la variabilité entre environnements.
 
-3. Peer dependency conflicts
+3. Conflits de peer dependencies
 
-- Decision: On CI failure rooted in peer constraints, revert and try the
-  next lower version; do not modify peerDependencies automatically.
-- Rationale: Prevents cascading changes and unbounded scope.
-- Alternatives: Auto-adjust peers (rejected due to scope creep and risk).
+- Décision : Si la CI échoue à cause de contraintes de peer, revenir à la version précédente et essayer la suivante ; ne pas modifier automatiquement les peerDependencies.
+- Justification : Empêche des changements en cascade et un périmètre non maîtrisé.
+- Alternatives : Ajuster automatiquement les peers (rejeté pour cause de complexité et de risque).
 
-4. Semver operator preservation
+4. Préservation de l'opérateur semver
 
-- Decision: Preserve existing operator (^, ~) and bump minimal version only
-  on accepted upgrades.
-- Rationale: Keeps consumer intent and update semantics intact.
-- Alternatives: Pin exact versions (rejected; violates FR-012 policy).
+- Décision : Préserver l'opérateur existant (^, ~) et augmenter uniquement la version minimale lors d'une mise à jour acceptée.
+- Justification : Conserve l'intention du consommateur et la sémantique des mises à jour.
+- Alternatives : Épingler des versions exactes (rejeté ; contre FR-012).
 
-5. Upgrade scope
+5. Portée des mises à jour
 
-- Decision: Direct dependencies only: dependencies, devDependencies,
-  optionalDependencies.
-- Rationale: Keeps behavior predictable and bounded; transitive updates are
-  incidental via lockfile refresh.
-- Alternatives: Force overrides/resolutions (rejected as out-of-scope per
-  FR-013).
+- Décision : Dépendances directes uniquement : dependencies, devDependencies, optionalDependencies.
+- Justification : Comportement prévisible et borné ; les mises à jour transitives sont incidentes via le rafraîchissement du lockfile.
+- Alternatives : Forcer des overrides/resolutions (rejeté comme hors-scope selon FR-013).
 
-6. Tooling choices
+6. Choix d'outillage
 
-- Decision: Use edit-json-file for atomic package.json edits; use pnpm for
-  install/lockfile sync.
-- Rationale: Matches FR-006 and Constitution’s pnpm-first policy.
-- Alternatives: Manual fs edits or other package managers (rejected by
-  constraints).
+- Décision : Utiliser edit-json-file pour des modifications atomiques de package.json ; utiliser pnpm pour la synchronisation du lockfile.
+- Justification : Conformité à FR-006 et à la politique pnpm-first de la Constitution.
+- Alternatives : Modifications manuelles sur le fs ou autres gestionnaires de paquets (rejeté par les contraintes).
 
-## Patterns and Best Practices
+## Modèles et bonnes pratiques
 
-- Version fetching: Use npm registry APIs; filter prereleases (/-/v1/search
-  or package metadata) and sort by semver.
-- Backoff strategy: Exponential backoff on transient network errors; clear
-  error reporting after retries.
-- Idempotency: Cache or detect already-accepted upgrades to skip rework
-  when re-running.
-- Logging: Structured output summarizing per-dependency attempts and
-  outcomes.
+- Récupération des versions : Utiliser les API du registre npm ; filtrer les pré-releases (/-/v1/search ou métadonnées de package) et trier par semver.
+- Stratégie de backoff : Backoff exponentiel sur les erreurs réseau transitoires ; rapport d'erreur clair après plusieurs tentatives.
+- Idempotence : Mettre en cache ou détecter les mises à jour déjà acceptées pour éviter de retravailler lors d'exécutions répétées.
+- Journalisation : Sortie structurée résumant les tentatives et résultats par dépendance.
 
-## Alternatives Considered
+## Alternatives examinées
 
-- Auto-fix peerDependencies: Too risky; conflicts with FR-011.
-- Include prereleases: Increases breakage; conflicts with clarified policy.
-- Transitive upgrades via overrides: Out-of-scope; conflicts with FR-013.
+- Correction automatique des peerDependencies : trop risqué ; en conflit avec FR-011.
+- Inclure les pré-releases : augmente les risques de casse ; en conflit avec la politique clarifiée.
+- Mises à jour transitives via overrides : hors-scope ; en conflit avec FR-013.
 
-## Outcome
+## Résultat
 
-All NEEDS CLARIFICATION resolved per spec; proceed to Phase 1.
+Toutes les marques [NEEDS CLARIFICATION] ont été résolues conformément à la spécification ; passer à la Phase 1.
 
 ---
 
-Based on Constitution v1.1.0
+Basé sur la Constitution v1.1.0
 
-# Research (Phase 0)
+# Recherche (Phase 0)
 
-Date: 2025-09-27
+Date : 2025-09-27
 
-## Known Decisions (from Clarifications)
+## Décisions connues (d'après les clarifications)
 
-- Registry: npmjs.org only
-- Prereleases: excluded (stable-only)
-- Peer conflicts: do not auto-adjust; skip to next lower
-- Version operator: preserve existing (^/~) and bump minimal version
-- Scope: direct dependencies only (deps/dev/optional); accept incidental
-  lockfile changes
+- Registre : npmjs.org uniquement
+- Pré-releases : exclus (stable-only)
+- Conflits de peers : ne pas ajuster automatiquement ; passer à la version inférieure suivante
+- Opérateur de version : préserver l'existant (^/~) et augmenter la version minimale
+- Portée : dépendances directes uniquement (deps/dev/optional) ; accepter les changements incidentels du lockfile
 
-## Open Questions (none blocking)
+## Questions ouvertes (aucune bloquante)
 
-- Performance metrics: no hard targets; aim for reasonable CI duration
+- Métriques de performance : pas d'objectifs stricts ; viser une durée CI raisonnable
 
 ## Notes
 
-- Ensure all imports have TypeScript types. If a library lacks types, add
-  corresponding @types package.
-- Use shelljs to run `pnpm run ci` and `pnpm run ci:admin` from TypeScript.
+- S'assurer que tous les imports disposent de types TypeScript. Si une librairie n'a pas de types, ajouter le package @types correspondant.
+- Utiliser shelljs pour exécuter `pnpm run ci` et `pnpm run ci:admin` depuis TypeScript.
 
-## Additional Technical Decisions (Phase 0 Update)
+## Décisions techniques additionnelles (mise à jour Phase 0)
 
-### CLI Architecture with cmd-ts
+### Architecture CLI avec cmd-ts
 
-- **Decision**: Use cmd-ts for command-line interface as specified by user
-  requirement
-- **Rationale**: Provides type-driven argument parsing, superior error
-  handling, and aligns with TypeScript-first approach
-- **Implementation**: Single main command with options for admin mode,
-  dry-run, and output formatting
+- **Décision** : Utiliser cmd-ts pour l'interface en ligne de commande comme spécifié par l'utilisateur
+- **Justification** : Fournit un parsing d'arguments piloté par les types, une gestion d'erreur supérieure, et s'aligne sur l'approche TypeScript-first
+- **Implémentation** : Commande principale unique avec options pour le mode admin, le dry-run, et le format de sortie
 
-### Service Layer Design
+### Conception de la couche de services
 
-- **PackageJsonService**: Safe JSON manipulation with backup/restore using
-  edit-json-file
-- **RegistryService**: npm registry API integration with stable version
-  filtering
-- **CiRunnerService**: Shell command execution via shelljs with proper exit
-  code handling
-- **UpgradeOrchestrator**: Main workflow coordination implementing
-  fast-path and iterative modes
+- **PackageJsonService** : Manipulation sûre du JSON avec backup/restore en utilisant edit-json-file
+- **RegistryService** : Intégration API du registre npm avec filtrage des versions stables
+- **CiRunnerService** : Exécution de commandes shell via shelljs avec gestion correcte des codes de sortie
+- **UpgradeOrchestrator** : Coordination du workflow principal implémentant les modes fast-path et itératif
 
-### Error Handling Strategy
+### Stratégie de gestion des erreurs
 
-- **Graceful degradation**: Continue processing remaining packages on
-  individual failures
-- **Atomic operations**: Backup before changes, restore on CI failure
-- **Structured logging**: Clear progress reporting and failure analysis
+- **Dégradation gracieuse** : Continuer le traitement des autres paquets en cas d'échecs individuels
+- **Opérations atomiques** : Sauvegarde avant modification, restauration en cas d'échec CI
+- **Journalisation structurée** : Rapport clair de progression et d'analyse des échecs
 
-Phase 0 complete - proceeding to Phase 1 design artifacts.
+Phase 0 terminée - passage à la Phase 1.

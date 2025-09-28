@@ -1,78 +1,70 @@
-# Quickstart: Safe dependency upgrader with fallback
+# Démarrage rapide : Outil sûr de mise à niveau des dépendances avec fallback
 
-This quickstart outlines the end-to-end validation scenarios from the spec.
+Ce guide rapide décrit les scénarios de validation de bout en bout issus de la spécification.
 
-## Admin Fast Path
+## Chemin rapide Admin
 
-1. Ensure project has scripts `ci` and `ci:admin`.
-2. Run the tool in admin mode.
-3. Expected: The tool runs `pnpm run ci:admin`. If it passes, dependencies
-   are updated accordingly (per project policy) and process exits without
-   per-version iteration.
-4. Output: Summary report with upgraded/unchanged packages, warnings if any
-   (e.g., custom registry).
+1. Vérifier que le projet possède les scripts `ci` et `ci:admin`.
+2. Exécuter l'outil en mode admin.
+3. Attendu : L'outil exécute `pnpm run ci:admin`. Si ce script réussit, les dépendances sont mises à jour selon la politique du projet et le processus se termine sans itération par version.
+4. Sortie : Rapport récapitulatif avec paquets mis à jour/inchangés et éventuels avertissements (ex. registre personnalisé).
 
-## Iterative Upgrade Mode
+## Mode d'upgrade itératif
 
-1. Run the tool in iterative mode.
-2. The tool lists all direct dependencies (including optionalDependencies)
-   and fetches newer stable versions from npmjs.org.
-3. For each package with newer versions, the tool attempts upgrades from
-   newest to oldest newer, running `pnpm run ci` after each attempt.
-4. On CI pass: accept upgrade (preserve semver operator, bump minimal
-   version), sync lockfile.
-5. On CI fail: revert to previous package.json/lockfile state for this
-   package and try next lower version.
-6. After processing all packages, the tool prints a summary report:
-   upgraded, skipped (with reasons), remaining outdated, and warnings
-   (e.g., custom registry detected).
+1. Exécuter l'outil en mode itératif.
+2. L'outil liste toutes les dépendances directes (incluant optionalDependencies) et récupère les versions stables plus récentes depuis npmjs.org.
+3. Pour chaque paquet ayant des versions plus récentes, l'outil tente les mises à jour du plus récent au plus ancien, en exécutant `pnpm run ci` après chaque tentative.
+4. Si la CI passe : accepter la mise à jour (préserver l'opérateur semver, augmenter la version minimale), synchroniser le lockfile.
+5. Si la CI échoue : revenir à l'état précédent de package.json/lockfile pour ce paquet et essayer la version suivante.
+6. Après traitement de tous les paquets, l'outil affiche un rapport récapitulatif : mis à jour, ignorés (avec raisons), restant obsolètes, et avertissements (ex. registre personnalisé détecté).
 
-## Edge Cases
+## Cas limites
 
-- No newer versions: tool reports “up to date” and exits.
-- Pre-releases excluded unless a future flag is present.
-- Peer conflicts cause revert and continue; no automatic peer adjustments.
-- Only direct dependencies are considered.
+- Pas de versions plus récentes : l'outil indique « à jour » et sort.
+- Les pré-releases sont exclues sauf si un flag futur est présent.
+- Les conflits de peer entraînent un revert puis la poursuite ; pas d'ajustement automatique des peers.
+- Seules les dépendances directes sont prises en compte.
 
 ---
 
-Based on Constitution v1.1.0# Quickstart (Phase 1)
+Basé sur la Constitution v1.1.0
 
-1. Ensure Node >= 20 and pnpm installed.
-2. Run fast path:
+# Démarrage rapide (Phase 1)
+
+1. S'assurer que Node >= 20 et pnpm est installé.
+2. Exécuter le chemin rapide :
    - `pnpm run ci:admin`
-   - If green, stop. Otherwise continue to iterative mode.
-3. Iterative mode:
-   - List newer stable versions for direct deps (deps/dev/optional) from
-     npmjs.org
-   - For each dep: try newest → oldest newer
-     - After each bump: `pnpm run ci`
-     - On fail: revert and try next lower
-     - On pass: persist and continue
-4. Summary report: upgraded, skipped (with reasons), warnings.
+   - Si vert, arrêter. Sinon passer au mode itératif.
+3. Mode itératif :
+   - Lister les versions stables plus récentes pour les dépendances directes (deps/dev/optional) depuis npmjs.org
+   - Pour chaque dépendance : essayer du plus récent → au plus ancien
+     - Après chaque bump : `pnpm run ci`
+     - En cas d'échec : revert et essayer la version inférieure
+     - En cas de succès : persister et continuer
+4. Rapport récapitulatif : mis à jour, ignorés (avec raisons), avertissements.
 
-## CLI Usage with cmd-ts
+## Utilisation CLI avec cmd-ts
 
 ```bash
-# Basic usage
+# Utilisation de base
 upgrade-npm-package
 
-# Admin mode (fast-path)
+# Mode admin (chemin rapide)
 upgrade-npm-package --admin
 
-# Dry run mode
+# Mode dry-run
 upgrade-npm-package --dry-run
 
-# Verbose output
+# Sortie verbeuse
 upgrade-npm-package --verbose
 
-# Specify working directory
-upgrade-npm-package --working-dir /path/to/project
+# Spécifier le répertoire de travail
+upgrade-npm-package --working-dir /chemin/vers/projet
 ```
 
-**Features:**
+**Fonctionnalités :**
 
-- Type-safe argument parsing via cmd-ts
-- Clear error messages and help text
-- Progress reporting during operations
-- Structured summary output
+- Parsing d'arguments typé via cmd-ts
+- Messages d'erreur et aide clairs
+- Reporting de progression pendant les opérations
+- Sortie récapitulative structurée

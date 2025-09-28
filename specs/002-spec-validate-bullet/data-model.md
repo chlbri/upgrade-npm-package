@@ -1,18 +1,18 @@
-# Data Model: Enhanced Dependency State Management
+# Modèle de données : Gestion améliorée de l'état des dépendances
 
-**Date**: 2025-09-28  
-**Feature**: 002-spec-validate-bullet
+**Date** : 2025-09-28  
+**Fonctionnalité** : 002-spec-validate-bullet
 
-## Core Types
+## Types principaux
 
 ### DependencyState
 
-Represents the state of a single dependency at a point in time.
+Représente l'état d'une seule dépendance à un moment donné.
 
 ```typescript
 interface DependencyState {
-  packageName: string; // e.g., "lodash"
-  version: string; // e.g., "4.17.21" (without semver sign)
+  packageName: string; // ex. : "lodash"
+  version: string; // ex. : "4.17.21" (sans signe semver)
   semverSign: '^' | '~' | 'exact';
   dependencyType:
     | 'dependencies'
@@ -21,71 +21,71 @@ interface DependencyState {
 }
 ```
 
-**Validation Rules**:
+**Règles de validation** :
 
-- `packageName`: Must be non-empty string matching npm package name format
-- `version`: Must be valid semver version string
-- `semverSign`: Must be one of the allowed semver prefixes
-- `dependencyType`: Must match package.json dependency section
+- `packageName` : Doit être une chaîne non vide correspondant au format de nom de package npm
+- `version` : Doit être une chaîne de version semver valide
+- `semverSign` : Doit être l'un des préfixes semver autorisés
+- `dependencyType` : Doit correspondre à une section de dépendances de package.json
 
 ### ScriptConfig
 
-Configuration for executable scripts during upgrade process.
+Configuration pour les scripts exécutables pendant le processus de mise à niveau.
 
 ```typescript
 interface ScriptConfig {
   type: 'npm' | 'yarn' | 'pnpm' | 'bun' | 'shell';
-  command: string; // Command to execute
-  timeout?: number; // Optional timeout in milliseconds (default: 300000)
+  command: string; // Commande à exécuter
+  timeout?: number; // Timeout optionnel en millisecondes (défaut : 300000)
 }
 ```
 
 ### UpgradeOptions
 
-Enhanced configuration for upgrade operations.
+Configuration améliorée pour les opérations de mise à niveau.
 
 ```typescript
 interface UpgradeOptions {
-  // Existing options
+  // Options existantes
   workingDir?: string;
   dryRun?: boolean;
   verbose?: boolean;
   admin?: boolean;
 
-  // Required user-provided scripts (2 mandatory)
+  // Scripts fournis par l'utilisateur requis (2 obligatoires)
   testScript: ScriptConfig;
   buildScript: ScriptConfig;
 
-  // Auto-generated script (user cannot override)
-  installScript?: ScriptConfig; // Generated from packageManager type
+  // Script généré automatiquement (l'utilisateur ne peut pas le remplacer)
+  installScript?: ScriptConfig; // Généré à partir du type packageManager
 
-  // Package manager configuration
+  // Configuration du gestionnaire de packages
   packageManager?: 'npm' | 'yarn' | 'pnpm' | 'bun';
 
-  // Optional additional scripts (for integration testing)
+  // Scripts supplémentaires optionnels (pour les tests d'intégration)
   additionalScripts?: ScriptConfig[];
-  rollbackOnFailure?: boolean; // Default: true
+  rollbackOnFailure?: boolean; // Défaut : true
 }
 ```
 
-**Validation Rules**:
+**Règles de validation** :
 
-- `workingDir`: Must be valid directory path if provided
-- Script configs: Must pass ScriptConfig validation
-- `rollbackOnFailure`: Boolean flag for rollback behavior
+- `workingDir` : Doit être un chemin de répertoire valide si fourni
+- Configurations de scripts : Doivent passer la validation ScriptConfig
+- `rollbackOnFailure` : Indicateur booléen pour le comportement de rollback
 
 ### UpgradeResult
 
-Enhanced result object with rollback information.
+Objet résultat amélioré avec informations de rollback.
 
 ```typescript
 interface UpgradeResult {
-  // Existing fields
+  // Champs existants
   upgraded: PackageUpgrade[];
   warnings: string[];
   errors: string[];
 
-  // New fields for this feature
+  // Nouveaux champs pour cette fonctionnalité
   rollbackPerformed?: boolean;
   initialState?: DependencyState[];
   rollbackErrors?: string[];
@@ -95,13 +95,13 @@ interface PackageUpgrade {
   packageName: string;
   oldVersion: string;
   newVersion: string;
-  rollbackAvailable: boolean; // New field
+  rollbackAvailable: boolean; // Nouveau champ
 }
 ```
 
 ### ExecutionResult
 
-Result of command execution.
+Résultat de l'exécution de commande.
 
 ```typescript
 interface ExecutionResult {
@@ -113,15 +113,14 @@ interface ExecutionResult {
 }
 ```
 
-## Key Relationships
+## Relations clés
 
-- `UpgradeOrchestrator` manages dependency state and orchestrates upgrade
-  process
-- `ScriptConfig` defines executable commands for validation
-- `DependencyState` tracks package versions and semver signs
-- `UpgradeResult` contains outcome and rollback information
+- `UpgradeOrchestrator` gère l'état des dépendances et orchestre le processus de mise à niveau
+- `ScriptConfig` définit les commandes exécutables pour la validation
+- `DependencyState` suit les versions des packages et les signes semver
+- `UpgradeResult` contient le résultat et les informations de rollback
 
-## Error Handling
+## Gestion des erreurs
 
 ### UpgradeError
 
@@ -139,11 +138,12 @@ interface UpgradeError {
 }
 ```
 
-## Core Validation Rules
+## Règles de validation principales
 
-- All dependency states must have valid semver versions
-- Semver signs must be consistently applied
-- Package names must be valid npm identifiers
-- Initial state must be captured before any modifications
-- Script execution must respect timeout constraints
-- Rollback must restore exact initial state
+- Tous les états de dépendances doivent avoir des versions semver valides
+- Les signes semver doivent être appliqués de manière cohérente
+- Les noms de packages doivent être des identifiants npm valides
+- L'état initial doit être capturé avant toute modification
+- L'exécution des scripts doit respecter les contraintes de timeout
+- Le rollback doit restaurer l'état initial exact
+

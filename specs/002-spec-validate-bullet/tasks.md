@@ -1,209 +1,209 @@
-# Tasks: Enhanced Dependency State Management and Rollback
+# Tâches : Gestion améliorée de l'état des dépendances et rollback
 
-**Input**: Design documents from `/specs/002-spec-validate-bullet/`
-**Prerequisites**: plan.md (required), research.md, data-model.md,
+**Entrée** : Documents de conception de `/specs/002-spec-validate-bullet/`
+**Prérequis** : plan.md (requis), research.md, data-model.md,
 contracts/, quickstart.md
 
-## Execution Flow (main)
+## Flux d'exécution (principal)
 
 ```
-1. Load plan.md from feature directory ✅
-   → Extract: TypeScript 5.x, Node.js >= 20, cmd-ts, execa, vitest
-   → Structure: Single project (CLI tool with service layer)
-2. Load design documents ✅:
-   → data-model.md: DependencyState, ScriptConfig, UpgradeOptions, UpgradeResult
-   → contracts/openapi.yaml: API contracts for state management and rollback
-   → research.md: Package manager adapters, rollback mechanisms
-   → quickstart.md: 5 test scenarios with rollback validation
-3. Generate tasks by category ✅:
-   → Setup: Enhanced types, existing service modifications
-   → Tests: Contract tests, integration scenarios from quickstart
-   → Core: DependencyStateManager, enhanced orchestrator
-   → Integration: CLI with 3 required scripts, rollback flow
-   → Polish: Unit tests, error handling, performance validation
-4. Apply task rules ✅:
-   → Different files = mark [P] for parallel
-   → Enhanced services = sequential (same files)
-   → Tests before implementation (TDD)
-5. Numbered tasks T001-T020 ✅
-6. Dependencies mapped ✅
-7. Parallel execution examples included ✅
+1. Charger plan.md depuis le répertoire de fonctionnalité ✅
+  → Extraire : TypeScript 5.x, Node.js >= 20, cmd-ts, execa, vitest
+  → Structure : Projet unique (outil CLI avec couche de services)
+2. Charger les documents de conception ✅ :
+  → data-model.md : DependencyState, ScriptConfig, UpgradeOptions, UpgradeResult
+  → contracts/openapi.yaml : Contrats API pour la gestion d'état et le rollback
+  → research.md : Adaptateurs de gestionnaire de packages, mécanismes de rollback
+  → quickstart.md : 5 scénarios de test avec validation de rollback
+3. Générer des tâches par catégorie ✅ :
+  → Configuration : Types améliorés, modifications de services existants
+  → Tests : Tests de contrat, scénarios d'intégration depuis quickstart
+  → Noyau : DependencyStateManager, orchestrateur amélioré
+  → Intégration : CLI avec 3 scripts requis, flux de rollback
+  → Polissage : Tests unitaires, gestion d'erreurs, validation de performance
+4. Appliquer les règles de tâches ✅ :
+  → Fichiers différents = marquer [P] pour parallèle
+  → Services améliorés = séquentiel (mêmes fichiers)
+  → Tests avant l'implémentation (TDD)
+5. Tâches numérotées T001-T020 ✅
+6. Dépendances mappées ✅
+7. Exemples d'exécution parallèle inclus ✅
 ```
 
-## Format: `[ID] [P?] Description`
+## Format : `[ID] [P?] Description`
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- Include exact file paths in descriptions
+- **[P]** : Peut s'exécuter en parallèle (fichiers différents, pas de dépendances)
+- Inclure les chemins de fichiers exacts dans les descriptions
 
-## Path Conventions
+## Conventions de chemin
 
-Single project structure (CLI tool):
+Structure de projet unique (outil CLI) :
 
-- **Core**: `src/models/`, `src/services/`, `src/cli/`, `src/lib/`
-- **Tests**: `tests/contract/`, `tests/integration/`, `tests/unit/`
+- **Noyau** : `src/models/`, `src/services/`, `src/cli/`, `src/lib/`
+- **Tests** : `tests/contract/`, `tests/integration/`, `tests/unit/`
 
-## Phase 3.1: Setup & Type Definitions
+## Phase 3.1 : Configuration et définitions de types
 
-- [x] **T001** [P] Enhanced types in `src/models/types.ts` - Add
-      DependencyState, ScriptConfig, UpgradeOptions interfaces with string
-      union types (no enums)
-- [x] **T002** [P] Configure project dependencies - Ensure cmd-ts, execa
-      are available for enhanced functionality
-- [x] **T003** [P] Update ESLint configuration for new type patterns and
-      simplified interfaces
+- [x] **T001** [P] Types améliorés dans `src/models/types.ts` - Ajouter
+    les interfaces DependencyState, ScriptConfig, UpgradeOptions avec des
+    types union de chaînes (pas d'enums)
+- [x] **T002** [P] Configurer les dépendances du projet - S'assurer que cmd-ts, execa
+    sont disponibles pour les fonctionnalités améliorées
+- [x] **T003** [P] Mettre à jour la configuration ESLint pour les nouveaux patterns de types et
+    les interfaces simplifiées
 
-## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
+## Phase 3.2 : Tests d'abord (TDD) ⚠️ DOIT ÊTRE TERMINÉ AVANT 3.3
 
-**CRITICAL: These tests MUST be written and MUST FAIL before ANY
-implementation**
+**CRITIQUE : Ces tests DOIVENT être écrits et DOIVENT ÉCHOUER avant TOUTE
+implémentation**
 
-- [x] **T004** [P] Contract test dependency state capture in
-      `tests/contract/dependency-state.spec.ts` - Test captureInitialState
-      API contract from OpenAPI spec
-- [x] **T005** [P] Contract test rollback mechanism in
-      `tests/contract/rollback-mechanism.spec.ts` - Test
-      rollbackToInitialState API contract
-- [x] **T006** [P] Contract test script execution in
-      `tests/contract/script-execution.spec.ts` - Test executeScript API
-      contract with 3 required scripts
-- [x] **T007** [P] Integration test enhanced dependency tracking in
-      `tests/integration/enhanced-dependency-tracking.test.ts` -
-      Filesystem-based dependency state management tests
-- [x] **T008** [P] Integration test script execution with rollback in
-      `tests/integration/script-execution-rollback.test.ts` - End-to-end
-      script execution and automatic rollback tests
-- [x] **T009** [P] Unit test dependency state manager in
-      `tests/unit/dependency-state-manager.test.ts` - Comprehensive unit
-      tests for DependencyStateManager class
-- [x] **T010** [P] Unit test package manager adapter in
-      `tests/unit/package-manager-adapter.test.ts` - Tests for
-      npm/yarn/pnpm/bun abstraction layer
-- [x] **T011** [P] Unit test script execution service in
-      `tests/unit/script-execution.test.ts` - Detailed unit tests for
-      script execution with timeout and error handling
+- [x] **T004** [P] Test de contrat de capture d'état des dépendances dans
+    `tests/contract/dependency-state.spec.ts` - Tester le contrat API
+    captureInitialState depuis la spécification OpenAPI
+- [x] **T005** [P] Test de contrat du mécanisme de rollback dans
+    `tests/contract/rollback-mechanism.spec.ts` - Tester le contrat API
+    rollbackToInitialState
+- [x] **T006** [P] Test de contrat d'exécution de script dans
+    `tests/contract/script-execution.spec.ts` - Tester le contrat API
+    executeScript avec 3 scripts requis
+- [x] **T007** [P] Test d'intégration de suivi amélioré des dépendances dans
+    `tests/integration/enhanced-dependency-tracking.test.ts` -
+    Tests de gestion d'état des dépendances basés sur le système de fichiers
+- [x] **T008** [P] Test d'intégration d'exécution de script avec rollback dans
+    `tests/integration/script-execution-rollback.test.ts` - Tests de bout en bout
+    d'exécution de script et de rollback automatique
+- [x] **T009** [P] Test unitaire du gestionnaire d'état des dépendances dans
+    `tests/unit/dependency-state-manager.test.ts` - Tests unitaires complets pour
+    la classe DependencyStateManager
+- [x] **T010** [P] Test unitaire de l'adaptateur de gestionnaire de packages dans
+    `tests/unit/package-manager-adapter.test.ts` - Tests pour la couche
+    d'abstraction npm/yarn/pnpm/bun
+- [x] **T011** [P] Test unitaire du service d'exécution de script dans
+    `tests/unit/script-execution.test.ts` - Tests unitaires détaillés pour
+    l'exécution de script avec timeout et gestion d'erreurs
 
-## Phase 3.3: Core Implementation (ONLY after tests are failing)
+## Phase 3.3 : Implémentation noyau (UNIQUEMENT après que les tests échouent)
 
-- [ ] **T012** [P] DependencyStateManager service in
-      `src/services/dependency-state-manager.ts` - Core state management
-      with capture, rollback, cleanup methods
-- [ ] **T013** Enhanced CiRunnerService in `src/services/ci-runner.ts` -
-      Add 3 required script configuration support (testScript, buildScript,
-      installScript)
-- [ ] **T014** Enhanced PackageJsonService in
-      `src/services/package-json.ts` - Add state capture/restore with
-      semver sign preservation
-- [ ] **T015** Enhanced UpgradeOrchestrator in
-      `src/services/upgrade-orchestrator.ts` - Integrate
-      DependencyStateManager and rollback mechanism
-- [x] **T016** Enhanced CLI in `src/cli/upgrade.ts` - Add --test-script,
-      --build-script required options (install-script auto-generated from
-      package manager)
-- [x] **T017** Enhanced reporting in `src/lib/report.ts` - Add rollback
-      status and error reporting
-- [x] **T018** Enhanced semver utilities in `src/lib/semver-utils.ts` - Add
-      semver sign parsing and preservation
+- [ ] **T012** [P] Service DependencyStateManager dans
+    `src/services/dependency-state-manager.ts` - Gestion d'état noyau
+    avec méthodes de capture, rollback, nettoyage
+- [ ] **T013** Service CiRunnerService amélioré dans `src/services/ci-runner.ts` -
+    Ajouter le support de configuration pour 3 scripts requis (testScript, buildScript,
+    installScript)
+- [ ] **T014** Service PackageJsonService amélioré dans
+    `src/services/package-json.ts` - Ajouter la capture/restauration d'état avec
+    préservation des signes semver
+- [ ] **T015** Orchestrateur UpgradeOrchestrator amélioré dans
+    `src/services/upgrade-orchestrator.ts` - Intégrer
+    DependencyStateManager et le mécanisme de rollback
+- [x] **T016** CLI amélioré dans `src/cli/upgrade.ts` - Ajouter les options requises --test-script,
+    --build-script (install-script généré automatiquement depuis le gestionnaire de packages)
+- [x] **T017** Rapport amélioré dans `src/lib/report.ts` - Ajouter le statut de rollback
+    et le rapport d'erreurs
+- [x] **T018** Utilitaires semver améliorés dans `src/lib/semver-utils.ts` - Ajouter
+    l'analyse et la préservation des signes semver
 
-## Phase 3.4: Integration & Error Handling
+## Phase 3.4 : Intégration et gestion d'erreurs
 
-- [x] **T019** Integration tests validation - Update and validate
-      integration tests for rollback mechanism and script execution
-      features (12 tests passing across 2 files)
-- [x] **T020** Documentation update - Complete README.md, CHANGE_LOG.md,
-      and package.json updates for enhanced features and CLI functionality
-- [x] **T021** Final validation - Comprehensive test suite validation (117
-      tests passing) and CLI functionality verification
+- [x] **T019** Validation des tests d'intégration - Mettre à jour et valider
+    les tests d'intégration pour le mécanisme de rollback et les fonctionnalités d'exécution de script
+    (12 tests réussis sur 2 fichiers)
+- [x] **T020** Mise à jour de la documentation - Compléter README.md, CHANGE_LOG.md,
+    et les mises à jour de package.json pour les fonctionnalités améliorées et la fonctionnalité CLI
+- [x] **T021** Validation finale - Validation complète de la suite de tests (117
+    tests réussis) et vérification de la fonctionnalité CLI
 
-## Dependencies
+## Dépendances
 
-- Types (T001) before all implementation tasks (T012-T018)
-- Contract tests (T004-T006) before corresponding implementations
-- Integration tests (T007-T011) before final integration (T019-T020)
-- T012 (DependencyStateManager) blocks T015 (UpgradeOrchestrator)
-- T013-T014 (Enhanced services) can run parallel but before T015
-- T016-T018 (CLI and utils) can run parallel after T015
-- All implementation before integration (T019-T020)
+- Types (T001) avant toutes les tâches d'implémentation (T012-T018)
+- Tests de contrat (T004-T006) avant les implémentations correspondantes
+- Tests d'intégration (T007-T011) avant l'intégration finale (T019-T020)
+- T012 (DependencyStateManager) bloque T015 (UpgradeOrchestrator)
+- T013-T014 (Services améliorés) peuvent s'exécuter en parallèle mais avant T015
+- T016-T018 (CLI et utils) peuvent s'exécuter en parallèle après T015
+- Toute implémentation avant l'intégration (T019-T020)
 
-## Parallel Execution Examples
+## Exemples d'exécution parallèle
 
-### Phase 3.1 - Setup (All parallel)
+### Phase 3.1 - Configuration (Tous parallèles)
 
 ```bash
-# Launch T001-T003 together:
-npx @taskagent/cli "Enhanced types in src/models/types.ts - Add DependencyState, ScriptConfig, UpgradeOptions interfaces with string union types"
-npx @taskagent/cli "Configure project dependencies - Ensure cmd-ts, execa are available"
-npx @taskagent/cli "Update ESLint configuration for new type patterns"
+# Lancer T001-T003 ensemble :
+npx @taskagent/cli "Types améliorés dans src/models/types.ts - Ajouter les interfaces DependencyState, ScriptConfig, UpgradeOptions avec des types union de chaînes"
+npx @taskagent/cli "Configurer les dépendances du projet - S'assurer que cmd-ts, execa sont disponibles"
+npx @taskagent/cli "Mettre à jour la configuration ESLint pour les nouveaux patterns de types"
 ```
 
-### Phase 3.2 - Contract Tests (All parallel)
+### Phase 3.2 - Tests de contrat (Tous parallèles)
 
 ```bash
-# Launch T004-T006 together:
-npx @taskagent/cli "Contract test dependency state capture in tests/contract/dependency-state.spec.ts"
-npx @taskagent/cli "Contract test rollback mechanism in tests/contract/rollback.spec.ts"
-npx @taskagent/cli "Contract test script execution in tests/contract/script-execution.spec.ts"
+# Lancer T004-T006 ensemble :
+npx @taskagent/cli "Test de contrat de capture d'état des dépendances dans tests/contract/dependency-state.spec.ts"
+npx @taskagent/cli "Test de contrat du mécanisme de rollback dans tests/contract/rollback-mechanism.spec.ts"
+npx @taskagent/cli "Test de contrat d'exécution de script dans tests/contract/script-execution.spec.ts"
 ```
 
-### Phase 3.2 - Integration Tests (All parallel)
+### Phase 3.2 - Tests d'intégration (Tous parallèles)
 
 ```bash
-# Launch T007-T011 together:
-npx @taskagent/cli "Integration test successful upgrade scenario in tests/integration/successful-upgrade.test.ts"
-npx @taskagent/cli "Integration test rollback scenario in tests/integration/rollback-scenario.test.ts"
-npx @taskagent/cli "Integration test custom script configuration in tests/integration/custom-scripts.test.ts"
-# ... etc for T009-T011
+# Lancer T007-T011 ensemble :
+npx @taskagent/cli "Test d'intégration de scénario de mise à niveau réussie dans tests/integration/successful-upgrade.test.ts"
+npx @taskagent/cli "Test d'intégration de scénario de rollback dans tests/integration/rollback-scenario.test.ts"
+npx @taskagent/cli "Test d'intégration de configuration de script personnalisé dans tests/integration/custom-scripts.test.ts"
+# ... etc pour T009-T011
 ```
 
-### Phase 3.3 - Core Services (Parallel where possible)
+### Phase 3.3 - Services noyau (Parallèles si possible)
 
 ```bash
-# T012 first (DependencyStateManager):
-npx @taskagent/cli "DependencyStateManager service in src/services/dependency-state-manager.ts"
+# T012 d'abord (DependencyStateManager) :
+npx @taskagent/cli "Service DependencyStateManager dans src/services/dependency-state-manager.ts"
 
-# Then T013-T014 together:
-npx @taskagent/cli "Enhanced CiRunnerService in src/services/ci-runner.ts - Add 3 required script configuration"
-npx @taskagent/cli "Enhanced PackageJsonService in src/services/package-json.ts - Add state capture/restore"
+# Puis T013-T014 ensemble :
+npx @taskagent/cli "Service CiRunnerService amélioré dans src/services/ci-runner.ts - Ajouter la configuration pour 3 scripts requis"
+npx @taskagent/cli "Service PackageJsonService amélioré dans src/services/package-json.ts - Ajouter la capture/restauration d'état"
 
-# Then T015 (depends on T012):
-npx @taskagent/cli "Enhanced UpgradeOrchestrator in src/services/upgrade-orchestrator.ts"
+# Puis T015 (dépend de T012) :
+npx @taskagent/cli "Orchestrateur UpgradeOrchestrator amélioré dans src/services/upgrade-orchestrator.ts"
 
-# Finally T016-T018 together:
-npx @taskagent/cli "Enhanced CLI in src/cli/upgrade.ts - Add 3 required script options"
-npx @taskagent/cli "Enhanced reporting in src/lib/report.ts - Add rollback status"
-npx @taskagent/cli "Enhanced semver utilities in src/lib/semver-utils.ts"
+# Enfin T016-T018 ensemble :
+npx @taskagent/cli "CLI amélioré dans src/cli/upgrade.ts - Ajouter 3 options de script requises"
+npx @taskagent/cli "Rapport amélioré dans src/lib/report.ts - Ajouter le statut de rollback"
+npx @taskagent/cli "Utilitaires semver améliorés dans src/lib/semver-utils.ts"
 ```
 
-## Key Implementation Notes
+## Notes d'implémentation clés
 
-- **String Union Types**: Use `'npm' | 'yarn' | 'pnpm' | 'bun' | 'shell'`
-  instead of enums throughout
-- **3 Required Scripts**: testScript, buildScript, installScript must all
-  be provided
-- **Simplified Architecture**: Avoid deep service hierarchies, focus on
-  enhanced existing services
-- **TDD Approach**: All contract and integration tests must be written and
-  failing before implementation
-- **Rollback Safety**: Every state change must be atomic with rollback
-  capability
-- **Performance Targets**: State capture < 5 seconds, rollback operations <
-  30 seconds
+- **Types union de chaînes** : Utiliser `'npm' | 'yarn' | 'pnpm' | 'bun' | 'shell'`
+  au lieu d'enums partout
+- **3 scripts requis** : testScript, buildScript, installScript doivent tous
+  être fournis
+- **Architecture simplifiée** : Éviter les hiérarchies de services profondes, se concentrer sur
+  l'amélioration des services existants
+- **Approche TDD** : Tous les tests de contrat et d'intégration doivent être écrits et
+  échouer avant l'implémentation
+- **Sécurité de rollback** : Chaque changement d'état doit être atomique avec
+  capacité de rollback
+- **Objectifs de performance** : Capture d'état < 5 secondes, opérations de rollback <
+  30 secondes
 
-## Validation Checklist
+## Liste de contrôle de validation
 
-- [ ] All OpenAPI contracts have corresponding tests (T004-T006)
-- [ ] All quickstart scenarios have integration tests (T007-T011)
-- [ ] All data model entities implemented (DependencyState, ScriptConfig,
-      etc.)
-- [ ] All 3 required scripts supported in CLI (test, build, install)
-- [ ] Rollback mechanism fully implemented and tested
-- [ ] String union types used consistently (no enums)
-- [ ] Performance requirements validated (T020)
+- [ ] Tous les contrats OpenAPI ont des tests correspondants (T004-T006)
+- [ ] Tous les scénarios quickstart ont des tests d'intégration (T007-T011)
+- [ ] Toutes les entités du modèle de données implémentées (DependencyState, ScriptConfig,
+    etc.)
+- [ ] Tous les 3 scripts requis supportés dans le CLI (test, build, install)
+- [ ] Mécanisme de rollback entièrement implémenté et testé
+- [ ] Types union de chaînes utilisés de manière cohérente (pas d'enums)
+- [ ] Exigences de performance validées (T020)
 
-## Success Criteria
+## Critères de succès
 
-- All tests pass with enhanced functionality
-- 3 required scripts (test, build, install) configurable via CLI
-- Automatic rollback on script failures
-- State management with semver sign preservation
-- No breaking changes to existing CLI interface
-- Performance targets met per NFR specifications
+- Tous les tests passent avec les fonctionnalités améliorées
+- 3 scripts requis (test, build, install) configurables via CLI
+- Rollback automatique en cas d'échec de script
+- Gestion d'état avec préservation des signes semver
+- Pas de changements cassants à l'interface CLI existante
+- Objectifs de performance atteints selon les spécifications NFR
+

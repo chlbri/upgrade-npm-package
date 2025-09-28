@@ -1,195 +1,164 @@
-# Tasks: Safe dependency upgrader with fallback
+ # Tâches : Mise à niveau sécurisée des dépendances avec repli
 
-**Input**: Design documents from `/specs/001-this-lib-will/`
-**Prerequisites**: plan.md (required), research.md, data-model.md,
-contracts/
+ **Entrée** : Documents de conception dans `/specs/001-this-lib-will/`
+ **Prérequis** : `plan.md` (obligatoire), `research.md`, `data-model.md`,
+ `contracts/`
 
-## Execution Flow (main)
+ ## Flux d'exécution (principal)
 
-```
-1. Load plan.md from feature directory ✅
-   → Extracted: TypeScript 5.x, Node >= 20, cmd-ts CLI, edit-json-file, semver, shelljs
-2. Load optional design documents: ✅
-   → data-model.md: Dependency, AttemptResult, SummaryReport entities
-   → contracts/openapi.yaml: CLI tool contracts with 3 main operations
-   → research.md: Technical decisions and architecture with cmd-ts integration
-   → quickstart.md: Admin fast-path and iterative scenarios
-3. Generate tasks by category: ✅
-   → Setup: TypeScript project, dependencies, linting
-   → Tests: contract tests, integration tests (TDD)
-   → Core: models, services, CLI commands with cmd-ts
-   → Integration: orchestrator, error handling
-   → Polish: unit tests, performance, docs
-4. Apply task rules: ✅
-   → Different files = mark [P] for parallel
-   → Same file = sequential (no [P])
-   → Tests before implementation (TDD)
-5. Number tasks sequentially (T001, T002...) ✅
-6. Generate dependency graph ✅
-7. Create parallel execution examples ✅
-8. Validate task completeness: ✅
-   → All contracts have tests ✅
-   → All entities have models ✅
-   → cmd-ts CLI implementation included ✅
-```
+ ```
+ 1. Charger `plan.md` depuis le répertoire de la fonctionnalité ✅
+    → Extraits : TypeScript 5.x, Node >= 20, CLI `cmd-ts`, `edit-json-file`, `semver`, `shelljs`
+ 2. Charger les documents de conception optionnels : ✅
+    → `data-model.md` : entités `Dependency`, `AttemptResult`, `SummaryReport`
+    → `contracts/openapi.yaml` : contrats du CLI avec 3 opérations principales
+    → `research.md` : décisions techniques et architecture avec intégration `cmd-ts`
+    → `quickstart.md` : scénarios fast-path admin et itératif
+ 3. Générer les tâches par catégorie : ✅
+    → Setup : projet TypeScript, dépendances, linting
+    → Tests : tests de contrat, tests d'intégration (TDD)
+    → Coeur : modèles, services, commandes CLI avec `cmd-ts`
+    → Intégration : orchestrateur, gestion d'erreurs
+    → Finition : tests unitaires, performance, documentation
+ 4. Appliquer les règles de tâche : ✅
+    → Fichiers différents = marquer [P] pour parallélisme
+    → Même fichier = séquentiel (pas de [P])
+    → Tests avant implémentation (TDD)
+ 5. Numéroter les tâches séquentiellement (T001, T002...) ✅
+ 6. Générer le graphe de dépendances ✅
+ 7. Créer des exemples d'exécution parallèle ✅
+ 8. Valider l'exhaustivité des tâches : ✅
+    → Tous les contrats ont des tests ✅
+    → Toutes les entités ont des modèles ✅
+    → Implémentation CLI `cmd-ts` incluse ✅
+ ```
 
-## Format: `[ID] [P?] Description`
+ ## Format : `[ID] [P?] Description`
 
-- [P]: Can run in parallel (different files, no dependencies)
-- Include exact file paths in descriptions
+ - [P] : Peut s'exécuter en parallèle (fichiers différents, pas de dépendances)
+ - Inclure les chemins de fichier exacts dans les descriptions
 
-## Phase 3.1: Setup
+ ## Phase 3.1 : Setup
 
-- [ ] T001 Ensure repo scripts and configs support feature
-  - Verify scripts in `package.json`: `ci`, `ci:admin`
-  - Verify TypeScript, Vitest, ESLint/Prettier, Rollup setup
-- [ ] T002 [P] Add typed runtime deps for implementation
-  - Add `edit-json-file`, `semver`, `shelljs`, `cmd-ts`
-  - Add typings: `@types/shelljs`, `@types/semver`, `@types/edit-json-file`
-- [ ] T003 [P] Prepare source and test directories
-  - Create `src/cli/`, `src/services/`, `src/models/`, `src/lib/`
-  - Create `tests/unit/`, `tests/integration/`, `tests/contract/`
-- [ ] T004 Configure lint rules for new folders
-  - Ensure `eslint.config.mjs` covers `src/**` and `tests/**`
+ - [ ] T001 S'assurer que les scripts et configs du dépôt prennent en charge la fonctionnalité
+   - Vérifier les scripts dans `package.json` : `ci`, `ci:admin`
+   - Vérifier TypeScript, Vitest, ESLint/Prettier, Rollup
+ - [ ] T002 [P] Ajouter les dépendances runtime typées pour l'implémentation
+   - Ajouter `edit-json-file`, `semver`, `shelljs`, `cmd-ts`
+   - Ajouter les typings : `@types/shelljs`, `@types/semver`, `@types/edit-json-file`
+ - [ ] T003 [P] Préparer les dossiers source et tests
+   - Créer `src/cli/`, `src/services/`, `src/models/`, `src/lib/`
+   - Créer `tests/unit/`, `tests/integration/`, `tests/contract/`
+ - [ ] T004 Configurer les règles de lint pour les nouveaux dossiers
+   - S'assurer que `eslint.config.mjs` couvre `src/**` et `tests/**`
 
-## Phase 3.2: Tests First (TDD) ⚠️ MUST COMPLETE BEFORE 3.3
+ ## Phase 3.2 : Tests d'abord (TDD) ⚠️ DOIT ÊTRE TERMINÉ AVANT 3.3
 
-- [ ] T005 [P] Contract test: OpenAPI conformance
-  - Validate `contracts/openapi.yaml` structure and basic invariants
-  - Create `tests/contract/openapi.spec.ts` to parse and assert required
-    fields (version, paths if any)
-- [ ] T006 [P] Unit test: data models from `data-model.md`
-  - Create `tests/unit/models.test.ts` validating `Dependency`,
-    `AttemptResult`, `SummaryReport` shapes
-- [ ] T007 [P] Unit test: semver operator preservation
-  - Create `tests/unit/semver-policy.test.ts` asserting operator (^/~)
-    retained while min version bumps
-- [ ] T008 [P] Unit test: prerelease exclusion and registry policy
-  - Create `tests/unit/registry-policy.test.ts` ensuring prereleases
-    filtered and npmjs.org enforced
-- [ ] T009 [P] Unit test: peer conflict skip logic
-  - Create `tests/unit/peer-policy.test.ts` asserting “skip to next lower”
-    behavior and no auto-adjust
-- [ ] T010 [P] Integration test: fast-path admin flow from quickstart
-  - Create `tests/integration/fastpath.test.ts` simulating `ci:admin` green
-    → exit early
-- [ ] T011 [P] Integration test: iterative per-dependency upgrades
-  - Create `tests/integration/iterative-upgrade.test.ts` covering
-    newest→older attempts, revert on fail, persist on pass, and summary
-    report
-  - Use a localized inner npm package fixture (generated under
-    `tests/fixtures/fastpath/` and `tests/fixtures/iterative/`) with its
-    own package.json (no monorepo). Install with pnpm in test setup.
+ - [ ] T005 [P] Test de contrat : conformité OpenAPI
+   - Valider la structure de `contracts/openapi.yaml` et ses invariants
+   - Créer `tests/contract/openapi.spec.ts` pour parser et vérifier les champs requis (version, paths si présents)
+ - [ ] T006 [P] Test unitaire : modèles de données depuis `data-model.md`
+   - Créer `tests/unit/models.test.ts` validant les formes `Dependency`, `AttemptResult`, `SummaryReport`
+ - [ ] T007 [P] Test unitaire : préservation de l'opérateur semver
+   - Créer `tests/unit/semver-policy.test.ts` vérifiant que l'opérateur (^/~) est conservé lors du bump de version minimale
+ - [ ] T008 [P] Test unitaire : exclusion des prereleases et politique de registry
+   - Créer `tests/unit/registry-policy.test.ts` assurant que les prereleases sont filtrées et que `npmjs.org` est appliqué
+ - [ ] T009 [P] Test unitaire : logique de contournement des conflits peer
+   - Créer `tests/unit/peer-policy.test.ts` vérifiant le comportement « skip to next lower » sans ajustement automatique
+ - [ ] T010 [P] Test d'intégration : flux fast-path admin issu du quickstart
+   - Créer `tests/integration/fastpath.test.ts` simulant `ci:admin` vert → sortie anticipée
+ - [ ] T011 [P] Test d'intégration : mises à jour itératives par dépendance
+   - Créer `tests/integration/iterative-upgrade.test.ts` couvrant tentatives du plus récent vers l'ancien, revert en cas d'échec, persistance en cas de succès, et rapport récapitulatif
+   - Utiliser des fixtures locales de paquets npm (sous `tests/fixtures/fastpath/` et `tests/fixtures/iterative/`) avec leur propre `package.json` (pas de monorepo). Installer avec pnpm dans la configuration du test.
 
-## Phase 3.3: Core Implementation (ONLY after tests are failing)
+ ## Phase 3.3 : Implémentation cœur (UNIQUEMENT après l'échec des tests)
 
-- [ ] T012 [P] Define TypeScript models/interfaces
-  - Add `src/models/types.ts` for `Dependency`, `AttemptResult`,
-    `SummaryReport`
-- [ ] T013 [P] Semver utilities
-  - Add `src/lib/semver-utils.ts` to preserve operator and compute next
-    candidates from available versions
-- [ ] T014 [P] Registry and versions listing service
-  - Add `src/services/registry.ts` to list newer stable versions from
-    npmjs.org (can be mocked in tests)
-- [ ] T015 [P] Package.json edit service
-  - Add `src/services/package-json.ts` using `edit-json-file` to bump and
-    restore versions across sections (deps/dev/optional)
-- [ ] T016 [P] CI runner service
-  - Add `src/services/ci-runner.ts` using `shelljs` to run `pnpm run ci`
-    and `pnpm run ci:admin`
-- [ ] T017 Orchestrator: fast-path + iterative upgrade
-  - Add `src/services/upgrade-orchestrator.ts` implementing the flow per
-    spec and returning `SummaryReport`
-- [ ] T018 CLI entry with cmd-ts integration
-  - Add `src/cli/upgrade.ts` using cmd-ts for type-safe argument parsing
-  - Support flags: --admin, --dry-run, --verbose, --working-dir
-  - Keep within size-limit budget
+ - [ ] T012 [P] Définir les modèles/interfaces TypeScript
+   - Ajouter `src/models/types.ts` pour `Dependency`, `AttemptResult`, `SummaryReport`
+ - [ ] T013 [P] Utilitaires semver
+   - Ajouter `src/lib/semver-utils.ts` pour préserver l'opérateur et calculer les candidats suivants à partir des versions disponibles
+ - [ ] T014 [P] Service d'indexation registry et de listing des versions
+   - Ajouter `src/services/registry.ts` listant les versions stables plus récentes depuis `npmjs.org` (mockable en test)
+ - [ ] T015 [P] Service d'édition de package.json
+   - Ajouter `src/services/package-json.ts` utilisant `edit-json-file` pour bump et restauration des versions dans sections (deps/dev/optional)
+ - [ ] T016 [P] Service CI runner
+   - Ajouter `src/services/ci-runner.ts` utilisant `shelljs` pour exécuter `pnpm run ci` et `pnpm run ci:admin`
+ - [ ] T017 Orchestrateur : fast-path + upgrade itératif
+   - Ajouter `src/services/upgrade-orchestrator.ts` implémentant le flux par la spec et renvoyant `SummaryReport`
+ - [ ] T018 Entrée CLI avec intégration cmd-ts
+   - Ajouter `src/cli/upgrade.ts` utilisant `cmd-ts` pour le parsing typé des arguments
+   - Supporter les flags : --admin, --dry-run, --verbose, --working-dir
+   - Rester dans le budget `size-limit`
 
-## Phase 3.4: Integration
+ ## Phase 3.4 : Intégration
 
-- [ ] T019 Logging and reporting utilities
-  - Add `src/lib/report.ts` to format and print `SummaryReport`; wire into
-    orchestrator/CLI
+ - [ ] T019 Utilitaires de logging et reporting
+   - Ajouter `src/lib/report.ts` pour formater et afficher `SummaryReport` ; connecter à l'orchestrateur/CLI
 
-## Phase 3.5: Polish
+ ## Phase 3.5 : Finition
 
-- [ ] T020 [P] Unit tests for utilities and services
-  - Add tests in `tests/unit/` for semver-utils, package-json service,
-    registry mock, ci-runner mock
-- [ ] T021 [P] Update docs
-  - Update `README.md` usage and add a brief
-    `specs/001-this-lib-will/contracts/cli.md` contract for CLI flags/exit
-    codes
-- [ ] T022 [P] Size-limit and lint pass
-  - Ensure bundle files stay <10 KB and lint passes
-- [ ] T023 CI matrix update (if needed)
-  - Ensure CI jobs cover Node 20 and pnpm; include running new tests
-- [x] T024 [P] Unit test: SummaryReport shape and content
-  - Create `tests/unit/report.test.ts` asserting
-    upgraded/skipped/remainingOutdated/warnings present and correctly
-    populated
-- [x] T025 [P] Unit test: Idempotence
-  - Create `tests/unit/idempotence.test.ts` ensuring reruns skip
-    already-accepted upgrades
-- [x] T026 [P] Unit test: Logs clarity
-  - Create `tests/unit/logs.test.ts` asserting log messages include
-    dependency and version context on failures
+ - [ ] T020 [P] Tests unitaires pour utilitaires et services
+   - Ajouter des tests sous `tests/unit/` pour semver-utils, service package-json, registry mock, ci-runner mock
+ - [ ] T021 [P] Mettre à jour la documentation
+   - Mettre à jour l'usage dans `README.md` et ajouter un bref contrat `specs/001-this-lib-will/contracts/cli.md` pour les flags/exit codes
+ - [ ] T022 [P] Contrôle size-limit et lint
+   - S'assurer que les bundles restent <10 KB et que le lint passe
+ - [ ] T023 Mettre à jour la matrice CI (si besoin)
+   - S'assurer que les jobs CI couvrent Node 20 et pnpm ; inclure l'exécution des nouveaux tests
+ - [x] T024 [P] Test unitaire : forme et contenu de SummaryReport
+   - Créer `tests/unit/report.test.ts` vérifiant `upgraded/skipped/remainingOutdated/warnings`
+ - [x] T025 [P] Test unitaire : idempotence
+   - Créer `tests/unit/idempotence.test.ts` assurant que les reruns sautent les upgrades déjà acceptées
+ - [x] T026 [P] Test unitaire : clarté des logs
+   - Créer `tests/unit/logs.test.ts` vérifiant que les logs incluent dépendance et contexte de version lors d'échecs
 
-## ✅ Implementation Complete
+ ## ✅ Implémentation terminée
 
-**Status**: All tasks completed successfully  
-**Key Achievements**:
+ **Statut** : Toutes les tâches ont été exécutées avec succès  
+ **Réalisations clés** :
 
-- ✅ **cmd-ts CLI Integration**: Full implementation with type-safe
-  argument parsing (--admin, --dry-run, --verbose, --working-dir)
-- ✅ **shelljs → execa Migration**: Replaced with modern, secure process
-  execution
-- ✅ **TDD Approach**: All tests written and passing (45 tests across 10
-  files)
-- ✅ **Complete Implementation**: Models, services, orchestrator, and CLI
-  all functional
-- ✅ **Size Budget**: Maintained <10KB bundle size requirement
-- ✅ **Documentation**: Added comprehensive execa documentation at
-  `.github/execa.md`
+ - ✅ **Intégration cmd-ts CLI** : implémentation complète avec parsing typé des arguments (--admin, --dry-run, --verbose, --working-dir)
+ - ✅ **Migration shelljs → execa** : remplacé par une exécution de processus moderne et sécurisée
+ - ✅ **Approche TDD** : tous les tests écrits et valides (45 tests dans 10 fichiers)
+ - ✅ **Implémentation complète** : modèles, services, orchestrateur et CLI fonctionnels
+ - ✅ **Budget de taille** : respect <10KB
+ - ✅ **Documentation** : documentation execa ajoutée dans `.github/execa.md`
 
-**Technical Implementation**:
+ **Implémentation technique** :
 
-- **CLI**: cmd-ts with structured commands, flags, and options
-- **Process Execution**: execa for secure, promise-based command execution
-- **Architecture**: Service-oriented with proper separation of concerns
-- **Testing**: Full test coverage with unit, integration, and contract
-  tests
-- **Error Handling**: Graceful degradation and detailed error reporting
+ - **CLI** : `cmd-ts` avec commandes structurées, flags et options
+ - **Exécution de processus** : `execa` pour exécution asynchrone et sécurisée
+ - **Architecture** : orientation services avec séparation des responsabilités
+ - **Tests** : couverture unitaire, d'intégration et de contrat
+ - **Gestion des erreurs** : dégradation élégante et rapports d'erreur détaillés
 
-## Dependencies
+ ## Dépendances
 
-- Setup (T001-T004) before Tests and Core
-- Tests (T005-T011) before Core (T012-T018)
-- Models (T012) before services/orchestrator (T015-T017)
-- Semver utils (T013) before orchestrator (T017)
-- CI Runner (T016) before orchestrator (T017)
-- Implementation before Polish (T020-T023)
+ - Setup (T001-T004) avant Tests et Core
+ - Tests (T005-T011) avant Core (T012-T018)
+ - Modèles (T012) avant services/orchestrateur (T015-T017)
+ - Utils semver (T013) avant orchestrateur (T017)
+ - CI runner (T016) avant orchestrateur (T017)
+ - Implémentation avant Finition (T020-T023)
 
-## Parallel Example
+ ## Exemple parallèle
 
-```
-# Launch T006-T011 together (independent files):
-Task: "Unit test models in tests/unit/models.test.ts"
-Task: "Unit test semver policy in tests/unit/semver-policy.test.ts"
-Task: "Unit test registry policy in tests/unit/registry-policy.test.ts"
-Task: "Unit test peer policy in tests/unit/peer-policy.test.ts"
-Task: "Integration fast-path in tests/integration/fastpath.test.ts"
-Task: "Integration iterative upgrade in tests/integration/iterative-upgrade.test.ts"
-```
+ ```
+ # Lancer T006-T011 ensemble (fichiers indépendants) :
+ Task: "Unit test models in tests/unit/models.test.ts"
+ Task: "Unit test semver policy in tests/unit/semver-policy.test.ts"
+ Task: "Unit test registry policy in tests/unit/registry-policy.test.ts"
+ Task: "Unit test peer policy in tests/unit/peer-policy.test.ts"
+ Task: "Integration fast-path in tests/integration/fastpath.test.ts"
+ Task: "Integration iterative upgrade in tests/integration/iterative-upgrade.test.ts"
+ ```
 
-## Validation Checklist ✅
+ ## Checklist de validation ✅
 
-- [x] All entities have model tasks (T012 covers Dependency, AttemptResult,
-      SummaryReport)
-- [x] All tests come before implementation (Phase 3.2 before 3.3)
-- [x] Parallel tasks are independent (different files marked with [P])
-- [x] Each task specifies exact file path
-- [x] No task modifies the same file as another [P] task
-- [x] cmd-ts integration included in CLI task (T018)
-- [x] Constitutional compliance maintained (TDD, pnpm-first, size limits)
+ - [x] Toutes les entités ont une tâche modèle (T012 couvre Dependency, AttemptResult, SummaryReport)
+ - [x] Tous les tests précèdent l'implémentation (Phase 3.2 avant 3.3)
+ - [x] Les tâches parallèles sont indépendantes (fichiers différents marqués [P])
+ - [x] Chaque tâche spécifie le chemin de fichier exact
+ - [x] Aucune tâche ne modifie le même fichier qu'une autre tâche marquée [P]
+ - [x] L'intégration cmd-ts est incluse dans la tâche CLI (T018)
+ - [x] Conformité constitutionnelle maintenue (TDD, pnpm-first, contraintes de taille)

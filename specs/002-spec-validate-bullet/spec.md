@@ -1,168 +1,151 @@
-# Feature Specification: Enhanced Dependency State Management and Rollback
+# Spécification de Fonctionnalité : Gestion Améliorée de l'État des Dépendances et Rollback
 
-**Feature ID**: 002-spec-validate-bullet  
-**Priority**: High  
-**Status**: Draft  
-**Date**: 2025-09-28
+**ID de Fonctionnalité** : 002-spec-validate-bullet  
+**Priorité** : Élevée  
+**Statut** : Brouillon  
+**Date** : 2025-09-28
 
-## Overview
+## Vue d'Ensemble
 
-This feature enhances the upgrade-npm-package tool with advanced dependency
-state management, rollback capabilities, and configurable script execution.
-The system will track dependency versions with their semver signs, provide
-rollback functionality when upgrades fail, and support configurable
-test/build scripts.
+Cette fonctionnalité améliore l'outil upgrade-npm-package avec une gestion avancée de l'état des dépendances, des capacités de rollback et une exécution de scripts configurable. Le système suivra les versions des dépendances avec leurs signes semver, fournira une fonctionnalité de rollback en cas d'échec des mises à niveau, et supportera des scripts de test/build configurables.
 
-## User Stories
+## Histoires Utilisateur
 
-### Primary User Story
+### Histoire Utilisateur Principale
 
-As a developer using the upgrade tool, I want the system to automatically
-rollback dependencies to their previous state if the admin script fails, so
-that my project remains in a working state.
+En tant que développeur utilisant l'outil de mise à niveau, je veux que le système restaure automatiquement les dépendances à leur état précédent si le script admin échoue, afin que mon projet reste dans un état fonctionnel.
 
-### Supporting User Stories
+### Histoires Utilisateur de Support
 
-1. As a developer, I want the tool to remember the initial state of all
-   dependencies (version + semver sign) before any upgrades
-2. As a developer, I want to configure custom test and build scripts for
-   validation
-3. As a developer, I want the tool to perform incremental updates rather
-   than major version jumps
-4. As a developer, I want support for different package managers (npm,
-   yarn, pnpm, bun)
+1. En tant que développeur, je veux que l'outil se souvienne de l'état initial de toutes les dépendances (version + signe semver) avant toute mise à niveau
+2. En tant que développeur, je veux configurer des scripts personnalisés de test et de build pour la validation
+3. En tant que développeur, je veux que l'outil effectue des mises à jour incrémentielles plutôt que des sauts de version majeure
+4. En tant que développeur, je veux un support pour différents gestionnaires de paquets (npm, yarn, pnpm, bun)
 
-## Functional Requirements
+## Exigences Fonctionnelles
 
-### FR1: Dependency State Tracking
+### EF1 : Suivi de l'État des Dépendances
 
-- **REQ-001**: System MUST capture initial state of all dependencies
-  including:
-  - Package name
-  - Current version
-  - Semver sign ("^", "~", or exact)
-- **REQ-002**: State tracking MUST occur before any upgrade operations
-- **REQ-003**: State MUST be stored in memory during upgrade process
+- **REQ-001** : Le système DOIT capturer l'état initial de toutes les dépendances incluant :
+  - Nom du paquet
+  - Version actuelle
+  - Signe semver ("^", "~", ou exact)
+- **REQ-002** : Le suivi d'état DOIT se produire avant toute opération de mise à niveau
+- **REQ-003** : L'état DOIT être stocké en mémoire pendant le processus de mise à niveau
 
-### FR2: Rollback Mechanism
+### EF2 : Mécanisme de Rollback
 
-- **REQ-004**: When admin script fails, system MUST restore all
-  dependencies to initial state
-- **REQ-005**: Rollback process MUST:
-  1. Write dependencies to package.json without semver signs
-  2. Run package manager install/add command
-  3. Manually add back the original semver signs
-  4. Run package manager install again to apply signs
+- **REQ-004** : Lorsque le script admin échoue, le système DOIT restaurer toutes les dépendances à leur état initial
+- **REQ-005** : Le processus de rollback DOIT :
+  1. Écrire les dépendances dans package.json sans signes semver
+  2. Exécuter la commande d'installation/ajout du gestionnaire de paquets
+  3. Ajouter manuellement les signes semver originaux
+  4. Exécuter à nouveau l'installation du gestionnaire de paquets pour appliquer les signes
 
-### FR3: Script Configuration
+### EF3 : Configuration des Scripts
 
-- **REQ-006**: System MUST accept exactly 3 required inner scripts:
-  - Test script (for validation)
-  - Build script (for compilation/bundling)
-  - Install script (for dependency installation)
-- **REQ-007**: Additional optional scripts MAY be provided as array
-  parameter
-- **REQ-008**: Each script MUST specify:
-  - Script type: "npm", "yarn", "pnpm", "bun", or "shell"
-  - Script command: the actual command to execute
+- **REQ-006** : Le système DOIT accepter exactement 3 scripts internes requis :
+  - Script de test (pour validation)
+  - Script de build (pour compilation/bundling)
+  - Script d'installation (pour installation des dépendances)
+- **REQ-007** : Des scripts optionnels supplémentaires PEUVENT être fournis en tant que paramètre tableau
+- **REQ-008** : Chaque script DOIT spécifier :
+  - Type de script : "npm", "yarn", "pnpm", "bun", ou "shell"
+  - Commande de script : la commande réelle à exécuter
 
-### FR4: Incremental Updates
+### EF4 : Mises à Jour Incrémentielles
 
-- **REQ-009**: System MUST perform decremental updates (minor/patch before
-  major)
-- **REQ-010**: Version fetching MUST be done from package manager registry
-- **REQ-011**: Updates MUST respect semver constraints
+- **REQ-009** : Le système DOIT effectuer des mises à jour décrementielles (mineure/patch avant majeure)
+- **REQ-010** : La récupération des versions DOIT être faite depuis le registre du gestionnaire de paquets
+- **REQ-011** : Les mises à jour DOIVENT respecter les contraintes semver
 
-## Non-Functional Requirements
+## Exigences Non-Fonctionnelles
 
-### NFR1: Reliability
+### ENF1 : Fiabilité
 
-- System MUST guarantee rollback capability in case of failures
-- All state changes MUST be atomic (succeed completely or rollback
-  completely)
+- Le système DOIT garantir la capacité de rollback en cas d'échecs
+- Tous les changements d'état DOIVENT être atomiques (réussir complètement ou rollback complètement)
 
-### NFR2: Performance
+### ENF2 : Performance
 
-- Dependency state capture MUST complete within 5 seconds for typical
-  projects
-- Rollback operations MUST complete within 30 seconds
+- La capture d'état des dépendances DOIT se terminer en moins de 5 secondes pour des projets typiques
+- Les opérations de rollback DOIVENT se terminer en moins de 30 secondes
 
-### NFR3: Compatibility
+### ENF3 : Compatibilité
 
-- MUST support npm, yarn, pnpm, and bun package managers
-- MUST work with Node.js >= 20
-- MUST maintain backward compatibility with existing CLI interface
+- DOIT supporter les gestionnaires de paquets npm, yarn, pnpm et bun
+- DOIT fonctionner avec Node.js >= 20
+- DOIT maintenir la compatibilité ascendante avec l'interface CLI existante
 
-## Technical Constraints
+## Contraintes Techniques
 
-### TC1: Package Manager Integration
+### CT1 : Intégration du Gestionnaire de Paquets
 
-- MUST integrate with native package manager commands
-- MUST handle package manager-specific syntax differences
-- MUST support workspace configurations
+- DOIT s'intégrer avec les commandes natives du gestionnaire de paquets
+- DOIT gérer les différences de syntaxe spécifiques au gestionnaire de paquets
+- DOIT supporter les configurations d'espace de travail
 
-### TC2: State Management
+### CT2 : Gestion d'État
 
-- State storage MUST be in-memory (no persistent files)
-- State MUST be garbage collected after successful completion
-- MUST handle concurrent dependency modifications
+- Le stockage d'état DOIT être en mémoire (pas de fichiers persistants)
+- L'état DOIT être collecté par le garbage collector après achèvement réussi
+- DOIT gérer les modifications simultanées des dépendances
 
-## Success Criteria
+## Critères de Succès
 
-### SC1: State Management
+### CS1 : Gestion d'État
 
-- [ ] System successfully captures dependency state for 100+ dependency
-      projects
-- [ ] Rollback restores exact previous state in 100% of test cases
-- [ ] No dependency version drift after rollback operations
+- [ ] Le système capture avec succès l'état des dépendances pour des projets avec 100+ dépendances
+- [ ] Le rollback restaure l'état précédent exact dans 100% des cas de test
+- [ ] Aucune dérive de version de dépendance après les opérations de rollback
 
-### SC2: Script Execution
+### CS2 : Exécution des Scripts
 
-- [ ] All script types (npm, yarn, pnpm, bun, shell) execute correctly
-- [ ] Script failures trigger appropriate rollback mechanisms
-- [ ] Custom script configurations work across different project types
+- [ ] Tous les types de scripts (npm, yarn, pnpm, bun, shell) s'exécutent correctement
+- [ ] Les échecs de scripts déclenchent les mécanismes de rollback appropriés
+- [ ] Les configurations de scripts personnalisés fonctionnent sur différents types de projets
 
-### SC3: Integration
+### CS3 : Intégration
 
-- [ ] Existing CLI interface remains unchanged for basic usage
-- [ ] New features integrate seamlessly with current upgrade flow
-- [ ] Performance impact < 10% for standard upgrade operations
+- [ ] L'interface CLI existante reste inchangée pour l'utilisation de base
+- [ ] Les nouvelles fonctionnalités s'intègrent de manière transparente avec le flux de mise à niveau actuel
+- [ ] Impact sur les performances < 10% pour les opérations de mise à niveau standard
 
-## Acceptance Criteria
+## Critères d'Acceptation
 
-### AC1: Happy Path
+### CA1 : Chemin Heureux
 
 ```gherkin
-Given a project with mixed dependencies and semver signs
-When I run the upgrade command with admin mode
-And the admin script passes
-Then all dependencies are upgraded according to semver constraints
-And no rollback is performed
+Étant donné un projet avec des dépendances mixtes et des signes semver
+Lorsque je lance la commande de mise à niveau en mode admin
+Et que le script admin passe
+Alors toutes les dépendances sont mises à niveau selon les contraintes semver
+Et aucun rollback n'est effectué
 ```
 
-### AC2: Rollback Path
+### CA2 : Chemin de Rollback
 
 ```gherkin
-Given a project with mixed dependencies and semver signs
-When I run the upgrade command with admin mode
-And the admin script fails
-Then all dependencies are restored to their exact initial state
-And the package.json contains original semver signs
-And the project is in the same state as before upgrade
+Étant donné un projet avec des dépendances mixtes et des signes semver
+Lorsque je lance la commande de mise à niveau en mode admin
+Et que le script admin échoue
+Alors toutes les dépendances sont restaurées à leur état initial exact
+Et le package.json contient les signes semver originaux
+Et le projet est dans le même état qu'avant la mise à niveau
 ```
 
-### AC3: Script Configuration
+### CA3 : Configuration des Scripts
 
 ```gherkin
-Given I configure custom test and build scripts
-When the upgrade process executes
-Then the custom scripts are used instead of defaults
-And script failures are properly handled
+Étant donné que je configure des scripts personnalisés de test et de build
+Lorsque le processus de mise à niveau s'exécute
+Alors les scripts personnalisés sont utilisés au lieu des valeurs par défaut
+Et les échecs de scripts sont correctement gérés
 ```
 
-## API Changes
+## Changements d'API
 
-### Enhanced UpgradeOrchestrator Interface
+### Interface UpgradeOrchestrator Améliorée
 
 ```typescript
 interface DependencyState {
@@ -177,9 +160,9 @@ interface ScriptConfig {
 }
 
 interface UpgradeOptions {
-  testScript: ScriptConfig; // Required
-  buildScript: ScriptConfig; // Required
-  installScript: ScriptConfig; // Required
+  testScript: ScriptConfig; // Requis
+  buildScript: ScriptConfig; // Requis
+  installScript: ScriptConfig; // Requis
   additionalScripts?: ScriptConfig[];
   workingDir?: string;
   dryRun?: boolean;
@@ -187,73 +170,66 @@ interface UpgradeOptions {
 }
 ```
 
-## Dependencies
+## Dépendances
 
-### External Dependencies
+### Dépendances Externes
 
-- Current package manager detection utilities
-- Semver parsing and manipulation libraries
-- Process execution utilities (execa)
+- Utilitaires de détection du gestionnaire de paquets actuel
+- Bibliothèques d'analyse et de manipulation semver
+- Utilitaires d'exécution de processus (execa)
 
-### Internal Dependencies
+### Dépendances Internes
 
-- Existing UpgradeOrchestrator service
-- CiRunnerService for script execution
-- Registry services for version fetching
+- Service UpgradeOrchestrator existant
+- CiRunnerService pour l'exécution de scripts
+- Services de registre pour la récupération de versions
 
-## Risks & Mitigations
+## Risques et Mitigations
 
-### Risk 1: Rollback Failures
+### Risque 1 : Échecs de Rollback
 
-**Risk**: Rollback process itself could fail, leaving project in broken
-state **Mitigation**: Implement backup state storage and multi-step
-rollback verification
+**Risque** : Le processus de rollback lui-même pourrait échouer, laissant le projet dans un état cassé  
+**Mitigation** : Implémenter un stockage d'état de sauvegarde et une vérification de rollback en plusieurs étapes
 
-### Risk 2: Package Manager Differences
+### Risque 2 : Différences entre Gestionnaires de Paquets
 
-**Risk**: Different package managers handle semver signs differently  
-**Mitigation**: Create package manager-specific adapters with comprehensive
-testing
+**Risque** : Différents gestionnaires de paquets gèrent les signes semver différemment  
+**Mitigation** : Créer des adaptateurs spécifiques au gestionnaire de paquets avec des tests complets
 
-### Risk 3: Concurrent Modifications
+### Risque 3 : Modifications Simultanées
 
-**Risk**: External processes modifying dependencies during upgrade
-**Mitigation**: File system watching and conflict detection
+**Risque** : Processus externes modifiant les dépendances pendant la mise à niveau  
+**Mitigation** : Surveillance du système de fichiers et détection de conflits
 
-## Out of Scope
+## Hors de Portée
 
-- Persistent state storage between sessions
-- GUI interface for script configuration
-- Integration with CI/CD systems beyond current capabilities
-- Support for package managers other than npm, yarn, pnpm, bun
+- Stockage d'état persistant entre sessions
+- Interface GUI pour la configuration des scripts
+- Intégration avec des systèmes CI/CD au-delà des capacités actuelles
+- Support pour des gestionnaires de paquets autres que npm, yarn, pnpm, bun
 
 ## Clarifications
 
-### Session 1: Script Configuration Details
+### Session 1 : Détails de Configuration des Scripts
 
-**Q**: How should script arrays be passed to the CLI?  
-**A**: The 3 required scripts should be configurable via CLI flags with
-JSON syntax:
+**Q** : Comment les tableaux de scripts devraient-ils être passés au CLI ?  
+**R** : Les 3 scripts requis devraient être configurables via des flags CLI avec syntaxe JSON :
 `--test-script='{"type":"npm","command":"test"}' --build-script='{"type":"npm","command":"build"}' --install-script='{"type":"npm","command":"install"}'`
 
-**Q**: Should the tool auto-detect common script patterns? **A**: Yes,
-detect standard scripts from package.json (test, build, lint) as fallbacks
-when custom scripts not provided
+**Q** : L'outil devrait-il auto-détecter les patterns de scripts courants ?  
+**R** : Oui, détecter les scripts standard depuis package.json (test, build, lint) comme fallbacks lorsque des scripts personnalisés ne sont pas fournis
 
-**Q**: How to handle script timeouts? **A**: Each script type should have
-configurable timeout (default 5 minutes), with graceful termination and
-rollback on timeout
+**Q** : Comment gérer les timeouts de scripts ?  
+**R** : Chaque type de script devrait avoir un timeout configurable (par défaut 5 minutes), avec terminaison gracieuse et rollback sur timeout
 
-### Session 2: Rollback Mechanism Details
+### Session 2 : Détails du Mécanisme de Rollback
 
-**Q**: What if package.json is modified externally during upgrade? **A**:
-Implement file watching to detect external changes and abort with clear
-error message
+**Q** : Que se passe-t-il si package.json est modifié extérieurement pendant la mise à niveau ?  
+**R** : Implémenter une surveillance de fichiers pour détecter les changements externes et annuler avec un message d'erreur clair
 
-**Q**: Should rollback include devDependencies and optionalDependencies?
-**A**: Yes, all dependency types should be tracked and rolled back to
-maintain complete project state
+**Q** : Le rollback devrait-il inclure devDependencies et optionalDependencies ?  
+**R** : Oui, tous les types de dépendances devraient être suivis et rollbackés pour maintenir l'état complet du projet
 
-**Q**: How to handle dependencies that were added/removed during upgrade?
-**A**: Track additions/removals separately and reverse these operations
-during rollback
+**Q** : Comment gérer les dépendances qui ont été ajoutées/supprimées pendant la mise à niveau ?  
+**R** : Suivre les ajouts/suppressions séparément et inverser ces opérations pendant le rollback
+

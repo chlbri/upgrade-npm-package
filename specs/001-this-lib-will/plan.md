@@ -1,10 +1,10 @@
-# Implementation Plan: Safe dependency upgrader with fallback
+# Plan d'implémentation : Outil sûr de mise à niveau des dépendances avec fallback
 
-**Branch**: `001-this-lib-will` | **Date**: 2025-09-27 | **Spec**:
-[spec.md](./spec.md) **Input**: Feature specification from
+**Branche** : `001-this-lib-will` | **Date** : 2025-09-27 | **Spec** :
+[spec.md](./spec.md) **Entrée** : Spécification de fonctionnalité depuis
 `/specs/001-this-lib-will/spec.md`
 
-## Execution Flow (/plan command scope)
+## Flux d'exécution (portée de la commande /plan)
 
 ```
 1. Load feature spec from Input path
@@ -27,41 +27,36 @@
 9. STOP - Ready for /tasks command
 ```
 
-**IMPORTANT**: The /plan command STOPS at step 8. Phases 2-4 are executed
-by other commands:
+**IMPORTANT** : La commande /plan S'ARRÊTE à l'étape 8. Les phases 2-4 sont exécutées
+par d'autres commandes :
 
-- Phase 2: /tasks command creates tasks.md
-- Phase 3-4: Implementation execution (manual or via tools)
+-- Phase 2 : la commande /tasks crée tasks.md
+-- Phase 3-4 : Exécution d'implémentation (manuelle ou via outils)
 
-## Progress Tracking
+## Suivi d'avancement
 
-✅ **Step 1**: Feature spec loaded from input path  
-✅ **Step 2**: Technical context filled with cmd-ts requirement
-integrated  
-✅ **Step 3**: Constitution check completed - PASS (no violations)  
-✅ **Step 4**: Initial constitution evaluation completed  
-✅ **Step 5**: Phase 0 research.md updated with cmd-ts decisions  
-✅ **Step 6**: Phase 1 artifacts generated - data-model.md, quickstart.md,
-contracts/openapi.yaml updated  
-✅ **Step 7**: Post-design constitution re-check - PASS (compliance
-maintained)  
-✅ **Step 8**: Phase 2 planning described below
+✅ **Étape 1** : Spécification chargée depuis le chemin d'entrée  
+✅ **Étape 2** : Contexte technique complété avec intégration de cmd-ts  
+✅ **Étape 3** : Vérification constitutionnelle complétée - PASS (aucune violation)  
+✅ **Étape 4** : Évaluation constitutionnelle initiale complétée  
+✅ **Étape 5** : Phase 0 (research.md) mise à jour avec les décisions cmd-ts  
+✅ **Étape 6** : Artéfacts Phase 1 générés - data-model.md, quickstart.md, contracts/openapi.yaml mis à jour  
+✅ **Étape 7** : Re-vérification post-design de la Constitution - PASS (conformité maintenue)  
+✅ **Étape 8** : Planification Phase 2 décrite ci-dessous
 
-## Phase 2 Planning (Task Generation Approach)
+## Planification Phase 2 (Approche de génération des tâches)
 
-The /tasks command will generate tasks.md with TDD-ordered implementation
-tasks:
+La commande /tasks générera tasks.md avec des tâches d'implémentation ordonnées selon le TDD :
 
-### Implementation Order (TDD Required)
+### Ordre d'implémentation (TDD requis)
 
-1. **Models & Types**: Define TypeScript interfaces first
-2. **Unit Tests**: Write failing tests for each service/utility
-3. **Core Services**: Implement PackageJsonService, RegistryService,
-   CiRunnerService
-4. **Orchestration**: Implement UpgradeOrchestrator with business logic
-5. **CLI Interface**: Implement cmd-ts command parsing and main entry point
-6. **Integration Tests**: End-to-end workflow validation
-7. **Contract Tests**: Validate against OpenAPI spec
+1. **Modèles & Types** : Définir d'abord les interfaces TypeScript
+2. **Tests Unitaires** : Écrire des tests qui échouent pour chaque service/utilitaire
+3. **Services centraux** : Implémenter PackageJsonService, RegistryService, CiRunnerService
+4. **Orchestration** : Implémenter UpgradeOrchestrator avec la logique métier
+5. **Interface CLI** : Implémenter le parsing cmd-ts et le point d'entrée principal
+6. **Tests d'intégration** : Validation du workflow de bout en bout
+7. **Tests de contrat** : Valider contre la spécification OpenAPI
 
 ### Testing Strategy
 
@@ -74,13 +69,9 @@ tasks:
 
 Ready for /tasks command execution.
 
-## Summary
+## Résumé
 
-A safe dependency upgrader that lists newer versions from npm registry and
-performs iterative upgrades with CI gating. Features include: fast-path
-admin mode, fallback iterative upgrading, peer dependency conflict
-handling, and comprehensive reporting. CLI interface using cmd-ts library
-for type-safe argument parsing.
+Un outil sûr de mise à niveau des dépendances qui liste les versions plus récentes depuis le registre npm et effectue des mises à jour itératives avec contrôle CI. Fonctionnalités : mode fast-path admin, upgrade itératif en fallback, gestion des conflits de peer dependencies, et reporting complet. Interface CLI utilisant la librairie cmd-ts pour un parsing d'arguments typé.
 
 ## Technical Context
 
@@ -100,53 +91,39 @@ size per output
 **Scale/Scope**: Single package.json processing, supports typical Node.js
 project dependency counts
 
-**User Argument Integration**: CLI must use lib cmd-ts (type-driven command
-line argument parser with TypeScript support)
+**Intégration des arguments utilisateur** : La CLI doit utiliser la lib cmd-ts (parsing d'arguments piloté par les types avec support TypeScript)
 
-## Constitution Check
+## Vérification de la Constitution
 
-_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
+_GATE : Doit être passé avant la recherche Phase 0. Re-vérifier après la conception Phase 1._
 
-**Initial Check (Pre-Phase 0):** ✅ **Principle I** (pnpm-first, Node 20+,
-ESM-first): Compliant - using pnpm, Node >= 20, ESM-first with CJS
-compatibility  
-✅ **Principle II** (Minimal runtime dependencies): Compliant - only
-essential deps: edit-json-file, semver, shelljs, cmd-ts  
-✅ **Principle III** (Automated upgrades): Compliant - this tool enables
-automated dependency upgrades  
-✅ **Principle IV** (Test, lint, size discipline): Compliant - Vitest
-testing, size-limit <10KB enforced  
-✅ **Principle V** (API stability): Compliant - semantic versioning
-planned  
-✅ **Principle VI** (TDD): Compliant - TDD enforced, tests-first
-development required
+**Vérification initiale (Pré-Phase 0) :** ✅ **Principe I** (pnpm-first, Node 20+, ESM-first) : Conforme - utilisation de pnpm, Node >= 20, ESM-first avec compatibilité CJS  
+✅ **Principe II** (Dépendances minimales) : Conforme - seules les dépendances essentielles : edit-json-file, semver, shelljs, cmd-ts  
+✅ **Principe III** (Mises à jour automatisées) : Conforme - cet outil permet les mises à jour automatisées des dépendances  
+✅ **Principe IV** (Discipline test, lint, taille) : Conforme - tests Vitest, size-limit <10KB appliqué  
+✅ **Principe V** (Stabilité API) : Conforme - versionnement sémantique planifié  
+✅ **Principe VI** (TDD) : Conforme - TDD imposé, développement tests-first requis
 
-**Post-Phase 1 Re-check:** ✅ **Service Architecture**: Single project
-structure aligns with constitutional constraints  
-✅ **CLI Design**: cmd-ts provides type safety and superior error
-handling  
-✅ **Testing Strategy**: Unit/integration/contract tests planned for TDD
-compliance  
-✅ **Build System**: Rollup configuration supports <10KB bundle size
-requirement  
-✅ **Dependencies**: All runtime deps justified and minimal
-(edit-json-file, semver, shelljs, cmd-ts)
+**Re-vérification Post-Phase 1 :** ✅ **Architecture des services** : La structure projet unique s'aligne avec les contraintes constitutionnelles  
+✅ **Conception CLI** : cmd-ts apporte la sécurité de type et une gestion d'erreur supérieure  
+✅ **Stratégie de tests** : Tests unitaires/intégration/contrats planifiés pour conformité TDD  
+✅ **Système de build** : Rollup configuré pour respecter le budget <10KB  
+✅ **Dépendances** : Tous les runtime deps sont justifiés et minimaux (edit-json-file, semver, shelljs, cmd-ts)
 
-**Status**: PASS - Design maintains constitutional compliance. No
-violations introduced in Phase 1.
+**Statut** : PASS - La conception maintient la conformité constitutionnelle. Aucune violation introduite en Phase 1.
 
-## Project Structure
+## Structure du projet
 
-### Documentation (this feature)
+### Documentation (cette fonctionnalité)
 
 ```
 specs/[###-feature]/
-├── plan.md              # This file (/plan command output)
-├── research.md          # Phase 0 output (/plan command)
-├── data-model.md        # Phase 1 output (/plan command)
-├── quickstart.md        # Phase 1 output (/plan command)
-├── contracts/           # Phase 1 output (/plan command)
-└── tasks.md             # Phase 2 output (/tasks command - NOT created by /plan)
+├── plan.md              # Ce fichier (sortie de la commande /plan)
+├── research.md          # Sortie Phase 0 (commande /plan)
+├── data-model.md        # Sortie Phase 1 (commande /plan)
+├── quickstart.md        # Sortie Phase 1 (commande /plan)
+├── contracts/           # Sortie Phase 1 (commande /plan)
+└── tasks.md             # Sortie Phase 2 (commande /tasks - NON créée par /plan)
 ```
 
 ### Source Code (repository root)
@@ -297,5 +274,5 @@ for {tech} in {domain}"
 - [ ] Complexity deviations documented
 
 ---
-*Based on Constitution v1.1.0 - See `/memory/constitution.md`*
+*Basé sur la Constitution v1.1.0 - Voir `/memory/constitution.md`*
 ```

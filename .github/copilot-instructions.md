@@ -8,30 +8,31 @@
   utilisateur)[.github/vsix.commit-message-editor.json] de l'extension
   adam-bender.commit-message-editor, pour le format de chaque commit.
 
-## Enhanced Dependency State Management Context
+## Contexte : Gestion améliorée de l'état des dépendances
 
-**Current Feature**: 002-spec-validate-bullet - Enhanced Dependency State
-Management and Rollback
+**Fonctionnalité actuelle** : 002-spec-validate-bullet - Gestion améliorée de
+l'état des dépendances et mécanisme de rollback
 
-**Tech Stack**:
+**Stack technique** :
 
-- Language: TypeScript 5.x with Node.js >= 20
-- Framework: cmd-ts, execa, semver parsing utilities
-- Storage: In-memory state management during upgrade process (no persistent
-  storage)
-- Project Type: Single library project - CLI tool with service layer
-  architecture
+- Langage : TypeScript 5.x avec Node.js >= 20
+- Framework : cmd-ts, execa, utilitaires de parsing semver
+- Stockage : Gestion d'état en mémoire lors du processus d'upgrade (pas de
+  stockage persistant)
+- Type de projet : Bibliothèque unique - outil CLI avec architecture par
+  couche de services
 
-**Key Components**:
+**Composants clés** :
 
-- DependencyStateManager: Core state management service
-- PackageManagerAdapter: Abstraction for npm/yarn/pnpm/bun
-- ScriptConfig: Type-safe script execution configuration
-- Rollback mechanism: Atomic operations with full state restoration
+- DependencyStateManager : Service central de gestion d'état
+- PackageManagerAdapter : Abstraction pour npm/yarn/pnpm/bun
+- ScriptConfig : Configuration typée pour l'exécution de scripts
+- Mécanisme de rollback : Opérations atomiques avec restauration complète
 
-**Recent Changes**:
+**Modifications récentes** :
 
-- Added dependency state tracking with semver sign preservation
-- Implemented automatic rollback on script execution failures
-- Enhanced CLI with configurable test/build script support
-- Added package manager adapter pattern for PM compatibility
+- Ajout du suivi d'état des dépendances avec préservation des opérateurs semver
+- Implémentation d'un rollback automatique sur échec d'exécution de scripts
+- Amélioration du CLI avec support configurable des scripts test/build
+- Ajout du pattern d'adaptateur de gestionnaire de packages pour compatibilité
+  multi-PM

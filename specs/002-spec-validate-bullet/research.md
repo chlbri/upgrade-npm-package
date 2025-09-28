@@ -1,36 +1,30 @@
-# Research: Enhanced Dependency State Management and Rollback
+# Recherche : Gestion améliorée de l'état des dépendances et rollback
 
-**Date**: 2025-09-28  
-**Feature**: Enhanced dependency state management with rollback
-capabilities
+**Date** : 2025-09-28  
+**Fonctionnalité** : Gestion améliorée de l'état des dépendances avec capacités de rollback
 
-## Research Findings
+## Résultats de la recherche
 
-### Script Configuration Architecture
+### Architecture de configuration des scripts
 
-**Decision**: Simplified Two-Script Configuration with Auto-Generated
-Install Commands  
-**Rationale**:
+**Décision** : Configuration simplifiée à deux scripts avec commandes d'installation auto-générées  
+**Raison** :
 
-- User cognitive load reduced by requiring only test and build script
-  configuration
-- Install scripts are highly predictable based on package manager type
-- Eliminates configuration errors from mismatched install commands
-- Follows principle of "convention over configuration"
+- Charge cognitive de l'utilisateur réduite en exigeant uniquement la configuration des scripts test et build
+- Les scripts d'installation sont hautement prévisibles en fonction du type de gestionnaire de packages
+- Élimine les erreurs de configuration dues à des commandes d'installation incompatibles
+- Suit le principe de "convention plutôt que configuration"
 
-**Alternatives considered**:
+**Alternatives envisagées** :
 
-- Three-script configuration (test, build, install) - Rejected: unnecessary
-  cognitive overhead
-- Zero configuration with package.json detection - Rejected: insufficient
-  flexibility for complex projects
-- Full script array configuration - Rejected: over-engineering for common
-  use cases
+- Configuration à trois scripts (test, build, install) - Rejetée : surcharge cognitive inutile
+- Configuration zéro avec détection package.json - Rejetée : flexibilité insuffisante pour les projets complexes
+- Configuration complète de tableau de scripts - Rejetée : sur-ingénierie pour les cas d'usage courants
 
-**Implementation Approach**:
+**Approche d'implémentation** :
 
 ```typescript
-// Auto-generate install commands based on package manager
+// Auto-générer les commandes d'installation en fonction du gestionnaire de packages
 const INSTALL_COMMANDS = {
   npm: 'npm install',
   yarn: 'yarn install',
@@ -39,32 +33,26 @@ const INSTALL_COMMANDS = {
 } as const;
 ```
 
-### Additional Scripts Positioning
+### Positionnement des scripts supplémentaires
 
-**Decision**: Additional Scripts for Testing Integration, Not Setup
-interface  
-**Rationale**:
+**Décision** : Scripts supplémentaires pour les tests d'intégration, pas pour l'interface de configuration  
+**Raison** :
 
-- Additional scripts should validate upgrade compatibility, not prepare
-  environment
-- Positioning after upgrade attempts allows testing of actual dependency
-  changes
-- Aligns with rollback strategy - test integration before committing
-  changes
-- Provides extensibility for domain-specific validation (e.g., browser
-  tests, performance checks)
+- Les scripts supplémentaires doivent valider la compatibilité de la mise à niveau, pas préparer l'environnement
+- Le positionnement après les tentatives de mise à niveau permet de tester les changements réels des dépendances
+- S'aligne avec la stratégie de rollback - tester l'intégration avant de valider les changements
+- Fournit une extensibilité pour la validation spécifique au domaine (par exemple, tests de navigateur, vérifications de performance)
 
-**Alternatives considered**:
+**Alternatives envisagées** :
 
-- Pre-upgrade setup scripts - Rejected: doesn't test actual upgrade impact
-- Post-rollback cleanup scripts - Rejected: unnecessary complexity
-- Parallel script execution - Rejected: sequential execution provides
-  clearer failure attribution
+- Scripts de configuration pré-mise à niveau - Rejetés : ne teste pas l'impact réel de la mise à niveau
+- Scripts de nettoyage post-rollback - Rejetés : complexité inutile
+- Exécution parallèle de scripts - Rejetée : l'exécution séquentielle fournit une attribution d'échec plus claire
 
-**Implementation Approach**:
+**Approche d'implémentation** :
 
 ```typescript
-// Within upgradeWithRollback method, after dependency changes but before commit
+// Dans la méthode upgradeWithRollback, après les changements de dépendances mais avant la validation
 if (options?.additionalScripts?.length > 0) {
   for (const script of options.additionalScripts) {
     const result = await this.scriptExecutionService.executeScript(
@@ -72,41 +60,37 @@ if (options?.additionalScripts?.length > 0) {
       this.workingDir,
     );
     if (!result.success) {
-      // Trigger rollback with clear failure attribution
+      // Déclencher le rollback avec attribution d'échec claire
       throw new Error(
-        `Integration test failed: ${script.command} - ${result.stderr}`,
+        `Test d'intégration échoué : ${script.command} - ${result.stderr}`,
       );
     }
   }
 }
 ```
 
-### Dependency State Management with Semver Preservation
+### Gestion de l'état des dépendances avec préservation semver
 
-**Decision**: Enhanced DependencyStateManager with Full Semver Sign
-Tracking  
-**Rationale**:
+**Décision** : DependencyStateManager amélioré avec suivi complet des signes semver  
+**Raison** :
 
-- Semver operators (^, ~, exact) encode important compatibility intentions
-- Rollback must restore exact original state including operator preferences
-- Version bumping must preserve operator semantics during upgrades
-- Critical for maintaining project's dependency resolution strategy
+- Les opérateurs semver (^, ~, exact) codent des intentions de compatibilité importantes
+- Le rollback doit restaurer l'état original exact, y compris les préférences d'opérateurs
+- L'incrémentation de version doit préserver la sémantique des opérateurs pendant les mises à niveau
+- Critique pour maintenir la stratégie de résolution des dépendances du projet
 
-**Alternatives considered**:
+**Alternatives envisagées** :
 
-- Simple version string storage - Rejected: loses semantic operator
-  information
-- Separate operator/version storage - Rejected: increases state complexity
-  unnecessarily
-- Package manager lockfile-only rollback - Rejected: doesn't handle
-  package.json changes
+- Stockage simple de chaînes de version - Rejeté : perd les informations sémantiques des opérateurs
+- Stockage séparé opérateur/version - Rejeté : augmente inutilement la complexité de l'état
+- Rollback uniquement via lockfile du gestionnaire de packages - Rejeté : ne gère pas les changements package.json
 
-**Implementation Approach**:
+**Approche d'implémentation** :
 
 ```typescript
 interface DependencyState {
   packageName: string;
-  version: string; // Clean version without operator
+  version: string; // Version propre sans opérateur
   semverSign: '^' | '~' | 'exact';
   dependencyType:
     | 'dependencies'
@@ -115,25 +99,23 @@ interface DependencyState {
 }
 ```
 
-### Package Manager Abstraction
+### Abstraction du gestionnaire de packages
 
-**Decision**: String Union Type-Based Package Manager Adapter  
-**Rationale**:
+**Décision** : Adaptateur de gestionnaire de packages basé sur un type union de chaînes  
+**Raison** :
 
-- Constitutional requirement for string unions over enums
-- Better JSON serialization and debugging experience
-- Cleaner runtime behavior with simplified type checking
-- Extensible for future package manager support
+- Exigence constitutionnelle pour les unions de chaînes plutôt que les enums
+- Meilleure expérience de sérialisation JSON et de débogage
+- Comportement d'exécution plus propre avec vérification de type simplifiée
+- Extensible pour le support futur de gestionnaires de packages
 
-**Alternatives considered**:
+**Alternatives envisagées** :
 
-- Enum-based types - Rejected: violates constitutional principle VIII
-- Class-based adapter pattern - Rejected: over-engineering for simple
-  command mapping
-- Runtime detection only - Rejected: insufficient for explicit user
-  configuration
+- Types basés sur enum - Rejetés : violent le principe constitutionnel VIII
+- Pattern d'adaptateur basé sur classe - Rejeté : sur-ingénierie pour un mappage de commandes simple
+- Détection uniquement à l'exécution - Rejetée : insuffisante pour la configuration explicite de l'utilisateur
 
-**Implementation Approach**:
+**Approche d'implémentation** :
 
 ```typescript
 type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
@@ -146,36 +128,32 @@ const PACKAGE_MANAGER_COMMANDS = {
 } as const;
 ```
 
-### Atomic Operations and Rollback Strategy
+### Opérations atomiques et stratégie de rollback
 
-**Decision**: State Capture Before Any Modifications with Automatic
-Rollback  
-**Rationale**:
+**Décision** : Capture d'état avant toute modification avec rollback automatique  
+**Raison** :
 
-- Constitutional principle VII requires atomic operations with rollback
-  safety
-- Early state capture ensures complete recovery capability
-- Automatic rollback on failure prevents partial upgrade states
-- Separate rollback error tracking provides comprehensive failure
-  diagnostics
+- Le principe constitutionnel VII exige des opérations atomiques avec sécurité de rollback
+- La capture d'état précoce assure une capacité de récupération complète
+- Le rollback automatique en cas d'échec empêche les états de mise à niveau partiels
+- Le suivi d'erreur de rollback séparé fournit des diagnostics d'échec complets
 
-**Alternatives considered**:
+**Alternatives envisagées** :
 
-- Incremental state tracking - Rejected: partial states increase rollback
-  complexity
-- Manual rollback triggers - Rejected: violates atomic operation principle
-- Best-effort rollback - Rejected: insufficient safety guarantee
+- Suivi d'état incrémental - Rejeté : les états partiels augmentent la complexité du rollback
+- Déclencheurs de rollback manuels - Rejetés : violent le principe d'opération atomique
+- Rollback au mieux - Rejeté : garantie de sécurité insuffisante
 
-**Implementation Approach**:
+**Approche d'implémentation** :
 
 ```typescript
-// Capture complete initial state before any modifications
+// Capturer l'état initial complet avant toute modification
 const initialState = await this.stateManager.captureInitialState();
 
 try {
-  // Perform upgrades...
+  // Effectuer les mises à niveau...
 } catch (error) {
-  // Automatic rollback with error segregation
+  // Rollback automatique avec ségrégation d'erreur
   if (options?.rollbackOnFailure !== false) {
     try {
       await this.stateManager.rollbackToState(initialState);
@@ -187,62 +165,55 @@ try {
 }
 ```
 
-## Implementation Readiness
+## Prêt pour l'implémentation
 
-All research complete. No unresolved technical unknowns remain. The design
-approach aligns with constitutional principles and addresses all functional
-requirements from the feature specification.
+Toutes les recherches terminées. Aucun inconnu technique non résolu ne subsiste. L'approche de conception s'aligne avec les principes constitutionnels et répond à toutes les exigences fonctionnelles de la spécification de fonctionnalité.
 
-**Key Technical Decisions Made**:
+**Décisions techniques clés prises** :
 
-1. ✅ Two-script configuration (test + build) with auto-generated install
-   commands
-2. ✅ Additional scripts for integration testing post-upgrade
-3. ✅ Enhanced dependency state management with semver sign preservation
-4. ✅ String union-based package manager abstraction
-5. ✅ Atomic operations with mandatory rollback safety
+1. ✅ Configuration à deux scripts (test + build) avec commandes d'installation auto-générées
+2. ✅ Scripts supplémentaires pour les tests d'intégration post-mise à niveau
+3. ✅ Gestion améliorée de l'état des dépendances avec préservation des signes semver
+4. ✅ Abstraction de gestionnaire de packages basée sur union de chaînes
+5. ✅ Opérations atomiques avec sécurité de rollback obligatoire
 
-**Ready for Phase 1: Design & Contracts**
+**Prêt pour la Phase 1 : Conception et contrats**
 
-### New Services Required
+### Nouveaux services requis
 
-- **DependencyStateManager**: Core state management functionality
-- **PackageManagerAdapter**: Abstract package manager differences
-- **RollbackService**: Specialized rollback logic and verification
+- **DependencyStateManager** : Fonctionnalité de gestion d'état centrale
+- **PackageManagerAdapter** : Abstraction des différences de gestionnaire de packages
+- **RollbackService** : Logique de rollback spécialisée et vérification
 
-## Risk Mitigations Identified
+## Atténuations des risques identifiées
 
-1. **Concurrent Modifications**: File system watching during upgrade
-   process
-2. **Package Manager Edge Cases**: Comprehensive test coverage for each PM
-3. **Semver Sign Variations**: Explicit parsing and validation logic
-4. **Rollback Failures**: Multi-level error handling with manual recovery
-   guides
-5. **Script Timeout Handling**: Configurable timeouts with graceful
-   termination
+1. **Modifications simultanées** : Surveillance du système de fichiers pendant le processus de mise à niveau
+2. **Cas particuliers de gestionnaire de packages** : Couverture de test complète pour chaque GP
+3. **Variations des signes semver** : Logique explicite d'analyse et de validation
+4. **Échecs de rollback** : Gestion d'erreur multi-niveaux avec guides de récupération manuelle
+5. **Gestion des délais d'expiration de scripts** : Délais configurables avec terminaison gracieuse
 
-## Dependencies Analysis
+## Analyse des dépendances
 
-### No New Runtime Dependencies Required
+### Aucune nouvelle dépendance d'exécution requise
 
-- Semver parsing: Use Node.js built-in or existing project utilities
-- File system operations: Node.js fs module
-- Process execution: Existing execa integration
-- JSON parsing: Node.js built-in
+- Analyse semver : Utiliser les utilitaires intégrés Node.js ou existants du projet
+- Opérations système de fichiers : Module fs de Node.js
+- Exécution de processus : Intégration execa existante
+- Analyse JSON : Intégrée à Node.js
 
-### Enhanced DevDependencies
+### DevDependencies améliorées
 
-- Additional test fixtures for various package manager scenarios
-- Mock utilities for package manager command simulation
+- Fixtures de test supplémentaires pour divers scénarios de gestionnaire de packages
+- Utilitaires de simulation pour la simulation de commandes de gestionnaire de packages
 
-## Performance Considerations
+## Considérations de performance
 
-- State capture: O(n) where n = number of dependencies
-- Rollback operations: O(n) for restoration + package manager install time
-- Memory usage: Minimal - only dependency metadata stored
-- I/O operations: Limited to package.json read/write + package manager
-  commands
+- Capture d'état : O(n) où n = nombre de dépendances
+- Opérations de rollback : O(n) pour la restauration + temps d'installation du gestionnaire de packages
+- Utilisation mémoire : Minimale - seules les métadonnées de dépendances stockées
+- Opérations I/O : Limitées à la lecture/écriture package.json + commandes de gestionnaire de packages
 
-## Next Steps
+## Prochaines étapes
 
-Research complete. Ready for Phase 1 design and contracts generation.
+Recherche terminée. Prêt pour la conception et la génération de contrats de la Phase 1.
