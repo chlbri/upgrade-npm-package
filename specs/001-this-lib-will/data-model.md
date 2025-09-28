@@ -8,8 +8,10 @@ Basé sur la spécification de fonctionnalité et la recherche.
 
 - name : string
 - section : 'dependencies' | 'devDependencies' | 'optionalDependencies'
-- currentVersion : string (version minimale déclarée en préservant l'opérateur)
-- availableNewer : string[] (trié du plus récent au plus ancien ; stable-only)
+- currentVersion : string (version minimale déclarée en préservant
+  l'opérateur)
+- availableNewer : string[] (trié du plus récent au plus ancien ;
+  stable-only)
 
 Validation :
 
@@ -28,7 +30,8 @@ Validation :
 
 Validation :
 
-- candidateVersion doit être une version semver valide (pas de pré-release sauf si autorisé)
+- candidateVersion doit être une version semver valide (pas de pré-release
+  sauf si autorisé)
 - action doit corréler avec ciStatus (pass→accept, fail→revert)
 
 ### SummaryReport
@@ -62,11 +65,14 @@ Relations :
 
 ### Gestion des erreurs
 
-- **Dégradation gracieuse** : Continuer le traitement en cas d'échecs individuels
-- **Opérations atomiques** : Mises à jour tout-ou-rien avec rollback automatique
+- **Dégradation gracieuse** : Continuer le traitement en cas d'échecs
+  individuels
+- **Opérations atomiques** : Mises à jour tout-ou-rien avec rollback
+  automatique
 - **Journalisation structurée** : Rapport clair de progression et d'échecs
 
 ---
 
-Les contraintes non-fonctionnelles selon la Constitution v1.1.0 sont satisfaites par conception.
-L'intégration cmd-ts fournit un parsing d'arguments CLI typé comme demandé.
+Les contraintes non-fonctionnelles selon la Constitution v1.1.0 sont
+satisfaites par conception. L'intégration cmd-ts fournit un parsing
+d'arguments CLI typé comme demandé.

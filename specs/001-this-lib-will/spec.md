@@ -171,14 +171,21 @@ maintenir le projet à jour sans casser la build.
 
 ### Exigences non fonctionnelles
 
-- **NFR-001** : Les modifications DOIVENT être conformes à la Constitution du dépôt (pnpm en premier, dépendances minimales, tests/lint/limite de taille réussis).
-- **NFR-002** : Les journaux DOIVENT être clairs et actionnables ; les échecs doivent inclure la dépendance et la version qui a échoué.
-- **NFR-003** : L'outil DOIT être idempotent : relancer après une mise à niveau réussie ne doit pas retenter les versions déjà acceptées.
+- **NFR-001** : Les modifications DOIVENT être conformes à la Constitution
+  du dépôt (pnpm en premier, dépendances minimales, tests/lint/limite de
+  taille réussis).
+- **NFR-002** : Les journaux DOIVENT être clairs et actionnables ; les
+  échecs doivent inclure la dépendance et la version qui a échoué.
+- **NFR-003** : L'outil DOIT être idempotent : relancer après une mise à
+  niveau réussie ne doit pas retenter les versions déjà acceptées.
 
 ### Entités clés _(inclure si la fonctionnalité implique des données)_
 
-- **Dépendance** : nom, section (dep/dev/optionnel), version actuelle, versions plus récentes disponibles [v_plus_récente … v_moins_récente].
-- **Résultat de tentative** : nom du package, version candidate, statutCI (réussi/échoué), raison d'échec (ex. conflit de pair, échec de test), action choisie (accepter/annuler).
+- **Dépendance** : nom, section (dep/dev/optionnel), version actuelle,
+  versions plus récentes disponibles [v_plus_récente … v_moins_récente].
+- **Résultat de tentative** : nom du package, version candidate, statutCI
+  (réussi/échoué), raison d'échec (ex. conflit de pair, échec de test),
+  action choisie (accepter/annuler).
 
 ---
 
@@ -197,7 +204,8 @@ maintenir le projet à jour sans casser la build.
 
 ## Liste de vérification de révision et d'acceptation
 
-_PORTE : Vérifications automatisées exécutées pendant l'exécution de main()_
+_PORTE : Vérifications automatisées exécutées pendant l'exécution de
+main()_
 
 ### Qualité du contenu
 
@@ -229,4 +237,3 @@ _Mis à jour par main() pendant le traitement_
 - [ ] Liste de vérification de révision passée
 
 ---
-

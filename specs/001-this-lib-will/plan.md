@@ -27,34 +27,43 @@
 9. STOP - Ready for /tasks command
 ```
 
-**IMPORTANT** : La commande /plan S'ARRÊTE à l'étape 8. Les phases 2-4 sont exécutées
-par d'autres commandes :
+**IMPORTANT** : La commande /plan S'ARRÊTE à l'étape 8. Les phases 2-4 sont
+exécutées par d'autres commandes :
 
--- Phase 2 : la commande /tasks crée tasks.md
--- Phase 3-4 : Exécution d'implémentation (manuelle ou via outils)
+-- Phase 2 : la commande /tasks crée tasks.md -- Phase 3-4 : Exécution
+d'implémentation (manuelle ou via outils)
 
 ## Suivi d'avancement
 
 ✅ **Étape 1** : Spécification chargée depuis le chemin d'entrée  
 ✅ **Étape 2** : Contexte technique complété avec intégration de cmd-ts  
-✅ **Étape 3** : Vérification constitutionnelle complétée - PASS (aucune violation)  
+✅ **Étape 3** : Vérification constitutionnelle complétée - PASS (aucune
+violation)  
 ✅ **Étape 4** : Évaluation constitutionnelle initiale complétée  
-✅ **Étape 5** : Phase 0 (research.md) mise à jour avec les décisions cmd-ts  
-✅ **Étape 6** : Artéfacts Phase 1 générés - data-model.md, quickstart.md, contracts/openapi.yaml mis à jour  
-✅ **Étape 7** : Re-vérification post-design de la Constitution - PASS (conformité maintenue)  
+✅ **Étape 5** : Phase 0 (research.md) mise à jour avec les décisions
+cmd-ts  
+✅ **Étape 6** : Artéfacts Phase 1 générés - data-model.md, quickstart.md,
+contracts/openapi.yaml mis à jour  
+✅ **Étape 7** : Re-vérification post-design de la Constitution - PASS
+(conformité maintenue)  
 ✅ **Étape 8** : Planification Phase 2 décrite ci-dessous
 
 ## Planification Phase 2 (Approche de génération des tâches)
 
-La commande /tasks générera tasks.md avec des tâches d'implémentation ordonnées selon le TDD :
+La commande /tasks générera tasks.md avec des tâches d'implémentation
+ordonnées selon le TDD :
 
 ### Ordre d'implémentation (TDD requis)
 
 1. **Modèles & Types** : Définir d'abord les interfaces TypeScript
-2. **Tests Unitaires** : Écrire des tests qui échouent pour chaque service/utilitaire
-3. **Services centraux** : Implémenter PackageJsonService, RegistryService, CiRunnerService
-4. **Orchestration** : Implémenter UpgradeOrchestrator avec la logique métier
-5. **Interface CLI** : Implémenter le parsing cmd-ts et le point d'entrée principal
+2. **Tests Unitaires** : Écrire des tests qui échouent pour chaque
+   service/utilitaire
+3. **Services centraux** : Implémenter PackageJsonService, RegistryService,
+   CiRunnerService
+4. **Orchestration** : Implémenter UpgradeOrchestrator avec la logique
+   métier
+5. **Interface CLI** : Implémenter le parsing cmd-ts et le point d'entrée
+   principal
 6. **Tests d'intégration** : Validation du workflow de bout en bout
 7. **Tests de contrat** : Valider contre la spécification OpenAPI
 
@@ -71,7 +80,12 @@ Ready for /tasks command execution.
 
 ## Résumé
 
-Un outil sûr de mise à niveau des dépendances qui liste les versions plus récentes depuis le registre npm et effectue des mises à jour itératives avec contrôle CI. Fonctionnalités : mode fast-path admin, upgrade itératif en fallback, gestion des conflits de peer dependencies, et reporting complet. Interface CLI utilisant la librairie cmd-ts pour un parsing d'arguments typé.
+Un outil sûr de mise à niveau des dépendances qui liste les versions plus
+récentes depuis le registre npm et effectue des mises à jour itératives
+avec contrôle CI. Fonctionnalités : mode fast-path admin, upgrade itératif
+en fallback, gestion des conflits de peer dependencies, et reporting
+complet. Interface CLI utilisant la librairie cmd-ts pour un parsing
+d'arguments typé.
 
 ## Technical Context
 
@@ -91,26 +105,40 @@ size per output
 **Scale/Scope**: Single package.json processing, supports typical Node.js
 project dependency counts
 
-**Intégration des arguments utilisateur** : La CLI doit utiliser la lib cmd-ts (parsing d'arguments piloté par les types avec support TypeScript)
+**Intégration des arguments utilisateur** : La CLI doit utiliser la lib
+cmd-ts (parsing d'arguments piloté par les types avec support TypeScript)
 
 ## Vérification de la Constitution
 
-_GATE : Doit être passé avant la recherche Phase 0. Re-vérifier après la conception Phase 1._
+_GATE : Doit être passé avant la recherche Phase 0. Re-vérifier après la
+conception Phase 1._
 
-**Vérification initiale (Pré-Phase 0) :** ✅ **Principe I** (pnpm-first, Node 20+, ESM-first) : Conforme - utilisation de pnpm, Node >= 20, ESM-first avec compatibilité CJS  
-✅ **Principe II** (Dépendances minimales) : Conforme - seules les dépendances essentielles : edit-json-file, semver, shelljs, cmd-ts  
-✅ **Principe III** (Mises à jour automatisées) : Conforme - cet outil permet les mises à jour automatisées des dépendances  
-✅ **Principe IV** (Discipline test, lint, taille) : Conforme - tests Vitest, size-limit <10KB appliqué  
-✅ **Principe V** (Stabilité API) : Conforme - versionnement sémantique planifié  
-✅ **Principe VI** (TDD) : Conforme - TDD imposé, développement tests-first requis
+**Vérification initiale (Pré-Phase 0) :** ✅ **Principe I** (pnpm-first,
+Node 20+, ESM-first) : Conforme - utilisation de pnpm, Node >= 20,
+ESM-first avec compatibilité CJS  
+✅ **Principe II** (Dépendances minimales) : Conforme - seules les
+dépendances essentielles : edit-json-file, semver, shelljs, cmd-ts  
+✅ **Principe III** (Mises à jour automatisées) : Conforme - cet outil
+permet les mises à jour automatisées des dépendances  
+✅ **Principe IV** (Discipline test, lint, taille) : Conforme - tests
+Vitest, size-limit <10KB appliqué  
+✅ **Principe V** (Stabilité API) : Conforme - versionnement sémantique
+planifié  
+✅ **Principe VI** (TDD) : Conforme - TDD imposé, développement tests-first
+requis
 
-**Re-vérification Post-Phase 1 :** ✅ **Architecture des services** : La structure projet unique s'aligne avec les contraintes constitutionnelles  
-✅ **Conception CLI** : cmd-ts apporte la sécurité de type et une gestion d'erreur supérieure  
-✅ **Stratégie de tests** : Tests unitaires/intégration/contrats planifiés pour conformité TDD  
+**Re-vérification Post-Phase 1 :** ✅ **Architecture des services** : La
+structure projet unique s'aligne avec les contraintes constitutionnelles  
+✅ **Conception CLI** : cmd-ts apporte la sécurité de type et une gestion
+d'erreur supérieure  
+✅ **Stratégie de tests** : Tests unitaires/intégration/contrats planifiés
+pour conformité TDD  
 ✅ **Système de build** : Rollup configuré pour respecter le budget <10KB  
-✅ **Dépendances** : Tous les runtime deps sont justifiés et minimaux (edit-json-file, semver, shelljs, cmd-ts)
+✅ **Dépendances** : Tous les runtime deps sont justifiés et minimaux
+(edit-json-file, semver, shelljs, cmd-ts)
 
-**Statut** : PASS - La conception maintient la conformité constitutionnelle. Aucune violation introduite en Phase 1.
+**Statut** : PASS - La conception maintient la conformité
+constitutionnelle. Aucune violation introduite en Phase 1.
 
 ## Structure du projet
 

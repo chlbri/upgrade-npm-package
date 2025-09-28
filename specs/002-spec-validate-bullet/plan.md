@@ -1,8 +1,8 @@
 # Plan d'Implémentation : Gestion Améliorée de l'État des Dépendances et Rollback
 
-**Branche** : `002-spec-validate-bullet` | **Date** : 2025-09-28 | **Spécification** :
-[./spec.md](./spec.md) **Entrée** : Spécification de fonctionnalité depuis
-`/specs/002-spec-validate-bullet/spec.md`
+**Branche** : `002-spec-validate-bullet` | **Date** : 2025-09-28 |
+**Spécification** : [./spec.md](./spec.md) **Entrée** : Spécification de
+fonctionnalité depuis `/specs/002-spec-validate-bullet/spec.md`
 
 ## Flux d'Exécution (portée de la commande /plan)
 
@@ -69,18 +69,18 @@ suivi amélioré de l'état des dépendances avec sécurité de rollback.
 
 ## Contexte Technique
 
-**Langage/Version** : TypeScript 5.x avec Node.js >= 22 (ESM-first)  
-**Dépendances Principales** : cmd-ts, execa, utilitaires de parsing semver  
+**Langage/Version** : TypeScript 5.x avec Node.js >= 22 (ESM-first)
+**Dépendances Principales** : cmd-ts, execa, utilitaires de parsing semver
 **Stockage** : Gestion d'état en mémoire pendant le processus de mise à niveau (pas de
-stockage persistant)  
-**Tests** : Vitest (tests unitaires et d'intégration avec approche TDD)  
-**Plateforme Cible** : Outil CLI Node.js supportant npm, yarn, pnpm, bun  
+stockage persistant)
+**Tests** : Vitest (tests unitaires et d'intégration avec approche TDD)
+**Plateforme Cible** : Outil CLI Node.js supportant npm, yarn, pnpm, bun
 **Type de Projet** : Projet de bibliothèque unique - outil CLI avec architecture par
-couche de services  
+couche de services
 **Objectifs de Performance** : Capture d'état < 5 secondes, opérations de rollback < 30
-secondes  
+secondes
 **Contraintes** : Opérations atomiques uniquement, sécurité de rollback obligatoire,
-conformité constitutionnelle  
+conformité constitutionnelle
 **Échelle/Portée** : Outil CLI traitant les dépendances typiques de projets Node.js
 (10-500 packages)
 
@@ -118,13 +118,13 @@ _PORTE : Doit passer avant la recherche Phase 0. Re-vérifier après la concepti
 ### Documentation (cette fonctionnalité)
 
 ```
-specs/[###-feature]/
-├── plan.md              # Ce fichier (sortie de commande /plan)
-├── research.md          # Sortie Phase 0 (/plan command)
-├── data-model.md        # Sortie Phase 1 (/plan command)
-├── quickstart.md        # Sortie Phase 1 (/plan command)
-├── contracts/           # Sortie Phase 1 (/plan command)
-└── tasks.md             # Sortie Phase 2 (/tasks command - NON créé par /plan)
+
+specs/[###-feature]/ ├── plan.md # Ce fichier (sortie de commande /plan)
+├── research.md # Sortie Phase 0 (/plan command) ├── data-model.md # Sortie
+Phase 1 (/plan command) ├── quickstart.md # Sortie Phase 1 (/plan command)
+├── contracts/ # Sortie Phase 1 (/plan command) └── tasks.md # Sortie Phase
+2 (/tasks command - NON créé par /plan)
+
 ```
 
 ### Code Source (racine du dépôt)
@@ -141,278 +141,295 @@ _Basé sur Constitution v1.2.0 - Voir `/memory/constitution.md`_
 **Structure de Projet Unique (Sélectionnée)** :
 
 ```
-src/
-├── models/          # Définitions de types, interfaces
-├── services/        # Logique métier core des services
-├── cli/            # Interface en ligne de commande
-└── libs/           # Bibliothèques utilitaires
-
-tests/
-├── contract/       # Tests de validation de contrats API
- # Plan d'implémentation : Gestion d'état améliorée des dépendances et rollback
-
- **Branche** : `002-spec-validate-bullet` | **Date** : 2025-09-28 | **Spec** : [./spec.md](./spec.md)  **Entrée** : spécification de la fonctionnalité depuis `/specs/002-spec-validate-bullet/spec.md`
-
- ## Flux d'exécution (périmètre de la commande /plan)
-
- ```
- 1. Charger la spécification de la fonctionnalité depuis le chemin d'entrée
-    → Si non trouvée : ERREUR « No feature spec at {path} »
- 2. Remplir le Contexte Technique (rechercher les NEEDS CLARIFICATION)
-    → Détecter le type de projet depuis la structure des fichiers ou le contexte (web=frontend+backend, mobile=app+api)
-    → Définir la décision de structure en fonction du type de projet
- 3. Remplir la section Constitution Check d'après le document de constitution
- 4. Évaluer la section Constitution Check ci‑dessous
-    → Si des violations existent : Documenter dans Complexity Tracking
-    → Si aucune justification possible : ERREUR « Simplify approach first »
-    → Mettre à jour le suivi de progression : Initial Constitution Check
- 5. Exécuter la Phase 0 → `research.md`
-    → Si des NEEDS CLARIFICATION persistent : ERREUR « Resolve unknowns »
- 6. Exécuter la Phase 1 → `contracts`, `data-model.md`, `quickstart.md`, fichier template spécifique à l'agent (ex. `CLAUDE.md` pour Claude Code, `.github/copilot-instructions.md` pour GitHub Copilot, `GEMINI.md` pour Gemini CLI, `QWEN.md` pour Qwen Code ou `AGENTS.md` pour opencode).
- 7. Réévaluer la section Constitution Check
-    → Si nouvelles violations : Refactoriser la conception, revenir à la Phase 1
-    → Mettre à jour le suivi : Post-Design Constitution Check
- 8. Planifier la Phase 2 → Décrire l'approche de génération des tâches (NE PAS créer `tasks.md`)
- 9. STOP - Prêt pour la commande /tasks
- ```
-
- ## Approche de génération des tâches (Phase 2)
-
- ### Stratégie de découpage des tâches
- La commande `/tasks` générera des tâches d'implémentation à partir des résultats de la recherche, du data model et des contrats de la Phase 1. Les tâches seront organisées par :
-
- 1. Développement des services coeur : `DependencyStateManager`, `PackageManagerAdapter`
- 2. Amélioration du CLI : interface de commande mise à jour supportant la configuration simplifiée des scripts
- 3. Gestion d'état : opérations atomiques avec mécanismes de rollback
- 4. Tests d'intégration : scripts additionnels positionnés pour la validation des tests
- 5. Documentation : guides d'implémentation et documentation API
-
- ### Priorisation des tâches
- - **Priorité 1** : Fondations de capture d'état et rollback (bloquant pour les autres fonctionnalités)
- - **Priorité 2** : Abstraction du gestionnaire de paquets et logique d'auto‑détection
- - **Priorité 3** : Implémentation de la configuration simplifiée des scripts
- - **Priorité 4** : Mises à jour de l'interface CLI et tests d'intégration
- - **Priorité 5** : Documentation et gestion des cas limites
-
- ### Intégration de la conformité constitutionnelle
- Chaque tâche inclura des étapes de validation constitutionnelle garantissant :
- - Types sous forme d'union de chaînes pour toutes les options de configuration
- - Validation de la sécurité du rollback dans les opérations de gestion d'état
- - Approche TDD avec développement des tests avant l'implémentation (contract-first)
-
- Cette approche garantit une implémentation systématique tout en respectant les principes constitutionnels définis lors de la phase de recherche.
-
- ```
-
- **IMPORTANT** : La commande /plan S'ARRÊTE à l'étape 7. Les phases 2–4 sont exécutées par d'autres commandes :
 
- - Phase 2 : la commande /tasks crée `tasks.md`
- - Phase 3–4 : exécution de l'implémentation (manuelle ou via des outils)
+src/ ├── models/ # Définitions de types, interfaces ├── services/ # Logique
+métier core des services ├── cli/ # Interface en ligne de commande └──
+libs/ # Bibliothèques utilitaires
+
+tests/ ├── contract/ # Tests de validation de contrats API
+
+# Plan d'implémentation : Gestion d'état améliorée des dépendances et rollback
+
+**Branche** : `002-spec-validate-bullet` | **Date** : 2025-09-28 |
+**Spec** : [./spec.md](./spec.md) **Entrée** : spécification de la
+fonctionnalité depuis `/specs/002-spec-validate-bullet/spec.md`
+
+## Flux d'exécution (périmètre de la commande /plan)
+
+```
+1. Charger la spécification de la fonctionnalité depuis le chemin d'entrée
+   → Si non trouvée : ERREUR « No feature spec at {path} »
+2. Remplir le Contexte Technique (rechercher les NEEDS CLARIFICATION)
+   → Détecter le type de projet depuis la structure des fichiers ou le contexte (web=frontend+backend, mobile=app+api)
+   → Définir la décision de structure en fonction du type de projet
+3. Remplir la section Constitution Check d'après le document de constitution
+4. Évaluer la section Constitution Check ci‑dessous
+   → Si des violations existent : Documenter dans Complexity Tracking
+   → Si aucune justification possible : ERREUR « Simplify approach first »
+   → Mettre à jour le suivi de progression : Initial Constitution Check
+5. Exécuter la Phase 0 → `research.md`
+   → Si des NEEDS CLARIFICATION persistent : ERREUR « Resolve unknowns »
+6. Exécuter la Phase 1 → `contracts`, `data-model.md`, `quickstart.md`, fichier template spécifique à l'agent (ex. `CLAUDE.md` pour Claude Code, `.github/copilot-instructions.md` pour GitHub Copilot, `GEMINI.md` pour Gemini CLI, `QWEN.md` pour Qwen Code ou `AGENTS.md` pour opencode).
+7. Réévaluer la section Constitution Check
+   → Si nouvelles violations : Refactoriser la conception, revenir à la Phase 1
+   → Mettre à jour le suivi : Post-Design Constitution Check
+8. Planifier la Phase 2 → Décrire l'approche de génération des tâches (NE PAS créer `tasks.md`)
+9. STOP - Prêt pour la commande /tasks
+```
 
- ## Résumé
+## Approche de génération des tâches (Phase 2)
 
- Système de gestion d'état des dépendances amélioré avec capacités de rollback pour l'outil CLI `upgrade-npm-package`. Le système capture l'état initial des dépendances (y compris les opérateurs semver), réalise des mises à jour atomiques avec validation configurable des scripts, et restaure automatiquement en cas d'échec. Changements techniques clés : simplification de la configuration des scripts (l'utilisateur fournit uniquement `test` et `build` ; les scripts d'installation sont générés automatiquement selon le type de gestionnaire de paquets détecté), repositionnement des scripts additionnels pour les tests plutôt que pour la configuration, et suivi renforcé de l'état des dépendances avec sécurité de rollback.
+### Stratégie de découpage des tâches
 
- ## Contexte technique
+La commande `/tasks` générera des tâches d'implémentation à partir des
+résultats de la recherche, du data model et des contrats de la Phase 1. Les
+tâches seront organisées par :
 
- **Langage/Version** : TypeScript 5.x avec Node.js >= 20 (ESM‑first)  
- **Dépendances principales** : `cmd-ts`, `execa`, utilitaires de parsing `semver`  
- **Stockage** : gestion d'état en mémoire pendant le processus d'upgrade (pas de stockage persistant)  
- **Tests** : Vitest (tests unitaires et d'intégration avec approche TDD)  
- **Plateforme cible** : outil CLI Node.js supportant `npm`, `yarn`, `pnpm`, `bun`  
- **Type de projet** : projet de bibliothèque unique - outil CLI avec architecture en couche de services  
- **Objectifs de performance** : capture d'état < 5 secondes, rollback < 30 secondes  
- **Contraintes** : opérations atomiques uniquement, sécurité du rollback obligatoire, conformité constitutionnelle  
- **Échelle/Portée** : outil CLI traitant les dépendances typiques d'un projet Node.js (10–500 paquets)
+1.  Développement des services coeur : `DependencyStateManager`,
+    `PackageManagerAdapter`
+2.  Amélioration du CLI : interface de commande mise à jour supportant la
+    configuration simplifiée des scripts
+3.  Gestion d'état : opérations atomiques avec mécanismes de rollback
+4.  Tests d'intégration : scripts additionnels positionnés pour la
+    validation des tests
+5.  Documentation : guides d'implémentation et documentation API
 
- **Détails sur l'entrée utilisateur** :
+### Priorisation des tâches
 
- - Configuration des scripts simplifiée : l'utilisateur fournit uniquement les scripts `test` et `build`
- - Les scripts d'installation doivent être générés automatiquement en fonction du gestionnaire de paquets détecté
- - Les scripts additionnels sont repositionnés pour les tests dans la méthode `upgradeWithRollback` (et non pour le setup)
- - Mécanisme de rollback amélioré avec suivi d'état des dépendances incluant les opérateurs semver
+- **Priorité 1** : Fondations de capture d'état et rollback (bloquant pour
+  les autres fonctionnalités)
+- **Priorité 2** : Abstraction du gestionnaire de paquets et logique
+  d'auto‑détection
+- **Priorité 3** : Implémentation de la configuration simplifiée des
+  scripts
+- **Priorité 4** : Mises à jour de l'interface CLI et tests d'intégration
+- **Priorité 5** : Documentation et gestion des cas limites
 
- ## Contrôle de conformité constitutionnelle
+### Intégration de la conformité constitutionnelle
 
- _GATE : Doit être validé avant la Phase 0 research. Re‑vérifier après la Phase 1 design._
+Chaque tâche inclura des étapes de validation constitutionnelle
+garantissant :
 
- **✅ Évaluation de conformité constitutionnelle** :
+- Types sous forme d'union de chaînes pour toutes les options de
+  configuration
+- Validation de la sécurité du rollback dans les opérations de gestion
+  d'état
+- Approche TDD avec développement des tests avant l'implémentation
+  (contract-first)
 
- - **Principe I (pnpm‑first, Node 20+, ESM‑first)** : ✅ PASS - TypeScript 5.x avec Node.js >= 20, architecture ESM‑first
- - **Principe II (Dépendances runtime minimales)** : ✅ PASS - `cmd-ts`, `execa`, `semver` sont des dépendances minimales nécessaires
- - **Principe VI (Test‑Driven Development)** : ✅ PASS - approche TDD spécifiée pour toute nouvelle fonctionnalité
- - **Principe VII (Sécurité du rollback & opérations atomiques)** : ✅ PASS - exigence core, capacités de rollback complètes via `DependencyStateManager`
- - **Principe VIII (Unions de chaînes plutôt qu'enums)** : ✅ PASS - types de gestionnaire de paquets en union de chaînes ('npm' | 'yarn' | 'pnpm' | 'bun')
- - **Exigences CLI** : ✅ PASS - mode amélioré avec scripts configurables, rollback activé par défaut
+Cette approche garantit une implémentation systématique tout en respectant
+les principes constitutionnels définis lors de la phase de recherche.
 
- **Aucune violation détectée** : la fonctionnalité respecte les principes constitutionnels.
+```
 
- ## Structure du projet
+**IMPORTANT** : La commande /plan S'ARRÊTE à l'étape 7. Les phases 2–4 sont exécutées par d'autres commandes :
 
- ### Documentation (cette fonctionnalité)
+- Phase 2 : la commande /tasks crée `tasks.md`
+- Phase 3–4 : exécution de l'implémentation (manuelle ou via des outils)
 
- ```
- specs/[###-feature]/
- ├── plan.md              # Ce fichier (sortie de la commande /plan)
- ├── research.md          # Sortie Phase 0 (commande /plan)
- ├── data-model.md        # Sortie Phase 1 (commande /plan)
- ├── quickstart.md        # Sortie Phase 1 (commande /plan)
- ├── contracts/           # Sortie Phase 1 (commande /plan)
- └── tasks.md             # Sortie Phase 2 (commande /tasks - NON créée par /plan)
- ```
+## Résumé
 
- ### Code source (racine du dépôt)
+Système de gestion d'état des dépendances amélioré avec capacités de rollback pour l'outil CLI `upgrade-npm-package`. Le système capture l'état initial des dépendances (y compris les opérateurs semver), réalise des mises à jour atomiques avec validation configurable des scripts, et restaure automatiquement en cas d'échec. Changements techniques clés : simplification de la configuration des scripts (l'utilisateur fournit uniquement `test` et `build` ; les scripts d'installation sont générés automatiquement selon le type de gestionnaire de paquets détecté), repositionnement des scripts additionnels pour les tests plutôt que pour la configuration, et suivi renforcé de l'état des dépendances avec sécurité de rollback.
 
- <!--
-   ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
-   for this feature. Delete unused options and expand the chosen structure with
-   real paths (e.g., apps/admin, packages/something). The delivered plan must
-   not include Option labels.
- -->
+## Contexte technique
 
- _Basé sur Constitution v1.2.0 - Voir `/memory/constitution.md`_
+**Langage/Version** : TypeScript 5.x avec Node.js >= 20 (ESM‑first)
+**Dépendances principales** : `cmd-ts`, `execa`, utilitaires de parsing `semver`
+**Stockage** : gestion d'état en mémoire pendant le processus d'upgrade (pas de stockage persistant)
+**Tests** : Vitest (tests unitaires et d'intégration avec approche TDD)
+**Plateforme cible** : outil CLI Node.js supportant `npm`, `yarn`, `pnpm`, `bun`
+**Type de projet** : projet de bibliothèque unique - outil CLI avec architecture en couche de services
+**Objectifs de performance** : capture d'état < 5 secondes, rollback < 30 secondes
+**Contraintes** : opérations atomiques uniquement, sécurité du rollback obligatoire, conformité constitutionnelle
+**Échelle/Portée** : outil CLI traitant les dépendances typiques d'un projet Node.js (10–500 paquets)
 
- **Structure de projet mono‑paquet (sélectionnée)** :
+**Détails sur l'entrée utilisateur** :
 
- ```
- src/
- ├── models/          # Définitions de types, interfaces
- ├── services/        # Services logiques coeur
- ├── cli/             # Interface en ligne de commande
- └── libs/            # Bibliothèques utilitaires
+- Configuration des scripts simplifiée : l'utilisateur fournit uniquement les scripts `test` et `build`
+- Les scripts d'installation doivent être générés automatiquement en fonction du gestionnaire de paquets détecté
+- Les scripts additionnels sont repositionnés pour les tests dans la méthode `upgradeWithRollback` (et non pour le setup)
+- Mécanisme de rollback amélioré avec suivi d'état des dépendances incluant les opérateurs semver
 
- tests/
- ├── contract/       # Tests de validation de contrat API
- ├── integration/    # Tests de bout en bout
- └── unit/           # Tests isolés
- ```
+## Contrôle de conformité constitutionnelle
 
- **Décision de structure** : la structure mono‑projet a été choisie car il s'agit d'un outil CLI bibliothécaire. La structure existante correspond aux exigences constitutionnelles et aux besoins de la fonctionnalité : couche services pour la logique métier (`DependencyStateManager`, `ScriptExecutionService`), couche CLI pour l'interface utilisateur, et couverture de tests complète (contract, integration, unit).
+_GATE : Doit être validé avant la Phase 0 research. Re‑vérifier après la Phase 1 design._
 
- ## Phase 0 : Plan et recherche
+**✅ Évaluation de conformité constitutionnelle** :
 
- 1. **Extraire les inconnues** du Contexte Technique ci‑dessus :
-    - Pour chaque NEEDS CLARIFICATION → tâche de recherche
-    - Pour chaque dépendance → tâche « best practices »
-    - Pour chaque intégration → tâche « patterns »
+- **Principe I (pnpm‑first, Node 20+, ESM‑first)** : ✅ PASS - TypeScript 5.x avec Node.js >= 20, architecture ESM‑first
+- **Principe II (Dépendances runtime minimales)** : ✅ PASS - `cmd-ts`, `execa`, `semver` sont des dépendances minimales nécessaires
+- **Principe VI (Test‑Driven Development)** : ✅ PASS - approche TDD spécifiée pour toute nouvelle fonctionnalité
+- **Principe VII (Sécurité du rollback & opérations atomiques)** : ✅ PASS - exigence core, capacités de rollback complètes via `DependencyStateManager`
+- **Principe VIII (Unions de chaînes plutôt qu'enums)** : ✅ PASS - types de gestionnaire de paquets en union de chaînes ('npm' | 'yarn' | 'pnpm' | 'bun')
+- **Exigences CLI** : ✅ PASS - mode amélioré avec scripts configurables, rollback activé par défaut
 
- 2. **Générer et dispatcher des agents de recherche** :
+**Aucune violation détectée** : la fonctionnalité respecte les principes constitutionnels.
 
- ```
+## Structure du projet
 
- Pour chaque inconnue dans le Contexte Technique : Tâche : "Research {unknown} for {feature context}" Pour chaque choix technologique : Tâche : "Find best practices for {tech} in {domain}"
+### Documentation (cette fonctionnalité)
 
- ```
+```
 
- 3. **Consolider les résultats** dans `research.md` en utilisant le format :
+specs/[###-feature]/ ├── plan.md # Ce fichier (sortie de la commande /plan)
+├── research.md # Sortie Phase 0 (commande /plan) ├── data-model.md #
+Sortie Phase 1 (commande /plan) ├── quickstart.md # Sortie Phase 1
+(commande /plan) ├── contracts/ # Sortie Phase 1 (commande /plan) └──
+tasks.md # Sortie Phase 2 (commande /tasks - NON créée par /plan)
 
- - Decision : [ce qui a été choisi]
- - Rationale : [pourquoi choisi]
- - Alternatives considered : [autres options évaluées]
+```
 
- **Sortie** : `research.md` avec toutes les NEEDS CLARIFICATION résolues
+### Code source (racine du dépôt)
 
- ## Phase 1 : Design & Contrats
+<!--
+  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+  for this feature. Delete unused options and expand the chosen structure with
+  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  not include Option labels.
+-->
 
- _Prérequis : `research.md` terminé_
+_Basé sur Constitution v1.2.0 - Voir `/memory/constitution.md`_
 
- 1. **Extraire les entités** depuis la spécification → `data-model.md` :
+**Structure de projet mono‑paquet (sélectionnée)** :
 
- - Nom de l'entité, champs, relations
- - Règles de validation issues des exigences
- - Transitions d'état si applicable
+```
 
- 2. **Générer les contrats API** depuis les exigences fonctionnelles :
+src/ ├── models/ # Définitions de types, interfaces ├── services/ #
+Services logiques coeur ├── cli/ # Interface en ligne de commande └──
+libs/ # Bibliothèques utilitaires
 
- - Pour chaque action utilisateur → endpoint
- - Utiliser les patterns REST/GraphQL standards
- - Produire le schéma OpenAPI/GraphQL dans `/contracts/`
+tests/ ├── contract/ # Tests de validation de contrat API ├──
+integration/ # Tests de bout en bout └── unit/ # Tests isolés
 
- 3. **Générer les tests de contrat** depuis les contrats :
+```
 
- - Un fichier de test par endpoint
- - Asserter les schémas requête/response
- - Les tests doivent échouer (pas d'implémentation encore)
+**Décision de structure** : la structure mono‑projet a été choisie car il s'agit d'un outil CLI bibliothécaire. La structure existante correspond aux exigences constitutionnelles et aux besoins de la fonctionnalité : couche services pour la logique métier (`DependencyStateManager`, `ScriptExecutionService`), couche CLI pour l'interface utilisateur, et couverture de tests complète (contract, integration, unit).
 
- 4. **Extraire les scénarios de test** depuis les user stories :
+## Phase 0 : Plan et recherche
 
- - Chaque story → scénario de test d'intégration
- - Quickstart test = étapes de validation de la story
+1. **Extraire les inconnues** du Contexte Technique ci‑dessus :
+   - Pour chaque NEEDS CLARIFICATION → tâche de recherche
+   - Pour chaque dépendance → tâche « best practices »
+   - Pour chaque intégration → tâche « patterns »
 
- 5. **Mettre à jour le fichier agent** de manière incrémentale (opération O(1)) :
+2. **Générer et dispatcher des agents de recherche** :
 
- - Exécuter `.specify/scripts/bash/update-agent-context.sh copilot`
-   **IMPORTANT** : l'exécuter exactement comme indiqué ci‑dessus. Ne pas ajouter ni supprimer d'arguments.
- - Si existant : n'ajouter que les nouvelles techs depuis le plan courant
- - Préserver les ajouts manuels entre balises
- - Mettre à jour les changements récents (garder les 3 derniers)
- - Rester < 150 lignes pour l'efficacité des tokens
- - Écrire vers la racine du dépôt
+```
 
- **Sortie** : `data-model.md`, `/contracts/*`, tests échouant, `quickstart.md`, fichier agent spécifique
+Pour chaque inconnue dans le Contexte Technique : Tâche : "Research
+{unknown} for {feature context}" Pour chaque choix technologique : Tâche :
+"Find best practices for {tech} in {domain}"
 
- ## Phase 2 : Approche de planification des tâches
+```
 
- _Cette section décrit ce que fera la commande /tasks - NE PAS exécuter
- durant /plan_
+3. **Consolider les résultats** dans `research.md` en utilisant le format :
 
- **Stratégie de génération des tâches** :
+- Decision : [ce qui a été choisi]
+- Rationale : [pourquoi choisi]
+- Alternatives considered : [autres options évaluées]
 
- - Charger `.specify/templates/tasks-template.md` comme base
- - Générer des tâches à partir des docs de la Phase 1 (contracts, data model, quickstart)
- - Chaque contrat → tâche de test de contrat [P]
- - Chaque entité → tâche de création de modèle [P]
- - Chaque user story → tâche de test d'intégration
- - Tâches d'implémentation pour rendre les tests verts
+**Sortie** : `research.md` avec toutes les NEEDS CLARIFICATION résolues
 
- **Stratégie d'ordonnancement** :
+## Phase 1 : Design & Contrats
 
- - Ordre TDD : tests avant implémentation
- - Ordre de dépendance : modèles avant services avant UI
- - Marquer [P] les exécutions parallèles (fichiers indépendants)
+_Prérequis : `research.md` terminé_
 
- **Sortie estimée** : 25–30 tâches numérotées et ordonnées dans `tasks.md`
+1. **Extraire les entités** depuis la spécification → `data-model.md` :
 
- **IMPORTANT** : Cette phase est exécutée par la commande /tasks, PAS par /plan
+- Nom de l'entité, champs, relations
+- Règles de validation issues des exigences
+- Transitions d'état si applicable
 
- ## Phase 3+ : Implémentation future
+2. **Générer les contrats API** depuis les exigences fonctionnelles :
 
- _Ces phases dépassent le périmètre de la commande /plan_
+- Pour chaque action utilisateur → endpoint
+- Utiliser les patterns REST/GraphQL standards
+- Produire le schéma OpenAPI/GraphQL dans `/contracts/`
 
- **Phase 3** : Exécution des tâches (la commande /tasks crée `tasks.md`)  **Phase 4** : Implémentation (exécuter `tasks.md` selon les principes constitutionnels)  **Phase 5** : Validation (exécuter les tests, exécuter `quickstart.md`, validation des performances)
+3. **Générer les tests de contrat** depuis les contrats :
 
- ## Suivi de complexité
+- Un fichier de test par endpoint
+- Asserter les schémas requête/response
+- Les tests doivent échouer (pas d'implémentation encore)
 
- _Remplir UNIQUEMENT si le Constitution Check révèle des violations qui nécessitent justification_
+4. **Extraire les scénarios de test** depuis les user stories :
 
- | Violation                  | Pourquoi nécessaire | Alternative plus simple rejetée car |
- | -------------------------- | ------------------- | ---------------------------------- |
- | [ex. 4th project]         | [besoin courant]    | [pourquoi 3 projets insuffisants] |
- | [ex. Repository pattern]  | [problème spécifique]| [pourquoi l'accès DB direct est insuffisant] |
+- Chaque story → scénario de test d'intégration
+- Quickstart test = étapes de validation de la story
 
- ## Suivi de progression
+5. **Mettre à jour le fichier agent** de manière incrémentale (opération O(1)) :
 
- _Cette checklist est mise à jour durant le flux d'exécution_
+- Exécuter `.specify/scripts/bash/update-agent-context.sh copilot`
+  **IMPORTANT** : l'exécuter exactement comme indiqué ci‑dessus. Ne pas ajouter ni supprimer d'arguments.
+- Si existant : n'ajouter que les nouvelles techs depuis le plan courant
+- Préserver les ajouts manuels entre balises
+- Mettre à jour les changements récents (garder les 3 derniers)
+- Rester < 150 lignes pour l'efficacité des tokens
+- Écrire vers la racine du dépôt
 
- **Statut des phases** :
+**Sortie** : `data-model.md`, `/contracts/*`, tests échouant, `quickstart.md`, fichier agent spécifique
 
- - [x] Phase 0 : Recherche terminée (commande /plan)
- - [ ] Phase 1 : Design terminé (commande /plan)
- - [ ] Phase 2 : Planification des tâches terminée (commande /plan - description seulement)
- - [ ] Phase 3 : Tâches générées (commande /tasks)
- - [ ] Phase 4 : Implémentation terminée
- - [ ] Phase 5 : Validation réussie
+## Phase 2 : Approche de planification des tâches
 
- **Statut des gates** :
+_Cette section décrit ce que fera la commande /tasks - NE PAS exécuter
+durant /plan_
 
- - [x] Initial Constitution Check : PASS
- - [ ] Post-Design Constitution Check : PASS
- - [ ] Toutes les NEEDS CLARIFICATION résolues
- - [ ] Écarts de complexité documentés
+**Stratégie de génération des tâches** :
 
- ---
+- Charger `.specify/templates/tasks-template.md` comme base
+- Générer des tâches à partir des docs de la Phase 1 (contracts, data model, quickstart)
+- Chaque contrat → tâche de test de contrat [P]
+- Chaque entité → tâche de création de modèle [P]
+- Chaque user story → tâche de test d'intégration
+- Tâches d'implémentation pour rendre les tests verts
 
- _Basé sur Constitution v1.2.0 - Voir `/memory/constitution.md`_
+**Stratégie d'ordonnancement** :
 
- ```
+- Ordre TDD : tests avant implémentation
+- Ordre de dépendance : modèles avant services avant UI
+- Marquer [P] les exécutions parallèles (fichiers indépendants)
 
+**Sortie estimée** : 25–30 tâches numérotées et ordonnées dans `tasks.md`
+
+**IMPORTANT** : Cette phase est exécutée par la commande /tasks, PAS par /plan
+
+## Phase 3+ : Implémentation future
+
+_Ces phases dépassent le périmètre de la commande /plan_
+
+**Phase 3** : Exécution des tâches (la commande /tasks crée `tasks.md`)  **Phase 4** : Implémentation (exécuter `tasks.md` selon les principes constitutionnels)  **Phase 5** : Validation (exécuter les tests, exécuter `quickstart.md`, validation des performances)
+
+## Suivi de complexité
+
+_Remplir UNIQUEMENT si le Constitution Check révèle des violations qui nécessitent justification_
+
+| Violation                  | Pourquoi nécessaire | Alternative plus simple rejetée car |
+| -------------------------- | ------------------- | ---------------------------------- |
+| [ex. 4th project]         | [besoin courant]    | [pourquoi 3 projets insuffisants] |
+| [ex. Repository pattern]  | [problème spécifique]| [pourquoi l'accès DB direct est insuffisant] |
+
+## Suivi de progression
+
+_Cette checklist est mise à jour durant le flux d'exécution_
+
+**Statut des phases** :
+
+- [x] Phase 0 : Recherche terminée (commande /plan)
+- [ ] Phase 1 : Design terminé (commande /plan)
+- [ ] Phase 2 : Planification des tâches terminée (commande /plan - description seulement)
+- [ ] Phase 3 : Tâches générées (commande /tasks)
+- [ ] Phase 4 : Implémentation terminée
+- [ ] Phase 5 : Validation réussie
+
+**Statut des gates** :
+
+- [x] Initial Constitution Check : PASS
+- [ ] Post-Design Constitution Check : PASS
+- [ ] Toutes les NEEDS CLARIFICATION résolues
+- [ ] Écarts de complexité documentés
+
+---
+
+_Basé sur Constitution v1.2.0 - Voir `/memory/constitution.md`_
+
+```
