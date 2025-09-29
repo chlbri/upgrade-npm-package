@@ -128,7 +128,8 @@
   },
   "dependencies": {
     "@bemedev/app-cli": "^0.1.7",
-    "@bemedev/app-ts": "^1.0.10",
+    "@bemedev/app-ts": "^1.1.1",
+    "axios": "^1.12.2",
     "cmd-ts": "^0.14.2",
     "edit-json-file": "^1.8.1",
     "execa": "^9.6.0",

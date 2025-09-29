@@ -12,12 +12,21 @@ import {
 export const machine = createMachine(
   {
     __tsSchema: SCHEMAS.machine.__tsSchema,
+    __longRuns: true,
     initial: 'idle',
 
     states: {
       idle: {
         on: {
-          START: '/checking',
+          START: {
+            target: '/checking',
+            actions: [
+              'setWorkingDir',
+              'setPackageManager',
+              'setVerbose',
+              'logStart',
+            ],
+          },
         },
       },
 
@@ -45,7 +54,7 @@ export const machine = createMachine(
                 always: [
                   {
                     guards: 'files.tsConfigJson.existence',
-                    target: '/checking/scripts',
+                    target: '/checking/readPackageJson',
                   },
                   {
                     target: '/errors',
@@ -76,15 +85,11 @@ export const machine = createMachine(
                       guards: 'verbose',
                       actions: [
                         'files.packageJson.read.logTitle',
-                        'files.packageJson.read.logResult',
                         'files.packageJson.read.logLength',
                       ],
                     },
                     {
-                      actions: [
-                        'files.packageJson.read.logTitle',
-                        'files.packageJson.read.logLength',
-                      ],
+                      actions: ['files.packageJson.read.logTitle'],
                     },
                   ],
                 },
@@ -250,6 +255,7 @@ export const machine = createMachine(
               fetch: {
                 promises: [
                   {
+                    max: '10min',
                     src: 'upgradeAll',
                     catch: {
                       target: '/upgrade/decremental',
@@ -264,14 +270,14 @@ export const machine = createMachine(
                         guards: 'verbose',
                         actions: [
                           'upgradeAll.logTitle',
-                          'upgradeAll.logResult',
-                          'upgradeAll.logLength',
+                          'upgrade.logResult',
+                          'upgrade.logLength',
                         ],
                       },
                       {
                         actions: [
                           'upgradeAll.logTitle',
-                          'upgradeAll.logLength',
+                          'upgrade.logLength',
                         ],
                       },
                     ],
@@ -294,6 +300,7 @@ export const machine = createMachine(
               fetch: {
                 promises: [
                   {
+                    max: '2H',
                     src: 'upgradeDecrementally',
                     description: `
                     Very long-running process that attempts to upgrade each dependency
@@ -313,14 +320,14 @@ export const machine = createMachine(
                         guards: 'verbose',
                         actions: [
                           'upgradeDecrementally.logTitle',
-                          'upgradeDecrementally.logResult',
-                          'upgradeDecrementally.logLength',
+                          'upgrade.logResult',
+                          'upgrade.logLength',
                         ],
                       },
                       {
                         actions: [
                           'upgradeDecrementally.logTitle',
-                          'upgradeDecrementally.logLength',
+                          'upgrade.logLength',
                         ],
                       },
                     ],
@@ -363,6 +370,7 @@ export const machine = createMachine(
         initials: [typings.custom<InitialDependency>()],
         upgradables: [typings.custom<UpgradableDependency>()],
       }),
+      packageManager: typings.custom<PackageManager>(),
     }),
 
     context: typings.partial({
