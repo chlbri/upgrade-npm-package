@@ -1,38 +1,33 @@
-export type DependencyType = 'production' | 'development' | 'optional';
+import type {
+  DependencyTypeSchema,
+  InitialDependencySchema,
+  PackageJsonDataSchema,
+  PackageManagerSchema,
+  SemverSignSchema,
+  UpgradableDependencySchema,
+  UpgradedSchema,
+  VersionsSchema,
+} from './schemas';
 
-export type PackageManager = 'npm' | 'yarn' | 'pnpm' | 'bun';
+import * as v from 'valibot';
 
-export type SemverSign = '^' | '~' | '';
+// Type inference from schemas (these will match the original TypeScript types)
+export type DependencyType = v.InferOutput<typeof DependencyTypeSchema>;
 
-export type InitialDependency = {
-  name: string;
-  version: string;
-  type: DependencyType;
-  sign: SemverSign;
-};
+export type PackageManager = v.InferOutput<typeof PackageManagerSchema>;
 
-export type Versions = {
-  name: string;
-  nextVersions: string[];
-};
+export type SemverSign = v.InferOutput<typeof SemverSignSchema>;
 
-export type UpgradableDependency = Versions & {
-  currentVersion: string;
-  type: DependencyType;
-};
+export type InitialDependency = v.InferOutput<
+  typeof InitialDependencySchema
+>;
 
-export type Upgraded = {
-  name: string;
-  from: string;
-  to: string;
-};
+export type Versions = v.InferOutput<typeof VersionsSchema>;
 
-export type PackageJsonData = {
-  name?: string;
-  version?: string;
-  scripts?: Record<string, string>;
-  dependencies?: Record<string, string>;
-  devDependencies?: Record<string, string>;
-  optionalDependencies?: Record<string, string>;
-  [key: string]: any;
-};
+export type UpgradableDependency = v.InferOutput<
+  typeof UpgradableDependencySchema
+>;
+
+export type Upgraded = v.InferOutput<typeof UpgradedSchema>;
+
+export type PackageJsonData = v.InferOutput<typeof PackageJsonDataSchema>;

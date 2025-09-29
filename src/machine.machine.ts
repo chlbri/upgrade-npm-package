@@ -68,8 +68,8 @@ export const machine = createMachine(
                     actions: 'packageJson.error',
                   },
                   then: {
-                    target: '/checking/readPackageJson/parse',
-                    actions: ['packageJson.collect'],
+                    target: '/checking/readPackageJson/verify',
+                    actions: ['packageJson.read'],
                   },
                   finally: [
                     {
@@ -84,24 +84,24 @@ export const machine = createMachine(
                 },
               },
 
-              parse: {
-                always: {
-                  target: '/checking/readPackageJson/verify',
-                  actions: 'packageJson.parse',
-                },
-              },
-
               verify: {
-                always: [
-                  {
-                    guards: 'hasValidPackageJson',
-                    target: '/checking/scripts',
-                  },
-                  {
+                promises: {
+                  src: 'verifyPackageJson',
+                  catch: {
                     target: '/errors',
                     actions: 'packageJson.invalid',
                   },
-                ],
+                  then: {
+                    target: '/checking/scripts',
+                    actions: 'packageJson.data',
+                  },
+                  finally: [
+                    {
+                      guards: 'verbose',
+                      actions: ['packageJson.logVerification'],
+                    },
+                  ],
+                },
               },
             },
           },
@@ -298,7 +298,10 @@ export const machine = createMachine(
   },
   typings({
     eventsMap: {
-      START: { packageManager: typings.custom<PackageManager>() },
+      START: {
+        packageManager: typings.custom<PackageManager>(),
+        workingDir: 'string',
+      },
     },
 
     pContext: typings.partial({
@@ -306,7 +309,6 @@ export const machine = createMachine(
         packageJson: typings.partial({
           data: typings.custom<PackageJsonData>(),
           raw: 'string',
-          parsed: 'primitive',
         }),
       }),
     }),
@@ -324,6 +326,11 @@ export const machine = createMachine(
     promiseesMap: {
       readPackageJson: {
         then: 'string',
+        catch: 'undefined',
+      },
+
+      verifyPackageJson: {
+        then: 'undefined',
         catch: 'undefined',
       },
 
