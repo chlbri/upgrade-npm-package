@@ -162,30 +162,32 @@ export const provider = machine.provideOptions(
 
       notifyWarnings: voidAction(({ context: { warnings } }) => {
         if (!warnings) return;
-        logTitle('Some warnings were generated during the process:');
 
         const filteredWarnings = Object.values(warnings).filter(Boolean);
 
         if (filteredWarnings.length > 0) {
-          console.log('⚠️  Warnings:');
+          logTitle('⚠️  Some warnings were generated during the process:');
+
           filteredWarnings.forEach(warning => {
             console.log(` - ${warning}`);
           });
+
           console.log();
         }
       }),
 
       notifyErrors: voidAction(({ context: { errors } }) => {
         if (!errors) return;
-        logTitle('Errors encountered:');
 
         const filteredErrors = Object.values(errors).filter(Boolean);
 
         if (filteredErrors.length > 0) {
-          console.log('❌ Errors:');
+          logTitle('❌  Errors encountered:');
+
           filteredErrors.forEach(error => {
             console.log(` - ${error}`);
           });
+
           console.log();
         }
       }),
