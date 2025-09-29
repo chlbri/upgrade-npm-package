@@ -62,11 +62,11 @@
     "eslint": "eslint \"{src/**/*,App}.{ts,tsx}\"",
     "lint": "pnpm run prettier && pnpm run eslint --fix",
     "lint:watch": "onchange --await-write-finish 5500 \"**/*\" -- pnpm run lint",
+    "posttest": "pnpm run size",
     "prepublishOnly": "",
     "prepare": "husky",
-    "pretest": "pnpm run build",
-    "posttest": "pnpm run size",
     "prettier": "prettier --write \"src/**/*.{ts,tsx}\"",
+    "pretest": "pnpm run build",
     "p-q": "pretty-quick",
     "rinit": "pnpm run rm && pnpm run config",
     "rinit:off": "pnpm run rm && pnpm run config:off",
@@ -78,6 +78,8 @@
     "test": "pnpm run test:coverage --no-coverage",
     "test:coverage": "vitest run",
     "test:watch": "vitest",
+    "typings": "app-typings generate",
+    "typings:watch": "pnpm run typings --watch",
     "upgrade": "pnpm upgrade --latest"
   },
   "size-limit": [
@@ -130,7 +132,7 @@
     "cmd-ts": "^0.14.2",
     "edit-json-file": "^1.8.1",
     "execa": "^9.6.0",
-    "semver": "^7.7.2"
-  },
-  "devDependencies.@eslint/js": "^10.0.0"
+    "semver": "^7.7.2",
+    "valibot": "^1.1.0"
+  }
 }
