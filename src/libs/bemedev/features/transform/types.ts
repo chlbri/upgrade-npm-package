@@ -1,12 +1,23 @@
-import { AnyArray, Fn, NOmit, PrimitiveObject, SoRa } from '../../globals/types';
-import { CUSTOM, PARTIAL, PRIMITIVE_OBJECTS, PRIMITIVES } from './constants';
+import {
+  AnyArray,
+  Fn,
+  NOmit,
+  PrimitiveObject,
+  SoRa,
+} from '../../globals/types';
+import {
+  CUSTOM,
+  PARTIAL,
+  PRIMITIVE_OBJECTS,
+  PRIMITIVES,
+} from './constants';
 
 /**
  * PrimitiveS type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -15,10 +26,10 @@ export type PrimitiveS = (typeof PRIMITIVES)[number];
 
 /**
  * TransformS type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -41,10 +52,10 @@ export type TransformS<T extends PrimitiveS> = T extends 'string'
 
 /**
  * MapS type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -55,10 +66,10 @@ export type MapS = {
 
 /**
  * Custom type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -69,10 +80,10 @@ export type Custom<T = any> = {
 
 /**
  * PartialCustom type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -83,10 +94,10 @@ export type PartialCustom = {
 
 /**
  * _ObjectS type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -100,10 +111,10 @@ export type _ObjectS =
 
 /**
  * ObjectS type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -112,10 +123,10 @@ export type ObjectS = SoRa<_ObjectS>;
 
 /**
  * TransformO type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -140,5 +151,3 @@ export type TransformO<T> = T extends 'function'
               : {
                   [K in keyof T]: TransformO<T[K]>;
                 };
-
-    

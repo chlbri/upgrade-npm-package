@@ -3,10 +3,10 @@ import { Fn, RecursiveArrayOf } from '../../globals/types';
 
 /**
  * SingleOrRecursiveArrayOf type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -15,10 +15,10 @@ export type SingleOrRecursiveArrayOf<T> = T | RecursiveArrayOf<T>;
 
 /**
  * SoRa type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -27,10 +27,10 @@ export type SoRa<T> = SingleOrRecursiveArrayOf<T>;
 
 /**
  * Primitive2 type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -38,10 +38,10 @@ export type SoRa<T> = SingleOrRecursiveArrayOf<T>;
 export type Primitive2 = string | number | boolean;
 /**
  * Primitive type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -50,10 +50,10 @@ export type Primitive = Primitive2 | undefined | null;
 
 /**
  * SingleOrArray type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -62,10 +62,10 @@ export type SingleOrArray<T> = T | T[] | ReadonlyArray<T>;
 
 /**
  * SoA type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -74,10 +74,10 @@ export type SoA<T> = SingleOrArray<T>;
 
 /**
  * PrimitiveObjectMap type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -95,10 +95,10 @@ type _PrimitiveObject = Primitive | PrimitiveObjectMap;
  */
 /**
  * PrimitiveObject type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -107,10 +107,10 @@ export type PrimitiveObject = SoRa<_PrimitiveObject>;
 
 /**
  * NExtract type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -118,10 +118,10 @@ export type PrimitiveObject = SoRa<_PrimitiveObject>;
 export type NExtract<T, U extends T> = Extract<T, U>;
 /**
  * NExclude type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -130,10 +130,10 @@ export type NExclude<T, U extends T> = Exclude<T, U>;
 
 /**
  * NotUndefined type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -142,10 +142,10 @@ export type NotUndefined<T> = Exclude<T, undefined>;
 
 /**
  * Nu type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -154,10 +154,10 @@ export type Nu<T> = NotUndefined<T>;
 
 /**
  * Undefiny type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -166,10 +166,10 @@ export type Undefiny<T> = T | undefined;
 
 /**
  * Un type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -178,10 +178,10 @@ export type Un<T> = Undefiny<T>;
 
 /**
  * Cast type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -190,10 +190,10 @@ export type Cast<A, B> = A extends B ? A : B;
 
 /**
  * Keys type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -202,10 +202,10 @@ export type Keys = keyof any;
 
 /**
  * TypeStrings type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -222,10 +222,10 @@ export type TypeStrings =
 
 /**
  * KeyTypes type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -236,10 +236,10 @@ export type KeyTypes = {
 
 /**
  * KeyTypesFrom type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -256,10 +256,10 @@ export type KeyTypesFrom<T extends KeyTypes> = {
 
 /**
  * NonN type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -268,10 +268,10 @@ export type NonN<T> = T extends undefined | null ? any : NonNullable<T>;
 
 /**
  * Defaulted type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -293,10 +293,10 @@ export type Defaulted<T, U extends NonN<T>> = undefined extends T
 
 /**
  * UnionKeys type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -305,10 +305,10 @@ export type UnionKeys<U> = U extends Record<infer K, any> ? K : never;
 
 /**
  * _UnionToIntersection1 type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -321,10 +321,10 @@ export type _UnionToIntersection1<U> = boolean extends U
 
 /**
  * _UnionToIntersection2 type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -335,10 +335,10 @@ export type _UnionToIntersection2<U> = {
 
 /**
  * UnionToIntersection type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -349,10 +349,10 @@ export type UnionToIntersection<U> = _UnionToIntersection2<
 
 /**
  * UnionOmit type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -363,10 +363,10 @@ export type UnionOmit<T, K extends Keys> = T extends any
 
 /**
  * UnionNOmit type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -375,10 +375,10 @@ export type UnionNOmit<T, K extends keyof T> = UnionOmit<T, K>;
 
 /**
  * LastOfUnion type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -395,10 +395,10 @@ export type LastOfUnion<T> = (
 
 /**
  * UnionToTuple type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -411,10 +411,10 @@ export type UnionToTuple<T, A extends any[] = []> = [T] extends [never]
 
 /**
  * Checker2 type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -424,10 +424,10 @@ export type Checker2<T = unknown> = (value: unknown) => value is T;
 
 /**
  * Equals type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -440,10 +440,10 @@ export type Equals<T, U> = T extends U
 
 /**
  * Classe type - Auto-generated expression
- * 
+ *
  * ⚠️ WARNING: This expression is auto-generated and should not be modified.
  * Any manual changes will be overwritten during the next generation.
- * 
+ *
  * @generated
  * @readonly
  * @author chlbri (bri_lvi@icloud.com)
@@ -451,5 +451,3 @@ export type Equals<T, U> = T extends U
 export type Classe = {
   [Symbol.hasInstance]: Fn<any, boolean>;
 };
-
-    
