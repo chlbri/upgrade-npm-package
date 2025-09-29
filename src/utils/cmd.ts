@@ -1,6 +1,6 @@
 import type { PackageManager } from 'src/types';
 
-export const createCmd = (
+export const createCI = (
   packageManager: PackageManager,
   name: string,
   version: string,
@@ -49,7 +49,8 @@ export const createCmd = (
       ];
   }
 
-  const cmd = cmds.join(' && ');
-
-  return cmd;
+  return cmds.map(cmd => {
+    const cmds2 = cmd.split(' ');
+    return [cmds2[0], cmds2.slice(1)] as const;
+  });
 };

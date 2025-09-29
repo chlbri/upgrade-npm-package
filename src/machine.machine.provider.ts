@@ -7,7 +7,7 @@ import type {
   UpgradableDependency,
   Upgraded,
 } from './types';
-import { createCmd } from './utils/cmd';
+import { createCI } from './utils/cmd';
 import { logTitle } from './utils/log';
 
 export const provider = machine.provideOptions(
@@ -17,7 +17,6 @@ export const provider = machine.provideOptions(
 
       'files.packageJson.existence': ({ pContext }) => {
         const dir = pContext.files?.workingDir;
-        console.log('dir', dir);
         if (!dir) return false;
 
         const path = `${dir}/package.json`;
@@ -30,6 +29,12 @@ export const provider = machine.provideOptions(
 
         const path = `${dir}/tsconfig.json`;
         return existsSync(path);
+      },
+
+      hasUpgradables: {
+        'fetchVersions::then': ({ payload }) => {
+          return payload.length > 0;
+        },
       },
 
       hasBuildScript: ({ pContext }) => {
@@ -57,7 +62,6 @@ export const provider = machine.provideOptions(
     actions: {
       setWorkingDir: assign('pContext.files.workingDir', {
         START: ({ payload }) => {
-          console.log('payload', payload);
           return payload.workingDir;
         },
       }),
@@ -211,6 +215,11 @@ export const provider = machine.provideOptions(
         },
       ),
 
+      'fetchVersions.warning': assign(
+        'context.warnings.fetchVersions',
+        () => 'No need to upgrade dependencies, all are up-to-date !!!',
+      ),
+
       'fetchVersions.logTitle': voidAction(() => {
         logTitle('Fetch available versions from npm registry ...');
       }),
@@ -344,10 +353,6 @@ export const provider = machine.provideOptions(
       },
 
       verifyPackageJson: async ({ pContext }) => {
-        console.log(
-          'pContext.files?.packageJson?.raw',
-          pContext.files?.packageJson?.raw,
-        );
         return parseAsync(
           PackageJsonDataSchema,
           pContext.files?.packageJson?.raw,
@@ -403,29 +408,28 @@ export const provider = machine.provideOptions(
 
       fetchVersions: async ({ pContext }) => {
         const initials = pContext.dependencies!.initials!;
-        console.log('initials', initials);
-
         const out: UpgradableDependency[] = [];
 
-        console.log('AXIOS');
-
-        const gt = await import('semver').then(s => s.gt);
+        const { gt } = await import('semver').then(s => s);
         const axios = await import('axios').then(m => m.default);
 
         await Promise.all(
           initials.map(async ({ name, version, type }) => {
-            const { data, status } = await axios.get(
+            const { data } = await axios.get(
               `https://registry.npmjs.org/${name}`,
             );
-            console.log('res.status', status, name);
 
             if (data && data.versions) {
-              const allVersions = Object.keys(data.versions) as string[];
+              const allVersions = Object.entries(data.versions)
+                .filter(([, v]) => (v as any).deprecated === undefined)
+                .map(([k]) => k);
 
               // Filter versions that are greater than the current version
-              const nextVersions = allVersions.filter(v => {
-                return gt(v, version);
-              });
+              const nextVersions = allVersions
+                .filter(v => !v.includes('-'))
+                .filter(v => {
+                  return gt(v, version);
+                });
 
               if (nextVersions.length > 0) {
                 out.push({
@@ -444,38 +448,82 @@ export const provider = machine.provideOptions(
           }),
         );
 
+        console.log('out', out);
+
         return out;
       },
 
       upgradeAll: async ({ pContext }) => {
-        const upgradables = pContext.dependencies!.upgradables!;
         const cwd = pContext.files!.workingDir!;
         const packageManager = pContext.packageManager!;
+        const { execa } = await import('execa');
 
-        const out: Upgraded[] = [];
-
-        await Promise.all(
-          upgradables.map(
-            async ({ name, nextVersions, currentVersion }) => {
-              const latestVersion = nextVersions[nextVersions.length - 1];
-
-              const cmd = createCmd(packageManager, name, latestVersion);
-
-              if (cmd) {
-                const { execa } = await import('execa');
-                await execa(cmd, { cwd });
-
-                out.push({
-                  name,
-                  from: currentVersion,
-                  to: latestVersion,
-                });
-              }
-            },
-          ),
+        const upgradables = pContext.dependencies!.upgradables!.map(
+          ({ nextVersions, name, currentVersion: from }) => {
+            const to = nextVersions[nextVersions.length - 1];
+            return { name, from, to };
+          },
         );
 
-        return out;
+        // Préparer la commande et les arguments séparément
+        let cmd: string;
+
+        const cmds: [string, string[]][] = [];
+
+        const packages = upgradables.map(dep => `${dep.name}@${dep.to}`);
+
+        switch (packageManager) {
+          case 'npm':
+            cmd = 'npm';
+            cmds.push([cmd, ['install', ...packages]]);
+            cmds.push([cmd, ['run', 'lint']]);
+            cmds.push([cmd, ['run', 'build']]);
+            cmds.push([cmd, ['run', 'lint']]);
+            cmds.push([cmd, ['run', 'test']]);
+            cmds.push([cmd, ['run', 'lint']]);
+            break;
+          case 'yarn':
+            cmd = 'yarn';
+            cmds.push([cmd, ['add', ...packages]]);
+            cmds.push([cmd, ['lint']]);
+            cmds.push([cmd, ['build']]);
+            cmds.push([cmd, ['lint']]);
+            cmds.push([cmd, ['test']]);
+            cmds.push([cmd, ['lint']]);
+            break;
+          case 'pnpm':
+            cmd = 'pnpm';
+            cmds.push([cmd, ['add', ...packages]]);
+            cmds.push([cmd, ['run', 'lint']]);
+            cmds.push([cmd, ['run', 'build']]);
+            cmds.push([cmd, ['run', 'lint']]);
+            cmds.push([cmd, ['run', 'test']]);
+            cmds.push([cmd, ['run', 'lint']]);
+            break;
+          case 'bun':
+            cmd = 'bun';
+            cmds.push([cmd, ['add', ...packages]]);
+            cmds.push([cmd, ['run', 'lint']]);
+            cmds.push([cmd, ['run', 'build']]);
+            cmds.push([cmd, ['run', 'lint']]);
+            cmds.push([cmd, ['run', 'test']]);
+            cmds.push([cmd, ['run', 'lint']]);
+        }
+
+        console.log('Try to upgrade all');
+
+        for (const [cmd, args] of cmds) {
+          const { exitCode } = await execa({
+            stdout: ['pipe', 'inherit'],
+            stderr: ['pipe', 'inherit'],
+          })(cmd, args, { cwd });
+
+          if (exitCode !== 0) continue;
+        }
+
+        console.log('Everything is upgraded, on stone to many !!');
+
+        return upgradables;
       },
 
       upgradeDecrementally: async ({ pContext }) => {
@@ -484,22 +532,34 @@ export const provider = machine.provideOptions(
         const packageManager = pContext.packageManager!;
 
         const out: Upgraded[] = [];
+        const { execa } = await import('execa');
 
         for (const {
           name,
           nextVersions,
           currentVersion: from,
         } of upgradables) {
-          for (let index = nextVersions.length - 1; index >= 0; index--) {
+          loopConcerned: for (
+            let index = nextVersions.length - 1;
+            index >= 0;
+            index--
+          ) {
             const to = nextVersions[index];
-
-            const cmd = createCmd(packageManager, name, to);
-
-            const { execa } = await import('execa');
-            const { exitCode } = await execa(cmd, { cwd });
-
-            if (exitCode !== 0) continue;
             if (to === from) break;
+
+            const cmds = createCI(packageManager, name, to);
+
+            console.log(
+              `Try updating ${name} from "${from}" to "${to}" ...`,
+            );
+            for (const element of cmds) {
+              const [cmd, args] = element;
+              const { exitCode } = await execa({})(cmd, args, { cwd });
+
+              if (exitCode !== 0) continue loopConcerned;
+            }
+
+            console.log(`Successfully updated ${name} to "${to}"`);
 
             out.push({
               name,

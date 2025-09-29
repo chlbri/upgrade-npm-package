@@ -214,10 +214,20 @@ export const machine = createMachine(
                 target: '/errors',
                 actions: 'fetchVersions.error',
               },
-              then: {
-                target: '/upgrade',
-                actions: ['fetchVersions.collect'],
-              },
+              then: [
+                {
+                  guards: 'hasUpgradables',
+                  target: '/upgrade/all',
+                  actions: ['fetchVersions.collect'],
+                },
+                {
+                  target: '/success',
+                  actions: [
+                    'fetchVersions.collect',
+                    'fetchVersions.warning',
+                  ],
+                },
+              ],
               finally: [
                 {
                   guards: 'verbose',
@@ -253,36 +263,34 @@ export const machine = createMachine(
                 },
               },
               fetch: {
-                promises: [
-                  {
-                    max: '10min',
-                    src: 'upgradeAll',
-                    catch: {
-                      target: '/upgrade/decremental',
-                      actions: 'upgradeAll.warning',
-                    },
-                    then: {
-                      target: '/success',
-                      actions: ['upgrade.collect'],
-                    },
-                    finally: [
-                      {
-                        guards: 'verbose',
-                        actions: [
-                          'upgradeAll.logTitle',
-                          'upgrade.logResult',
-                          'upgrade.logLength',
-                        ],
-                      },
-                      {
-                        actions: [
-                          'upgradeAll.logTitle',
-                          'upgrade.logLength',
-                        ],
-                      },
-                    ],
+                promises: {
+                  max: '10min',
+                  src: 'upgradeAll',
+                  catch: {
+                    target: '/upgrade/decremental',
+                    actions: 'upgradeAll.warning',
                   },
-                ],
+                  then: {
+                    target: '/success',
+                    actions: ['upgrade.collect'],
+                  },
+                  finally: [
+                    {
+                      guards: 'verbose',
+                      actions: [
+                        'upgradeAll.logTitle',
+                        'upgrade.logResult',
+                        'upgrade.logLength',
+                      ],
+                    },
+                    {
+                      actions: [
+                        'upgradeAll.logTitle',
+                        'upgrade.logLength',
+                      ],
+                    },
+                  ],
+                },
               },
             },
           },
@@ -298,41 +306,39 @@ export const machine = createMachine(
                 },
               },
               fetch: {
-                promises: [
-                  {
-                    max: '2H',
-                    src: 'upgradeDecrementally',
-                    description: `
+                promises: {
+                  max: '2H',
+                  src: 'upgradeDecrementally',
+                  description: `
                     Very long-running process that attempts to upgrade each dependency
 
                     one at a time, starting from the highest version down to the lowest.
                     `,
-                    catch: {
-                      target: '/errors',
-                      actions: 'upgradeDecrementally.error',
-                    },
-                    then: {
-                      target: '/success',
-                      actions: ['upgrade.collect'],
-                    },
-                    finally: [
-                      {
-                        guards: 'verbose',
-                        actions: [
-                          'upgradeDecrementally.logTitle',
-                          'upgrade.logResult',
-                          'upgrade.logLength',
-                        ],
-                      },
-                      {
-                        actions: [
-                          'upgradeDecrementally.logTitle',
-                          'upgrade.logLength',
-                        ],
-                      },
-                    ],
+                  catch: {
+                    target: '/errors',
+                    actions: 'upgradeDecrementally.error',
                   },
-                ],
+                  then: {
+                    target: '/success',
+                    actions: ['upgrade.collect'],
+                  },
+                  finally: [
+                    {
+                      guards: 'verbose',
+                      actions: [
+                        'upgradeDecrementally.logTitle',
+                        'upgrade.logResult',
+                        'upgrade.logLength',
+                      ],
+                    },
+                    {
+                      actions: [
+                        'upgradeDecrementally.logTitle',
+                        'upgrade.logLength',
+                      ],
+                    },
+                  ],
+                },
               },
             },
           },
@@ -398,6 +404,7 @@ export const machine = createMachine(
       }),
       warnings: typings.partial({
         upgradeAll: 'string',
+        fetchVersions: 'string',
       }),
       upgradeds: [typings.custom<Upgraded>()],
     }),

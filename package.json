@@ -80,7 +80,8 @@
     "test:watch": "vitest",
     "typings": "app-typings generate",
     "typings:watch": "pnpm run typings --watch",
-    "upgrade": "pnpm upgrade --latest"
+    "upgrade": "pnpm upgrade --latest",
+    "upgrade:all": "pnpm upgrade --latest"
   },
   "size-limit": [
     {
@@ -95,6 +96,7 @@
   "devDependencies": {
     "@bemedev/fsf": "^0.8.0",
     "@bemedev/rollup-config": "^0.2.2",
+    "@bemedev/sleep": "^0.1.2",
     "@bemedev/vitest-alias": "^0.0.3",
     "@bemedev/vitest-exclude": "^0.1.1",
     "@bemedev/vitest-extended": "^1.5.3",
@@ -102,10 +104,10 @@
     "@eslint/js": "^9.36.0",
     "@size-limit/file": "^11.2.0",
     "@types/edit-json-file": "^1.7.3",
-    "@types/node": "^24.5.2",
+    "@types/node": "24.6.0",
     "@types/semver": "^7.7.1",
-    "@typescript-eslint/eslint-plugin": "^8.44.1",
-    "@typescript-eslint/parser": "^8.44.1",
+    "@typescript-eslint/eslint-plugin": "8.45.0",
+    "@typescript-eslint/parser": "8.45.0",
     "@vitest/coverage-v8": "^3.2.4",
     "eslint": "^9.36.0",
     "glob": "^11.0.3",
