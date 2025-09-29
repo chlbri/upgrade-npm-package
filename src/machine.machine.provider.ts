@@ -8,18 +8,18 @@ export const provider = machine.provideOptions(
       verbose: ({ pContext }) => pContext.verbose === true,
 
       'files.packageJson.existence': ({ pContext }) => {
-        const checkWorkingDir = pContext.files?.workingDir;
-        if (!checkWorkingDir) return false;
+        const dir = pContext.files?.workingDir;
+        if (!dir) return false;
 
-        const path = `${checkWorkingDir}/package.json`;
+        const path = `${dir}/package.json`;
         return existsSync(path);
       },
 
       'files.tsConfigJson.existence': ({ pContext }) => {
-        const checkWorkingDir = pContext.files?.workingDir;
-        if (!checkWorkingDir) return false;
+        const dir = pContext.files?.workingDir;
+        if (!dir) return false;
 
-        const path = `${checkWorkingDir}/tsconfig.json`;
+        const path = `${dir}/tsconfig.json`;
         return existsSync(path);
       },
     },
