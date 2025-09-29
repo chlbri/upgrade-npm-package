@@ -95,16 +95,16 @@ export const machine = createMachine(
                   src: 'verifyPackageJson',
                   catch: {
                     target: '/errors',
-                    actions: 'packageJson.invalid',
+                    actions: 'files.packageJson.invalid',
                   },
                   then: {
                     target: '/checking/scripts',
-                    actions: 'packageJson.data',
+                    actions: 'files.packageJson.data',
                   },
                   finally: [
                     {
                       guards: 'verbose',
-                      actions: ['packageJson.logVerification'],
+                      actions: ['files.packageJson.logVerification'],
                     },
                   ],
                 },
@@ -123,7 +123,7 @@ export const machine = createMachine(
                     target: '/checking/scripts/build',
                   },
                   {
-                    target: '/checking/scripts/build',
+                    target: '/errors',
                     actions: 'scripts.testScript.missing',
                   },
                 ],
@@ -136,7 +136,7 @@ export const machine = createMachine(
                     target: '/checking/scripts/lint',
                   },
                   {
-                    target: '/checking/scripts/lint',
+                    target: '/errors',
                     actions: 'scripts.buildScript.missing',
                   },
                 ],
@@ -149,7 +149,7 @@ export const machine = createMachine(
                     target: '/initials',
                   },
                   {
-                    target: '/initials',
+                    target: '/errors',
                     actions: 'scripts.lintScript.missing',
                   },
                 ],
@@ -175,11 +175,17 @@ export const machine = createMachine(
               {
                 guards: 'verbose',
                 actions: [
+                  'collectInitialDependencies.logTitle',
                   'collectInitialDependencies.logResult',
                   'collectInitialDependencies.logLength',
                 ],
               },
-              'collectInitialDependencies.logLength',
+              {
+                actions: [
+                  'collectInitialDependencies.logTitle',
+                  'collectInitialDependencies.logResult',
+                ],
+              },
             ],
           },
         ],
@@ -199,7 +205,10 @@ export const machine = createMachine(
           fetch: {
             promises: {
               src: 'fetchVersions',
-              catch: { target: '/errors', actions: 'fetchVersions.error' },
+              catch: {
+                target: '/errors',
+                actions: 'fetchVersions.error',
+              },
               then: {
                 target: '/upgrade',
                 actions: ['fetchVersions.collect'],
@@ -208,11 +217,17 @@ export const machine = createMachine(
                 {
                   guards: 'verbose',
                   actions: [
+                    'fetchVersions.logTitle',
                     'fetchVersions.logResult',
                     'fetchVersions.logLength',
                   ],
                 },
-                'fetchVersions.logLength',
+                {
+                  actions: [
+                    'fetchVersions.logTitle',
+                    'fetchVersions.logLength',
+                  ],
+                },
               ],
             },
           },
@@ -240,22 +255,32 @@ export const machine = createMachine(
                       target: '/upgrade/decremental',
                       actions: 'upgradeAll.warning',
                     },
-                    then: '/success',
+                    then: {
+                      target: '/success',
+                      actions: ['upgrade.collect'],
+                    },
                     finally: [
                       {
                         guards: 'verbose',
                         actions: [
-                          'upgardeAll.logResult',
-                          'upgardeAll.logLength',
+                          'upgradeAll.logTitle',
+                          'upgradeAll.logResult',
+                          'upgradeAll.logLength',
                         ],
                       },
-                      'upgardeAll.logLength',
+                      {
+                        actions: [
+                          'upgradeAll.logTitle',
+                          'upgradeAll.logLength',
+                        ],
+                      },
                     ],
                   },
                 ],
               },
             },
           },
+
           decremental: {
             initial: 'internet',
             states: {
@@ -279,16 +304,25 @@ export const machine = createMachine(
                       target: '/errors',
                       actions: 'upgradeDecrementally.error',
                     },
-                    then: '/success',
+                    then: {
+                      target: '/success',
+                      actions: ['upgrade.collect'],
+                    },
                     finally: [
                       {
                         guards: 'verbose',
                         actions: [
+                          'upgradeDecrementally.logTitle',
                           'upgradeDecrementally.logResult',
                           'upgradeDecrementally.logLength',
                         ],
                       },
-                      'upgradeDecrementally.logLength',
+                      {
+                        actions: [
+                          'upgradeDecrementally.logTitle',
+                          'upgradeDecrementally.logLength',
+                        ],
+                      },
                     ],
                   },
                 ],
@@ -298,8 +332,12 @@ export const machine = createMachine(
         },
       },
 
-      errors: { entry: 'notifyErrors' },
-      success: { entry: 'notifySuccess' },
+      errors: {
+        entry: ['notifyWarnings', 'notifyErrors'],
+      },
+      success: {
+        entry: ['notifyWarnings', 'notifySuccess'],
+      },
     },
   },
   typings({
@@ -321,16 +359,39 @@ export const machine = createMachine(
         packageManager: typings.custom<PackageManager>(),
       }),
       verbose: 'boolean',
+      dependencies: typings.partial({
+        initials: [typings.custom<InitialDependency>()],
+        upgradables: [typings.custom<UpgradableDependency>()],
+      }),
     }),
 
     context: typings.partial({
-      errors: typings.partial({}),
-      warnings: typings.partial({}),
-      dependencies: typings.partial({
-        initiats: [typings.custom<InitialDependency>()],
-        upgradables: [typings.custom<UpgradableDependency>()],
-        upgradeds: [typings.custom<Upgraded>()],
+      errors: typings.partial({
+        files: typings.partial({
+          packageJson: typings.partial({
+            notFound: 'string',
+            read: 'string',
+            invalid: 'string',
+          }),
+          tsConfigJson: typings.partial({
+            notFound: 'string',
+          }),
+        }),
+        scripts: typings.partial({
+          build: 'string',
+          lint: 'string',
+          test: 'string',
+        }),
+        collectInitialDependencies: 'string',
+        internet: 'string',
+        fetchVersions: 'string',
+        upgradeAll: 'string',
+        upgradeDecrementally: 'string',
       }),
+      warnings: typings.partial({
+        upgradeAll: 'string',
+      }),
+      upgradeds: [typings.custom<Upgraded>()],
     }),
 
     promiseesMap: {
@@ -340,7 +401,7 @@ export const machine = createMachine(
       },
 
       verifyPackageJson: {
-        then: 'undefined',
+        then: typings.custom<PackageJsonData>(),
         catch: 'undefined',
       },
 

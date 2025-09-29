@@ -55,7 +55,7 @@ export const UpgradedSchema = v.object({
 export const PackageJsonDataSchema = v.pipe(
   v.string(),
   v.parseJson(),
-  v.looseObject({
+  v.object({
     name: v.optional(v.string()),
     version: v.optional(v.string()),
     scripts: v.optional(v.record(v.string(), v.string())),
