@@ -1,0 +1,21 @@
+{
+  "version": "1.0.0",
+  "path": "libs/bemedev",
+  "files": [
+    "globals.types",
+    "features.arrays.types",
+    "features.booleans.types",
+    "features.common.types",
+    "features.functions.types",
+    "features.numbers.constants",
+    "features.numbers.types",
+    "features.objects.types",
+    "features.promises.types",
+    "features.strings.constants",
+    "features.strings.types",
+    "features.transform.constants",
+    "features.transform.types",
+    "features.objects.utils.types",
+    "features.functions.functions.partialCall"
+  ]
+}

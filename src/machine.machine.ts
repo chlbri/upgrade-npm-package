@@ -31,7 +31,7 @@ export const machine = createMachine(
               packageJson: {
                 always: [
                   {
-                    guards: 'hasPackageJson',
+                    guards: 'files.packageJson.existence',
                     target: '/checking/files/tsConfigJson',
                   },
                   {
@@ -44,7 +44,7 @@ export const machine = createMachine(
               tsConfigJson: {
                 always: [
                   {
-                    guards: 'hasTsConfigJson',
+                    guards: 'files.tsConfigJson.existence',
                     target: '/checking/scripts',
                   },
                   {
@@ -65,21 +65,27 @@ export const machine = createMachine(
                   src: 'readPackageJson',
                   catch: {
                     target: '/errors',
-                    actions: 'packageJson.error',
+                    actions: 'files.packageJson.read.error',
                   },
                   then: {
                     target: '/checking/readPackageJson/verify',
-                    actions: ['packageJson.read'],
+                    actions: ['files.packageJson.read'],
                   },
                   finally: [
                     {
                       guards: 'verbose',
                       actions: [
-                        'packageJson.logResult',
-                        'packageJson.logLength',
+                        'files.packageJson.read.logTitle',
+                        'files.packageJson.read.logResult',
+                        'files.packageJson.read.logLength',
                       ],
                     },
-                    'packageJson.logLength',
+                    {
+                      actions: [
+                        'files.packageJson.read.logTitle',
+                        'files.packageJson.read.logLength',
+                      ],
+                    },
                   ],
                 },
               },
@@ -301,6 +307,7 @@ export const machine = createMachine(
       START: {
         packageManager: typings.custom<PackageManager>(),
         workingDir: 'string',
+        verbose: 'boolean',
       },
     },
 
@@ -310,10 +317,13 @@ export const machine = createMachine(
           data: typings.custom<PackageJsonData>(),
           raw: 'string',
         }),
+        workingDir: 'string',
+        packageManager: typings.custom<PackageManager>(),
       }),
+      verbose: 'boolean',
     }),
 
-    contexts: typings.partial({
+    context: typings.partial({
       errors: typings.partial({}),
       warnings: typings.partial({}),
       dependencies: typings.partial({
