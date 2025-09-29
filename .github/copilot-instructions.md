@@ -34,6 +34,6 @@ de l'état des dépendances et mécanisme de rollback
 - Ajout du suivi d'état des dépendances avec préservation des opérateurs
   semver
 - Implémentation d'un rollback automatique sur échec d'exécution de scripts
-- Amélioration du CLI avec support configurable des scripts test/build
+- Amélioration du CLI avec support configurable des scripts test/build/lint
 - Ajout du pattern d'adaptateur de gestionnaire de packages pour
   compatibilité multi-PM

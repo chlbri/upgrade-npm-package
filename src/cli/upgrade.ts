@@ -71,6 +71,14 @@ export const upgradeCommand = command({
       defaultValue: () => 'npm run build',
     }),
 
+    lintScript: option({
+      type: string,
+      long: 'lint-script',
+      description: 'Lint script command (required for enhanced mode)',
+      env: 'UPGRADE_LINT_SCRIPT',
+      defaultValue: () => 'npm run lint',
+    }),
+
     // Package manager configuration
     packageManager: option({
       type: string,
@@ -116,7 +124,7 @@ export const upgradeCommand = command({
       }
 
       // Determine if we should use enhanced mode (with rollback)
-      const useEnhancedMode = args.testScript && args.buildScript;
+      const useEnhancedMode = args.testScript && args.buildScript && args.lintScript;
 
       if (args.verbose) {
         console.log('🔧 Upgrade options:', {
@@ -156,6 +164,12 @@ export const upgradeCommand = command({
           timeout: scriptTimeout,
         };
 
+        const lintScript: ScriptConfig = {
+          type: packageManagerType,
+          command: args.lintScript!,
+          timeout: scriptTimeout,
+        };
+
         const installScript: ScriptConfig = {
           type: packageManagerType,
           command: INSTALL_COMMANDS[packageManagerType],
@@ -168,7 +182,9 @@ export const upgradeCommand = command({
           admin: args.admin,
           testScript,
           buildScript,
+          lintScript,
           installScript,
+          packageManager: packageManagerType,
           rollbackOnFailure: args.rollback,
         };
 

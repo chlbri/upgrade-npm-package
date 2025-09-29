@@ -45,12 +45,18 @@ export interface UpgradeOptions {
   verbose?: boolean;
   admin?: boolean;
 
-  // Required inner scripts (3 mandatory)
+  // Required user-provided scripts (3 mandatory)
   testScript: ScriptConfig;
   buildScript: ScriptConfig;
-  installScript: ScriptConfig;
+  lintScript: ScriptConfig;
 
-  // Optional additional scripts
+  // Auto-generated script (user cannot override)
+  installScript?: ScriptConfig; // Generated from packageManager type
+
+  // Package manager configuration
+  packageManager?: 'npm' | 'yarn' | 'pnpm' | 'bun';
+
+  // Optional additional scripts (for integration testing)
   additionalScripts?: ScriptConfig[];
   rollbackOnFailure?: boolean; // Default: true
 }
@@ -92,4 +98,16 @@ export interface UpgradeError {
   message: string;
   details?: any;
   rollbackAvailable: boolean;
+}
+
+// Package Manager Adapter Interface
+export interface PackageManagerAdapter {
+  type: 'npm' | 'yarn' | 'pnpm' | 'bun';
+  installCommand: string;
+  runCommand: string;
+}
+
+export interface PackageManagerCommands {
+  install: string;
+  run: string;
 }

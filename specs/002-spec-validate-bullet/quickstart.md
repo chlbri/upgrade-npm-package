@@ -3,7 +3,9 @@
 **Fonctionnalité** : 002-spec-validate-bullet  
 **Date** : 2025-09-28
 
-Ce guide de démarrage rapide présente la gestion améliorée de l'état des dépendances avec une configuration simplifiée des scripts et une fonctionnalité de rollback automatique.
+Ce guide de démarrage rapide présente la gestion améliorée de l'état des
+dépendances avec une configuration simplifiée des scripts et une
+fonctionnalité de rollback automatique.
 
 ## Prérequis
 
@@ -16,12 +18,15 @@ Ce guide de démarrage rapide présente la gestion améliorée de l'état des d�
 
 ### Configuration simplifiée des scripts
 
-Le système nécessite désormais seulement **deux scripts fournis par l'utilisateur** :
+Le système nécessite désormais **trois scripts fournis par l'utilisateur**
+:
 
 - **Script de test** : La commande de test de votre projet
 - **Script de build** : La commande de build de votre projet
+- **Script de lint** : La commande de linting de votre projet
 
-Tous les autres scripts (installation, mises à niveau des dépendances) sont automatiquement générés en fonction du gestionnaire de paquets détecté.
+Tous les autres scripts (installation, mises à niveau des dépendances) sont
+automatiquement générés en fonction du gestionnaire de paquets détecté.
 
 ### Détection automatique du gestionnaire de paquets
 
@@ -48,28 +53,33 @@ pnpm init
 pnpm add lodash@4.17.20 express@4.18.1
 pnpm add -D typescript@4.9.0
 
-# Ajouter seulement les scripts test et build
+# Ajouter les trois scripts obligatoires : test, build et lint
 pnpm pkg set scripts.test="echo 'Tests passed'"
 pnpm pkg set scripts.build="echo 'Build completed'"
+pnpm pkg set scripts.lint="echo 'Lint passed'"
 ```
 
 **Exécution** :
 
 ```bash
 # Auto-détecter le gestionnaire de paquets et utiliser les scripts par défaut
-upgrade-npm-package
+upgrade-npm-package \
+  --test-script='{"type":"pnpm","command":"test"}' \
+  --build-script='{"type":"pnpm","command":"build"}' \
+  --lint-script='{"type":"pnpm","command":"lint"}'
 
 # Comportement attendu :
 # 1. Détecte pnpm comme gestionnaire de paquets
 # 2. Auto-génère : pnpm install --frozen-lockfile
 # 3. Capture l'état initial (lodash@^4.17.20, express@^4.18.1, typescript@^4.9.0)
-# 4. Lance le processus de mise à niveau avec validation test/build
+# 4. Lance le processus de mise à niveau avec validation test/build/lint
 # 5. Scripts supplémentaires utilisés uniquement pour les tests d'intégration
 ```
 
 **Validation** :
 
-- Vérifier que package.json affiche les versions mises à niveau avec préservation des signes semver
+- Vérifier que package.json affiche les versions mises à niveau avec
+  préservation des signes semver
 - Vérifier que node_modules contient les paquets mis à niveau
 - Confirmer l'absence d'avertissements de rollback dans la sortie
 
@@ -89,6 +99,7 @@ yarn add lodash@4.17.20 express@4.18.1
 # Ajouter des scripts personnalisés
 yarn config set scripts.test "jest --passWithNoTests"
 yarn config set scripts.build "./custom-build.sh"
+yarn config set scripts.lint "eslint src/"
 
 # Créer un script de build personnalisé
 echo '#!/bin/bash\necho "Custom build successful"' > custom-build.sh
@@ -100,13 +111,14 @@ chmod +x custom-build.sh
 ```bash
 # Lancer avec configuration de scripts personnalisés
 upgrade-npm-package \
-  --test-script "jest --passWithNoTests" \
-  --build-script "./custom-build.sh"
+  --test-script='{"type":"yarn","command":"test"}' \
+  --build-script='{"type":"shell","command":"./custom-build.sh"}' \
+  --lint-script='{"type":"yarn","command":"lint"}'
 
 # Comportement attendu :
 # 1. Détecte yarn comme gestionnaire de paquets
 # 2. Auto-génère : yarn install --frozen-lockfile
-# 3. Utilise les scripts test et build personnalisés
+# 3. Utilise les scripts test, build et lint personnalisés
 # 4. Scripts supplémentaires de mise à niveau des dépendances gérés en interne
 ```
 
@@ -126,19 +138,23 @@ npm install lodash@4.17.20 express@4.18.1
 # Ajouter un script de test échouant
 npm pkg set scripts.test="exit 1"
 npm pkg set scripts.build="echo 'Build completed'"
+npm pkg set scripts.lint="echo 'Lint passed'"
 ```
 
 **Exécution** :
 
 ```bash
 # Lancer la mise à niveau (déclenchera le rollback)
-upgrade-npm-package --test-script "npm test" --build-script "npm run build"
+upgrade-npm-package \
+  --test-script='{"type":"npm","command":"test"}' \
+  --build-script='{"type":"npm","command":"run build"}' \
+  --lint-script='{"type":"npm","command":"run lint"}'
 
 # Comportement attendu :
 # 1. Capture l'état initial des dépendances
 # 2. Auto-génère le script d'installation : npm ci
 # 3. Tente les mises à niveau des dépendances
-# 4. Le script de test échoue (exit 1)
+# 4. Le script de test échoue (exit 1) - lint non exécuté (arrêt sur échec)
 # 5. Rollback automatique déclenché
 # 6. Dépendances restaurées à l'état initial exact
 ```
@@ -161,6 +177,7 @@ npm init -y
 npm install lodash@4.17.20
 npm pkg set scripts.test="echo 'NPM test passed'"
 npm pkg set scripts.build="echo 'NPM build completed'"
+npm pkg set scripts.lint="echo 'NPM lint passed'"
 
 # Tester la détection Yarn
 mkdir ../test-yarn && cd ../test-yarn
@@ -168,6 +185,7 @@ yarn init -y
 yarn add lodash@4.17.20
 yarn config set scripts.test "echo 'Yarn test passed'"
 yarn config set scripts.build "echo 'Yarn build completed'"
+yarn config set scripts.lint "echo 'Yarn lint passed'"
 
 # Tester la détection PNPM
 mkdir ../test-pnpm && cd ../test-pnpm
@@ -175,20 +193,32 @@ pnpm init
 pnpm add lodash@4.17.20
 pnpm pkg set scripts.test="echo 'PNPM test passed'"
 pnpm pkg set scripts.build="echo 'PNPM build completed'"
+pnpm pkg set scripts.lint="echo 'PNPM lint passed'"
 ```
 
 **Exécution** :
 
 ```bash
-# Tester l'auto-détection pour chaque gestionnaire de paquets
-cd test-npm && upgrade-npm-package
-cd ../test-yarn && upgrade-npm-package
-cd ../test-pnpm && upgrade-npm-package
+# Tester l'auto-détection pour chaque gestionnaire de paquets avec les 3 scripts
+cd test-npm && upgrade-npm-package \
+  --test-script='{"type":"npm","command":"test"}' \
+  --build-script='{"type":"npm","command":"run build"}' \
+  --lint-script='{"type":"npm","command":"run lint"}'
+
+cd ../test-yarn && upgrade-npm-package \
+  --test-script='{"type":"yarn","command":"test"}' \
+  --build-script='{"type":"yarn","command":"build"}' \
+  --lint-script='{"type":"yarn","command":"lint"}'
+
+cd ../test-pnpm && upgrade-npm-package \
+  --test-script='{"type":"pnpm","command":"test"}' \
+  --build-script='{"type":"pnpm","command":"build"}' \
+  --lint-script='{"type":"pnpm","command":"lint"}'
 
 # Comportement attendu :
-# 1. NPM : Détecte package-lock.json → génère "npm ci"
-# 2. Yarn : Détecte yarn.lock → génère "yarn install --frozen-lockfile"
-# 3. PNPM : Détecte pnpm-lock.yaml → génère "pnpm install --frozen-lockfile"
+# 1. NPM : Détecte package-lock.json → génère "npm ci", exécute test/build/lint
+# 2. Yarn : Détecte yarn.lock → génère "yarn install --frozen-lockfile", exécute test/build/lint
+# 3. PNPM : Détecte pnpm-lock.yaml → génère "pnpm install --frozen-lockfile", exécute test/build/lint
 ```
 
 ### Scénario 5 : Workflow de tests d'intégration
@@ -203,28 +233,38 @@ pnpm init
 pnpm add lodash@4.17.20 express@4.18.1
 pnpm add -D jest@29.0.0
 
-# Ajouter seulement les scripts fournis par l'utilisateur
+# Ajouter les trois scripts obligatoires fournis par l'utilisateur
 pnpm pkg set scripts.test="jest"
 pnpm pkg set scripts.build="tsc && rollup -c"
+pnpm pkg set scripts.lint="eslint src/ --fix"
 ```
 
 **Exécution** :
 
 ```bash
 # Lancer la mise à niveau pour voir les scripts supplémentaires dans la phase de tests d'intégration
-upgrade-npm-package --verbose
+upgrade-npm-package \
+  --test-script='{"type":"pnpm","command":"test"}' \
+  --build-script='{"type":"shell","command":"tsc && rollup -c"}' \
+  --lint-script='{"type":"pnpm","command":"lint"}' \
+  --verbose
 
 # Comportement attendu :
-# 1. Scripts utilisateur (test, build) utilisés pour la validation pendant la mise à niveau
+# 1. Scripts utilisateur (test, build, lint) utilisés pour la validation pendant la mise à niveau
 # 2. Scripts supplémentaires de mise à niveau des dépendances exécutés pendant les tests d'intégration
 # 3. Scripts supplémentaires NON utilisés au démarrage - seulement pour le workflow de test
 ```
 
 **Validation** :
 
-- Vérifier que les scripts utilisateur s'exécutent pendant la validation des dépendances
-- Confirmer que les scripts supplémentaires s'exécutent dans la phase de tests d'intégration
-- Vérifier que les scripts supplémentaires n'interfèrent pas avec le processus de démarrage
+- Vérifier que les 3 scripts utilisateur (test, build, lint) s'exécutent
+  pendant la validation des dépendances
+- Confirmer que les scripts supplémentaires s'exécutent dans la phase de
+  tests d'intégration
+- Vérifier que les scripts supplémentaires n'interfèrent pas avec le
+  processus de démarrage
+- Valider que le processus s'arrête dès qu'un des 3 scripts échoue (arrêt
+  sur échec)
 
 ## Sorties attendues
 
@@ -266,30 +306,42 @@ upgrade-npm-package --verbose
 ✅ Script de test terminé (200ms)
 🛠️  Exécution du script de build personnalisé (shell ./custom-build.sh)...
 ✅ Script de build terminé (150ms)
-📦 Mise à niveau des dépendances...
+�️  Exécution du script de lint personnalisé (npm run lint)...
+✅ Script de lint terminé (180ms)
+�📦 Mise à niveau des dépendances...
 ```
 
 ## Étapes de validation
 
 Après l'exécution de chaque scénario :
 
-1. **Cohérence d'état** : Vérifier que package.json et node_modules sont cohérents
-2. **Intégrité du rollback** : Confirmer que les projets rollbackés correspondent exactement à l'état initial
-3. **Exécution des scripts** : Vérifier que les scripts personnalisés s'exécutent avec les paramètres corrects
-4. **Gestion des erreurs** : S'assurer que les échecs fournissent des messages d'erreur clairs et des étapes de récupération
-5. **Performance** : Valider que les opérations se terminent dans les délais attendus
+1. **Cohérence d'état** : Vérifier que package.json et node_modules sont
+   cohérents
+2. **Intégrité du rollback** : Confirmer que les projets rollbackés
+   correspondent exactement à l'état initial
+3. **Exécution des scripts** : Vérifier que les scripts personnalisés
+   s'exécutent avec les paramètres corrects
+4. **Gestion des erreurs** : S'assurer que les échecs fournissent des
+   messages d'erreur clairs et des étapes de récupération
+5. **Performance** : Valider que les opérations se terminent dans les
+   délais attendus
 
 ## Dépannage
 
 ### Problèmes courants
 
-**Problème** : Échec de la capture d'état **Solution** : S'assurer qu'un package.json valide existe et que les dépendances sont installées
+**Problème** : Échec de la capture d'état **Solution** : S'assurer qu'un
+package.json valide existe et que les dépendances sont installées
 
-**Problème** : Échec du rollback **Solution** : Vérifier les permissions des fichiers et la disponibilité du gestionnaire de paquets
+**Problème** : Échec du rollback **Solution** : Vérifier les permissions
+des fichiers et la disponibilité du gestionnaire de paquets
 
-**Problème** : Échec des scripts personnalisés **Solution** : Vérifier la syntaxe de configuration des scripts et les permissions d'exécution
+**Problème** : Échec des scripts personnalisés **Solution** : Vérifier la
+syntaxe de configuration des scripts et les permissions d'exécution
 
-**Problème** : Gestionnaire de paquets non détecté **Solution** : S'assurer que les fichiers de verrouillage appropriés existent (package-lock.json, yarn.lock, pnpm-lock.yaml)
+**Problème** : Gestionnaire de paquets non détecté **Solution** : S'assurer
+que les fichiers de verrouillage appropriés existent (package-lock.json,
+yarn.lock, pnpm-lock.yaml)
 
 ### Mode debug
 
@@ -303,9 +355,13 @@ DEBUG=upgrade-npm-package:* upgrade-npm-package --verbose --admin
 - [ ] Tous les scénarios de test se terminent sans erreurs
 - [ ] Le rollback restaure l'état initial exact en cas d'échec
 - [ ] Les configurations de scripts personnalisés fonctionnent correctement
-- [ ] Les mises à jour incrémentielles suivent les meilleures pratiques semver
-- [ ] Tous les gestionnaires de paquets sont pris en charge et détectés correctement
-- [ ] La performance atteint les objectifs spécifiés (< 5s capture d'état, < 30s rollback)
+- [ ] Les mises à jour incrémentielles suivent les meilleures pratiques
+      semver
+- [ ] Tous les gestionnaires de paquets sont pris en charge et détectés
+      correctement
+- [ ] La performance atteint les objectifs spécifiés (< 5s capture d'état,
+      < 30s rollback)
 
-Ce guide de démarrage rapide valide la gestion améliorée complète de l'état des dépendances et la fonctionnalité de rollback à travers différents scénarios et configurations.
-
+Ce guide de démarrage rapide valide la gestion améliorée complète de l'état
+des dépendances et la fonctionnalité de rollback à travers différents
+scénarios et configurations.

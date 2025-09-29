@@ -66,6 +66,7 @@ components:
       required:
         - testScript
         - buildScript
+        - lintScript
       properties:
         workingDir:
           type: string
@@ -89,6 +90,9 @@ components:
         buildScript:
           $ref: '#/components/schemas/ScriptConfig'
           description: Required build script
+        lintScript:
+          $ref: '#/components/schemas/ScriptConfig'
+          description: Required lint script
         packageManager:
           type: string
           enum: ['npm', 'yarn', 'pnpm', 'bun']

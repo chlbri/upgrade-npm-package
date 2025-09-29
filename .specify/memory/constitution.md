@@ -10,6 +10,7 @@ Sync Impact Report
   - .specify/templates/tasks-template.md: ✅ reviewed (enforces simplified script approach)
   - .specify/templates/agent-file-template.md: ✅ reviewed (no changes required)
 - Follow-up TODOs: none
+- Report generated: 2025-09-28
 -->
 
 # Constitution upgrade-npm-package
@@ -172,12 +173,11 @@ en maintenant la flexibilité nécessaire.
 0. TDD : Écrire d'abord des tests qui échouent ; suivre
    Rouge-Vert-Refactorisation avant fusion.
 1. Brancher, implémenter, et garder les changements délimités et testés.
-2. Exécuter `pnpm run ci` localement ; corriger lint, tests, et formatage.
-3. S'assurer que size-limit passe ; sinon, justifier et planifier
+2. S'assurer que size-limit passe ; sinon, justifier et planifier
    l'optimisation avant la publication.
-4. Ouvrir une PR. Les reviewers DOIVENT vérifier la conformité avec tous
+3. Ouvrir une PR. Les reviewers DOIVENT vérifier la conformité avec tous
    les Principes Fondamentaux et Contraintes.
-5. Pour les mises à jour de dépendances (incluant optionnelles), s'assurer
+4. Pour les mises à jour de dépendances (incluant optionnelles), s'assurer
    qu'il n'y a pas de régressions. Si une régression est trouvée, épingler
    ou revenir avec une justification claire et des tâches de suivi.
 

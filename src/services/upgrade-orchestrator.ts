@@ -104,6 +104,7 @@ export class UpgradeOrchestrator {
       if (
         options?.testScript &&
         options?.buildScript &&
+        options?.lintScript &&
         options?.installScript
       ) {
         const scriptsResult =
@@ -307,18 +308,23 @@ export class UpgradeOrchestrator {
   }
 
   /**
-   * Execute the required scripts sequence (install -> test -> build)
+   * Execute the required scripts sequence (install -> test -> build -> lint)
+   * Following stop-on-failure pattern: if any script fails, the process stops
    */
   private async executeRequiredScriptsSequence(
     options: UpgradeOptions,
   ): Promise<{ success: boolean }> {
     try {
-      // Execute scripts in sequence: install -> test -> build
+      // Execute scripts in sequence: install -> test -> build -> lint
+      // Stop on first failure (stop-on-failure pattern)
       const scripts = [
         options.installScript,
         options.testScript,
         options.buildScript,
-      ];
+        options.lintScript,
+      ].filter(
+        (script): script is NonNullable<typeof script> => script != null,
+      );
 
       for (const script of scripts) {
         const result = await this.scriptExecutionService.executeScript(

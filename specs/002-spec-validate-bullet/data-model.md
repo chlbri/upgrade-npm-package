@@ -23,14 +23,17 @@ interface DependencyState {
 
 **Règles de validation** :
 
-- `packageName` : Doit être une chaîne non vide correspondant au format de nom de package npm
+- `packageName` : Doit être une chaîne non vide correspondant au format de
+  nom de package npm
 - `version` : Doit être une chaîne de version semver valide
 - `semverSign` : Doit être l'un des préfixes semver autorisés
-- `dependencyType` : Doit correspondre à une section de dépendances de package.json
+- `dependencyType` : Doit correspondre à une section de dépendances de
+  package.json
 
 ### ScriptConfig
 
-Configuration pour les scripts exécutables pendant le processus de mise à niveau.
+Configuration pour les scripts exécutables pendant le processus de mise à
+niveau.
 
 ```typescript
 interface ScriptConfig {
@@ -52,9 +55,10 @@ interface UpgradeOptions {
   verbose?: boolean;
   admin?: boolean;
 
-  // Scripts fournis par l'utilisateur requis (2 obligatoires)
+  // Scripts fournis par l'utilisateur requis (3 obligatoires)
   testScript: ScriptConfig;
   buildScript: ScriptConfig;
+  lintScript: ScriptConfig;
 
   // Script généré automatiquement (l'utilisateur ne peut pas le remplacer)
   installScript?: ScriptConfig; // Généré à partir du type packageManager
@@ -115,7 +119,8 @@ interface ExecutionResult {
 
 ## Relations clés
 
-- `UpgradeOrchestrator` gère l'état des dépendances et orchestre le processus de mise à niveau
+- `UpgradeOrchestrator` gère l'état des dépendances et orchestre le
+  processus de mise à niveau
 - `ScriptConfig` définit les commandes exécutables pour la validation
 - `DependencyState` suit les versions des packages et les signes semver
 - `UpgradeResult` contient le résultat et les informations de rollback
@@ -146,4 +151,3 @@ interface UpgradeError {
 - L'état initial doit être capturé avant toute modification
 - L'exécution des scripts doit respecter les contraintes de timeout
 - Le rollback doit restaurer l'état initial exact
-
