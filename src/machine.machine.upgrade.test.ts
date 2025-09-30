@@ -1,37 +1,19 @@
-import { service } from './machine.machine.service';
+import { upgrade } from './upgrade';
+import { resetTest, waitFor } from './fixtures';
 
-describe('Upgrade this !', () => {
-  const TIMER = 300_000;
+describe.skipIf(process.env.NO_ENTER1 === 'true')('Upgrade', () => {
+  beforeAll(() => (process.env.NO_ENTER1 = 'true'));
+  afterAll(() => (process.env.NO_ENTER1 = 'false'));
 
-  beforeAll(() => {
-    console.time('service');
-  });
+  test(...resetTest(1));
 
-  afterAll(() => {
-    console.timeEnd('service');
-  });
-
-  const instance = service();
-
-  test('#01 => Start the service', instance.start);
-
-  test('#02 => Send START event', () => {
-    instance.send({
-      type: 'START',
-      payload: {
-        workingDir: process.cwd(),
-        packageManager: 'pnpm',
-        verbose: true,
-      },
+  test('#02 => Upgrade', () => {
+    return upgrade({
+      workingDir: process.cwd(),
+      packageManager: 'pnpm',
+      verbose: true,
     });
   });
 
-  test(
-    '#03 => Wait for the service to reach the end',
-    () =>
-      setTimeout(() => {
-        instance.stop();
-      }, TIMER / 1.5),
-    TIMER,
-  );
+  test(...waitFor(3));
 });

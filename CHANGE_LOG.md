@@ -1,6 +1,82 @@
 # CHANGELOG
 
-## Version [0.1.0] - Enhanced Dependency State Management
+<details>
+
+  <summary>
+  
+  ## Version [0.1.1] - Machine Architecture & Development Workflow Improvements
+
+  </summary>
+
+### 🚀 New Features
+
+#### State Machine Architecture
+
+- ✨ **XState Integration**: Complete state machine implementation for
+  upgrade workflow
+- ✨ **Machine Provider System**: Modular provider pattern for actions,
+  predicates, and promises
+- ✨ **Enhanced State Management**: Better state transitions and error
+  handling
+- ✨ **Interactive Development Mode**: Real-time state monitoring and
+  debugging
+
+#### Development Workflow Enhancements
+
+- ✨ **TypeScript ESM Support**: Enhanced tsx integration for development
+- ✨ **Module Resolution**: Updated to bundler mode for better
+  compatibility
+- ✨ **Development Scripts**: Added `dev` script for interactive testing
+- ✨ **Dependency Management**: Improved dev vs runtime dependency
+  organization
+
+### 🔧 Technical Improvements
+
+#### Configuration Updates
+
+- **TypeScript 5.x**: Updated module resolution to `bundler` for modern
+  tooling
+- **ESM Configuration**: Enhanced `ts-node` ESM support
+- **Dependency Reorganization**: Better separation of dev and runtime
+  dependencies
+- **Development Environment**: Added tsx and ts-node for better development
+  experience
+
+#### State Machine Implementation
+
+- **Async State Management**: Promise-based state transitions
+- **Error Handling**: Comprehensive error state management with exit
+  strategies
+- **Internet Connectivity**: Automatic connection checks with timeout
+  handling
+- **Batch Operations**: Support for batched actions in state transitions
+
+### 🧪 Testing & Development
+
+#### Enhanced Development Experience
+
+- **Live State Monitoring**: Real-time state value logging
+- **Interactive Testing**: Manual trigger system for development
+- **Timeout Management**: Configurable delays for different operations
+- **Verbose Logging**: Conditional detailed logging based on configuration
+
+### 📚 Documentation
+
+- **State Machine Documentation**: Clear state transition documentation
+- **Provider Pattern**: Examples of modular provider implementation
+- **Development Setup**: Updated development workflow instructions
+
+</details>
+
+---
+
+<details>
+
+  <summary>
+  
+  ## Version [0.1.0] - Enhanced Dependency State Management
+
+  </summary>
 
 ### 🚀 New Features
 
@@ -72,6 +148,8 @@
 - **Size Optimization**: Bundle size limits and monitoring
 - **Development Workflow**: Hot reloading and watch mode support
 - **Quality Assurance**: ESLint, Prettier, and comprehensive testing
+
+</details>
 
 ---
 

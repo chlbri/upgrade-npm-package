@@ -6,12 +6,6 @@ export const logTimes = (char: string, number: number) => {
 
 export const logStars = partialCall(logTimes, '*');
 
-export const logEquals = partialCall(logTimes, '=');
-
-export const logDashes = partialCall(logTimes, '-');
-
-export const logDots = partialCall(logTimes, '.');
-
 /**
  * Log the start of an operation with a title
  */

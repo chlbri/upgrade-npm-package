@@ -1,4 +1,7 @@
+import axios from 'axios';
+import { execa } from 'execa';
 import { existsSync } from 'fs';
+import { gt } from 'semver';
 import { parse, parseAsync, safeParse, string } from 'valibot';
 import { machine } from './machine.machine';
 import { PackageJsonDataSchema, SemverSignSchema } from './schemas';
@@ -11,7 +14,7 @@ import { createCI } from './utils/cmd';
 import { logTitle } from './utils/log';
 
 export const provider = machine.provideOptions(
-  ({ assign, voidAction }) => ({
+  ({ assign, voidAction, batch }) => ({
     predicates: {
       verbose: ({ pContext }) => pContext.verbose === true,
 
@@ -189,9 +192,16 @@ export const provider = machine.provideOptions(
 
       // #region Versions
 
-      'fetchVersions.error': assign(
-        'context.errors.fetchVersions',
-        () => 'Error fetching versions from npm registry',
+      'fetchVersions.error': batch(
+        assign(
+          'context.errors.fetchVersions',
+          () => 'Error fetching versions from npm registry',
+        ),
+        voidAction({
+          'fetchVersions::catch': ({ payload }) => {
+            console.error('Fetch versions error details:', payload);
+          },
+        }),
       ),
 
       'fetchVersions.collect': assign(
@@ -291,6 +301,18 @@ export const provider = machine.provideOptions(
         },
       }),
 
+      'resetDependencies.error': assign(
+        'context.errors.resetDependencies',
+        () => 'Error resetting dependencies to original versions',
+      ),
+
+      'resetDependencies.logCompletion': voidAction(() => {
+        console.log(
+          'All Dependencies have been reset to their original versions.',
+        );
+        console.log();
+      }),
+
       'upgradeDecrementally.error': assign(
         'context.errors.upgradeDecrementally',
         () => 'Error during decremental upgrade process',
@@ -338,6 +360,11 @@ export const provider = machine.provideOptions(
 
       notifySuccess: voidAction(() => {
         console.log('🎉 All operations completed successfully!');
+      }),
+
+      exit: voidAction(() => {
+        console.log('Exiting the process. Goodbye!');
+        // process.exit(0);
       }),
     },
 
@@ -410,9 +437,6 @@ export const provider = machine.provideOptions(
         const initials = pContext.dependencies!.initials!;
         const out: UpgradableDependency[] = [];
 
-        const { gt } = await import('semver').then(s => s);
-        const axios = await import('axios').then(m => m.default);
-
         await Promise.all(
           initials.map(async ({ name, version, type }) => {
             const { data } = await axios.get(
@@ -456,7 +480,6 @@ export const provider = machine.provideOptions(
       upgradeAll: async ({ pContext }) => {
         const cwd = pContext.files!.workingDir!;
         const packageManager = pContext.packageManager!;
-        const { execa } = await import('execa');
 
         const upgradables = pContext.dependencies!.upgradables!.map(
           ({ nextVersions, name, currentVersion: from }) => {
@@ -526,13 +549,49 @@ export const provider = machine.provideOptions(
         return upgradables;
       },
 
+      resetDependencies: async ({ pContext }) => {
+        const initials = pContext.dependencies!.initials!;
+        const cwd = pContext.files!.workingDir!;
+        const packageManager = pContext.packageManager!;
+
+        const cmds: [string, string[]][] = [];
+
+        const packages = initials.map(({ name, version }) =>
+          `${name}@${version}`.replace('@@', '@'),
+        );
+
+        switch (packageManager) {
+          case 'npm':
+            cmds.push(['npm', ['install', ...packages]]);
+            break;
+          case 'yarn':
+            cmds.push(['yarn', ['add', ...packages]]);
+            break;
+          case 'pnpm':
+            cmds.push(['pnpm', ['add', ...packages]]);
+            break;
+          case 'bun':
+            cmds.push(['bun', ['add', ...packages]]);
+        }
+
+        for (const [cmd, args] of cmds) {
+          const { exitCode } = await execa({
+            stdout: ['pipe', 'inherit'],
+            stderr: ['pipe', 'inherit'],
+          })(cmd, args, { cwd });
+
+          if (exitCode !== 0) {
+            throw new Error('Failed to reset dependencies');
+          }
+        }
+      },
+
       upgradeDecrementally: async ({ pContext }) => {
         const upgradables = pContext.dependencies!.upgradables!;
         const cwd = pContext.files!.workingDir!;
         const packageManager = pContext.packageManager!;
 
         const out: Upgraded[] = [];
-        const { execa } = await import('execa');
 
         for (const {
           name,
@@ -574,6 +633,7 @@ export const provider = machine.provideOptions(
     delays: {
       '10min': 10 * 60 * 1000, // 10 minutes in milliseconds
       '2H': 2 * 60 * 60 * 1000, // 2 hours in milliseconds
+      INTERNET_PING: 10_000,
     },
   }),
 );

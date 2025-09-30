@@ -165,35 +165,33 @@ export const machine = createMachine(
       },
 
       initials: {
-        promises: [
-          {
-            src: 'collectInitialDependencies',
-            catch: {
-              target: '/errors',
-              actions: 'collectInitialDependencies.error',
-            },
-            then: {
-              target: '/versions',
-              actions: ['collectInitialDependencies.collect'],
-            },
-            finally: [
-              {
-                guards: 'verbose',
-                actions: [
-                  'collectInitialDependencies.logTitle',
-                  'collectInitialDependencies.logResult',
-                  'collectInitialDependencies.logLength',
-                ],
-              },
-              {
-                actions: [
-                  'collectInitialDependencies.logTitle',
-                  'collectInitialDependencies.logResult',
-                ],
-              },
-            ],
+        promises: {
+          src: 'collectInitialDependencies',
+          catch: {
+            target: '/errors',
+            actions: 'collectInitialDependencies.error',
           },
-        ],
+          then: {
+            target: '/versions',
+            actions: ['collectInitialDependencies.collect'],
+          },
+          finally: [
+            {
+              guards: 'verbose',
+              actions: [
+                'collectInitialDependencies.logTitle',
+                'collectInitialDependencies.logResult',
+                'collectInitialDependencies.logLength',
+              ],
+            },
+            {
+              actions: [
+                'collectInitialDependencies.logTitle',
+                'collectInitialDependencies.logResult',
+              ],
+            },
+          ],
+        },
       },
 
       versions: {
@@ -204,6 +202,7 @@ export const machine = createMachine(
               src: 'checkInternetConnection',
               catch: { target: '/errors', actions: 'internet.error' },
               then: '/versions/fetch',
+              max: 'INTERNET_PING',
             },
           },
 
@@ -217,7 +216,7 @@ export const machine = createMachine(
               then: [
                 {
                   guards: 'hasUpgradables',
-                  target: '/upgrade/all',
+                  target: '/upgrade',
                   actions: ['fetchVersions.collect'],
                 },
                 {
@@ -260,6 +259,7 @@ export const machine = createMachine(
                   src: 'checkInternetConnection',
                   catch: { target: '/errors', actions: 'internet.error' },
                   then: '/upgrade/all/fetch',
+                  max: 'INTERNET_PING',
                 },
               },
               fetch: {
@@ -267,7 +267,7 @@ export const machine = createMachine(
                   max: '10min',
                   src: 'upgradeAll',
                   catch: {
-                    target: '/upgrade/decremental',
+                    target: '/upgrade/reset',
                     actions: 'upgradeAll.warning',
                   },
                   then: {
@@ -295,6 +295,27 @@ export const machine = createMachine(
             },
           },
 
+          reset: {
+            promises: {
+              src: 'resetDependencies',
+              description: 'Resetting dependencies to initial state',
+              catch: {
+                target: '/errors',
+                actions: 'resetDependencies.error',
+              },
+              then: {
+                target: '/upgrade/decremental',
+              },
+              max: '10min',
+              finally: [
+                {
+                  guards: 'verbose',
+                  actions: ['resetDependencies.logCompletion'],
+                },
+              ],
+            },
+          },
+
           decremental: {
             initial: 'internet',
             states: {
@@ -303,6 +324,7 @@ export const machine = createMachine(
                   src: 'checkInternetConnection',
                   catch: { target: '/errors', actions: 'internet.error' },
                   then: '/upgrade/decremental/fetch',
+                  max: 'INTERNET_PING',
                 },
               },
               fetch: {
@@ -346,10 +368,10 @@ export const machine = createMachine(
       },
 
       errors: {
-        entry: ['notifyWarnings', 'notifyErrors'],
+        entry: ['notifyWarnings', 'notifyErrors', 'exit'],
       },
       success: {
-        entry: ['notifyWarnings', 'notifySuccess'],
+        entry: ['notifyWarnings', 'notifySuccess', 'exit'],
       },
     },
   },
@@ -397,6 +419,7 @@ export const machine = createMachine(
           test: 'string',
         }),
         collectInitialDependencies: 'string',
+        resetDependencies: 'string',
         internet: 'string',
         fetchVersions: 'string',
         upgradeAll: 'string',

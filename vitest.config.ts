@@ -6,13 +6,20 @@ import tsconfig from './tsconfig.json';
 export default defineConfig({
   plugins: [
     aliasTs(tsconfig as any),
-    exclude({ ignoreCoverageFiles: ['**/index.ts', '**/types.ts'] }),
+    exclude({
+      ignoreCoverageFiles: [
+        '**/index.ts',
+        '**/types.ts',
+        '**/libs/bemedev/**',
+      ],
+    }),
   ],
   test: {
     bail: 10,
     maxConcurrency: 10,
     passWithNoTests: true,
     slowTestThreshold: 3000,
+    fileParallelism: false,
     globals: true,
     logHeapUsage: true,
     include: [

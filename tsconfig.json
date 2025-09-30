@@ -1,12 +1,7 @@
 {
-  "include": [
-    "src/**/*"
-  ],
+  "include": ["src/**/*"],
   "compilerOptions": {
-    "lib": [
-      "dom",
-      "esnext"
-    ],
+    "lib": ["dom", "esnext"],
     "importHelpers": true,
     "target": "ESNext",
     "declaration": true,
@@ -20,10 +15,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "module": "ESNext",
-    "moduleResolution": "node",
-    "types": [
-      "vitest/globals"
-    ],
+    "moduleResolution": "bundler",
+    "types": ["vitest/globals"],
     "jsx": "react",
     "esModuleInterop": true,
     "skipLibCheck": true,
@@ -32,9 +25,7 @@
     "noEmit": true,
     "declarationMap": true,
     "paths": {
-      "#bemedev/*": [
-        "src/libs/bemedev/*"
-      ]
+      "#bemedev/*": ["src/libs/bemedev/*"]
     },
     "baseUrl": "."
   }
