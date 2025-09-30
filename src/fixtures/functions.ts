@@ -1,7 +1,8 @@
-import { execa } from 'execa';
-import { TEST_CONFIG, TIMER } from './constants';
 import type { StateValue } from '@bemedev/app-ts/lib/states/types.js';
-import { vi, expect, test, afterAll } from 'vitest';
+import { execa } from 'execa';
+import { afterAll, expect, vi } from 'vitest';
+import { TIMER } from './constants';
+import { TEST_CONFIG } from '../cli/constants';
 
 export const resetTest = (index = 1) => {
   const testName = `#${String(index).padStart(2, '0')} => Reset first`;
@@ -42,22 +43,22 @@ export const waitFor = (index = 1) => {
 };
 
 export const insideS = (state: StateValue, index = 1) => {
-  const testName = `#${String(index).padStart(2, '0')} => The state is ${state}`;
-  test(testName, () => {
-    return expect(TEST_CONFIG.state).toBe(state);
-  });
+  const _state = JSON.stringify(state, null, 2);
+
+  const testName = `#${String(index).padStart(2, '0')} => The state is (${_state})`;
+
+  return [
+    testName,
+    () => expect(TEST_CONFIG.states).toContainEqual(state),
+  ] as const;
 };
 
-export const checkStates = (index: number, ...states: StateValue[]) => {
-  states.forEach((state, index2) => {
-    const testName = `#${String(index + index2).padStart(2, '0')} => The state was iterated`;
-    test(testName, () => {
-      return expect(TEST_CONFIG.states).toContainEqual(state);
-    });
-  });
+export const parameterize = () => {
+  beforeAll(() => (process.env.NO_ENTER = 'true'));
+  afterAll(() => (process.env.NO_ENTER = 'false'));
+};
 
-  afterAll(() => {
-    TEST_CONFIG.state = undefined;
-    TEST_CONFIG.states = [];
-  });
+export const rinitTests = () => {
+  TEST_CONFIG.state = undefined;
+  TEST_CONFIG.states = [];
 };

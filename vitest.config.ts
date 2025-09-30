@@ -10,6 +10,7 @@ export default defineConfig({
       ignoreCoverageFiles: [
         '**/index.ts',
         '**/types.ts',
+        '**/cli.ts',
         '**/libs/bemedev/**',
       ],
     }),
