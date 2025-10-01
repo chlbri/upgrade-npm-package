@@ -4,7 +4,7 @@
 
   <summary>
   
-  ## Version [0.1.1] - Machine Architecture & Development Workflow Improvements
+  ## Version [0.1.2] - Machine Architecture & Development Workflow Improvements
 
   </summary>
 
