@@ -14,7 +14,8 @@
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "moduleResolution": "Bundler",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
     "types": ["vitest/globals"],
     "jsx": "react",
     "esModuleInterop": true,
@@ -22,6 +23,10 @@
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
     "noEmit": true,
-    "declarationMap": true
+    "declarationMap": true,
+    "paths": {
+      "#bemedev/*": ["src/libs/bemedev/*"]
+    },
+    "baseUrl": "."
   }
 }
