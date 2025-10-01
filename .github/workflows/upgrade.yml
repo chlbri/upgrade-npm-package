@@ -24,7 +24,7 @@ jobs:
         uses: chlbri/pnpmi-action@main
 
       - name: Execute CI Admin
-        run: pnpm run ci:admin
+        run: pnpm run test
 
       - name: Check for changes
         id: check-changes

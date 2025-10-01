@@ -12,6 +12,7 @@ import type {
 } from './types';
 import { createCI } from './utils/cmd';
 import { logTitle } from './utils/log';
+import editJsonFile from 'edit-json-file';
 
 export const provider = machine.provideOptions(
   ({ assign, voidAction, batch }) => ({
@@ -366,6 +367,42 @@ export const provider = machine.provideOptions(
         console.log('Exiting the process. Goodbye!');
         // process.exit(0);
       }),
+
+      updatePeerDependencies: voidAction(
+        ({ pContext, context: { upgradeds } }) => {
+          const peerDeps = pContext.dependencies?.initials?.filter(
+            dep => dep.type === 'peer',
+          );
+
+          if (!peerDeps || peerDeps.length < 1) return;
+          console.log('peerNames', peerDeps);
+          const checkUpgrades = !upgradeds || upgradeds.length < 1;
+          if (checkUpgrades) return;
+
+          const currentPeers = upgradeds
+            .filter(dep => peerDeps.some(d => d.name === dep.name))
+            .map(d => {
+              const sign =
+                peerDeps.find(i => i.name === d.name)?.sign || '';
+              return { ...d, sign } as const;
+            });
+
+          if (currentPeers.length < 1) return;
+          const path = `${pContext.files!.workingDir!}/package.json`;
+          const file = editJsonFile(path);
+
+          file.set(
+            'peerDependencies',
+            Object.fromEntries(
+              currentPeers.map(
+                dep => [dep.name, `${dep.sign}${dep.to}`] as const,
+              ),
+            ),
+          );
+
+          file.save();
+        },
+      ),
     },
 
     promises: {
@@ -394,6 +431,7 @@ export const provider = machine.provideOptions(
           ['dependencies', 'production'],
           ['devDependencies', 'development'],
           ['optionalDependencies', 'optional'],
+          ['peerDependencies', 'peer'],
         ] as const;
 
         MAPPER.forEach(([key, type]) => {
@@ -536,10 +574,7 @@ export const provider = machine.provideOptions(
         console.log('Try to upgrade all');
 
         for (const [cmd, args] of cmds) {
-          const { exitCode } = await execa({
-            stdout: ['pipe', 'inherit'],
-            stderr: ['pipe', 'inherit'],
-          })(cmd, args, { cwd });
+          const { exitCode } = await execa(cmd, args, { cwd });
 
           if (exitCode !== 0) continue;
         }
@@ -611,9 +646,10 @@ export const provider = machine.provideOptions(
             console.log(
               `Try updating ${name} from "${from}" to "${to}" ...`,
             );
+
             for (const element of cmds) {
               const [cmd, args] = element;
-              const { exitCode } = await execa({})(cmd, args, { cwd });
+              const { exitCode } = await execa(cmd, args, { cwd });
 
               if (exitCode !== 0) continue loopConcerned;
             }

@@ -187,7 +187,7 @@ export const machine = createMachine(
             {
               actions: [
                 'collectInitialDependencies.logTitle',
-                'collectInitialDependencies.logResult',
+                'collectInitialDependencies.logLength',
               ],
             },
           ],
@@ -271,7 +271,7 @@ export const machine = createMachine(
                     actions: 'upgradeAll.warning',
                   },
                   then: {
-                    target: '/success',
+                    target: '/upgrade/peerDependencies',
                     actions: ['upgrade.collect'],
                   },
                   finally: [
@@ -316,6 +316,13 @@ export const machine = createMachine(
             },
           },
 
+          peerDependencies: {
+            always: {
+              target: '/success',
+              actions: 'updatePeerDependencies',
+            },
+          },
+
           decremental: {
             initial: 'internet',
             states: {
@@ -341,7 +348,7 @@ export const machine = createMachine(
                     actions: 'upgradeDecrementally.error',
                   },
                   then: {
-                    target: '/success',
+                    target: '/upgrade/peerDependencies',
                     actions: ['upgrade.collect'],
                   },
                   finally: [

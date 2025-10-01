@@ -53,7 +53,7 @@ describe.skipIf(CAN_TEST)('Upgrade Command', () => {
       test(...resetTest(0));
 
       test('#01 =>should run with default options', async () => {
-        return runSafely(upgradeCommand, []);
+        return runSafely(upgradeCommand, ['-v']);
       });
 
       test(...waitFor(2));

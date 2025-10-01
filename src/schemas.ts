@@ -5,6 +5,7 @@ export const DependencyTypeSchema = v.union([
   v.literal('production'),
   v.literal('development'),
   v.literal('optional'),
+  v.literal('peer'),
 ]);
 
 // Schema for PackageManager
@@ -62,6 +63,7 @@ export const PackageJsonDataSchema = v.pipe(
     dependencies: v.optional(v.record(v.string(), v.string())),
     devDependencies: v.optional(v.record(v.string(), v.string())),
     optionalDependencies: v.optional(v.record(v.string(), v.string())),
+    peerDependencies: v.optional(v.record(v.string(), v.string())),
     // Allow additional properties for any other package.json fields
   }),
 );

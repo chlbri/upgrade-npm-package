@@ -43,6 +43,7 @@ export type _AllPaths = {
     | '/upgrade/all/internet'
     | '/upgrade/all/fetch'
     | '/upgrade/reset'
+    | '/upgrade/peerDependencies'
     | '/upgrade/decremental'
     | '/upgrade/decremental/internet'
     | '/upgrade/decremental/fetch'
@@ -204,6 +205,12 @@ export const SCHEMAS = {
                 '/upgrade/reset'
               >;
             };
+            readonly peerDependencies: {
+              readonly targets: Exclude<
+                _AllPaths['machine'],
+                '/upgrade/peerDependencies'
+              >;
+            };
             readonly decremental: {
               readonly targets: Exclude<
                 _AllPaths['machine'],
@@ -226,7 +233,11 @@ export const SCHEMAS = {
               readonly initial: 'internet' | 'fetch';
             };
           };
-          readonly initial: 'all' | 'reset' | 'decremental';
+          readonly initial:
+            | 'all'
+            | 'reset'
+            | 'peerDependencies'
+            | 'decremental';
         };
         readonly errors: {
           readonly targets: Exclude<_AllPaths['machine'], '/errors'>;

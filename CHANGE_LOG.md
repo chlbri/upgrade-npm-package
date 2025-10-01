@@ -2,11 +2,26 @@
 
 <details>
 
-  <summary>
-  
-  ## Version [0.1.2] - Machine Architecture & Development Workflow Improvements
+<summary>
 
-  </summary>
+## Version [0.1.2] - Machine Architecture & Development Workflow Improvements
+
+</summary>
+
+### 🚀 New Features
+
+- Upgrade dependencies
+
+
+</details>
+
+<details>
+
+<summary>
+
+## Version [0.1.2] - Machine Architecture & Development Workflow Improvements
+
+</summary>
 
 ### 🚀 New Features
 
