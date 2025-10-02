@@ -519,7 +519,7 @@ export const provider = machine.provideOptions(
         const cwd = pContext.files!.workingDir!;
         const packageManager = pContext.packageManager!;
 
-        const upgradables = pContext.dependencies!.upgradables!.map(
+        const upgradeds = pContext.dependencies!.upgradables!.map(
           ({ nextVersions, name, currentVersion: from }) => {
             const to = nextVersions[nextVersions.length - 1];
             return { name, from, to };
@@ -531,7 +531,7 @@ export const provider = machine.provideOptions(
 
         const cmds: [string, string[]][] = [];
 
-        const packages = upgradables.map(dep => `${dep.name}@${dep.to}`);
+        const packages = upgradeds.map(dep => `${dep.name}@${dep.to}`);
 
         switch (packageManager) {
           case 'npm':
@@ -581,15 +581,14 @@ export const provider = machine.provideOptions(
 
         console.log('Everything is upgraded, on stone to many !!');
 
-        return upgradables;
+        return upgradeds;
       },
 
       resetDependencies: async ({ pContext }) => {
         const initials = pContext.dependencies!.initials!;
         const cwd = pContext.files!.workingDir!;
         const packageManager = pContext.packageManager!;
-
-        const cmds: [string, string[]][] = [];
+        let cmds: [string, string[]];
 
         const packages = initials.map(({ name, version }) =>
           `${name}@${version}`.replace('@@', '@'),
@@ -597,28 +596,28 @@ export const provider = machine.provideOptions(
 
         switch (packageManager) {
           case 'npm':
-            cmds.push(['npm', ['install', ...packages]]);
+            cmds = ['npm', ['install', ...packages]];
             break;
           case 'yarn':
-            cmds.push(['yarn', ['add', ...packages]]);
+            cmds = ['yarn', ['add', ...packages]];
             break;
           case 'pnpm':
-            cmds.push(['pnpm', ['add', ...packages]]);
+            cmds = ['pnpm', ['add', ...packages]];
             break;
           case 'bun':
-            cmds.push(['bun', ['add', ...packages]]);
+            cmds = ['bun', ['add', ...packages]];
         }
 
-        for (const [cmd, args] of cmds) {
-          const { exitCode } = await execa({
-            stdout: ['pipe', 'inherit'],
-            stderr: ['pipe', 'inherit'],
-          })(cmd, args, { cwd });
+        logTitle(`Resetting dependencies to their original versions ...`);
 
-          if (exitCode !== 0) {
-            throw new Error('Failed to reset dependencies');
-          }
+        const { exitCode } = await execa(...cmds, { cwd });
+
+        if (exitCode !== 0) {
+          console.log('Failed to reset dependencies');
+          throw new Error('Failed to reset dependencies');
         }
+
+        console.log('Dependencies have been reset.');
       },
 
       upgradeDecrementally: async ({ pContext }) => {
@@ -626,7 +625,7 @@ export const provider = machine.provideOptions(
         const cwd = pContext.files!.workingDir!;
         const packageManager = pContext.packageManager!;
 
-        const out: Upgraded[] = [];
+        const upgradeds: Upgraded[] = [];
 
         for (const {
           name,
@@ -656,13 +655,19 @@ export const provider = machine.provideOptions(
 
             console.log(`Successfully updated ${name} to "${to}"`);
 
-            out.push({
+            upgradeds.push({
               name,
               from,
               to,
             });
           }
         }
+
+        if (upgradeds.length < 1) {
+          throw new Error('All incremental upgrade attempts failed');
+        }
+
+        return upgradeds;
       },
     },
 

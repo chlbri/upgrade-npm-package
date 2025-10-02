@@ -303,9 +303,15 @@ export const machine = createMachine(
                 target: '/errors',
                 actions: 'resetDependencies.error',
               },
-              then: {
-                target: '/upgrade/decremental',
-              },
+              // then: '/upgrade/decremental',
+              then: [
+                {
+                  target: '/upgrade/decremental',
+                  guards: 'verbose',
+                  actions: ['resetDependencies.logCompletion'],
+                },
+                '/upgrade/decremental',
+              ],
               max: '10min',
               finally: [
                 {
@@ -344,7 +350,7 @@ export const machine = createMachine(
                     one at a time, starting from the highest version down to the lowest.
                     `,
                   catch: {
-                    target: '/errors',
+                    target: '/upgrade/decremental/reset',
                     actions: 'upgradeDecrementally.error',
                   },
                   then: {
@@ -367,6 +373,26 @@ export const machine = createMachine(
                       ],
                     },
                   ],
+                },
+              },
+
+              reset: {
+                promises: {
+                  src: 'resetDependencies',
+                  description: 'Resetting dependencies to initial state',
+                  catch: {
+                    target: '/errors',
+                    actions: ['resetDependencies.error'],
+                  },
+                  then: [
+                    {
+                      target: '/errors',
+                      guards: 'verbose',
+                      actions: ['resetDependencies.logCompletion'],
+                    },
+                    '/errors',
+                  ],
+                  max: '10min',
                 },
               },
             },
