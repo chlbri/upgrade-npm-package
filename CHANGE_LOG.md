@@ -4,6 +4,25 @@
 
 <summary>
 
+## Version [0.1.4] - Minor Fixes & Dependency Updates
+
+</summary>
+
+### 🚀 New Features
+
+- Upgrade dependencies
+- Reset dependencies on error in upgrade workflow
+
+### **Coverage _85%_**
+
+</details>
+
+<br/>
+
+<details>
+
+<summary>
+
 ## Version [0.1.2] - Machine Architecture & Development Workflow Improvements
 
 </summary>
@@ -12,8 +31,9 @@
 
 - Upgrade dependencies
 
-
 </details>
+
+<br/>
 
 <details>
 

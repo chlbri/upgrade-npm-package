@@ -43,6 +43,7 @@ export const machine = createMachine(
                     guards: 'files.packageJson.existence',
                     target: '/checking/files/tsConfigJson',
                   },
+
                   {
                     target: '/errors',
                     actions: 'files.packageJson.notFound',
@@ -56,6 +57,7 @@ export const machine = createMachine(
                     guards: 'files.tsConfigJson.existence',
                     target: '/checking/readPackageJson',
                   },
+
                   {
                     target: '/errors',
                     actions: 'files.tsConfigJson.notFound',
@@ -72,14 +74,17 @@ export const machine = createMachine(
               read: {
                 promises: {
                   src: 'readPackageJson',
+
                   catch: {
                     target: '/errors',
                     actions: 'files.packageJson.read.error',
                   },
+
                   then: {
                     target: '/checking/readPackageJson/verify',
                     actions: ['files.packageJson.read'],
                   },
+
                   finally: [
                     {
                       guards: 'verbose',
@@ -88,6 +93,7 @@ export const machine = createMachine(
                         'files.packageJson.read.logLength',
                       ],
                     },
+
                     {
                       actions: ['files.packageJson.read.logTitle'],
                     },
@@ -98,14 +104,17 @@ export const machine = createMachine(
               verify: {
                 promises: {
                   src: 'verifyPackageJson',
+
                   catch: {
                     target: '/errors',
                     actions: 'files.packageJson.invalid',
                   },
+
                   then: {
                     target: '/checking/scripts',
                     actions: 'files.packageJson.data',
                   },
+
                   finally: [
                     {
                       guards: 'verbose',
@@ -127,6 +136,7 @@ export const machine = createMachine(
                     guards: 'hasTestScript',
                     target: '/checking/scripts/build',
                   },
+
                   {
                     target: '/errors',
                     actions: 'scripts.testScript.missing',
@@ -140,6 +150,7 @@ export const machine = createMachine(
                     guards: 'hasBuildScript',
                     target: '/checking/scripts/lint',
                   },
+
                   {
                     target: '/errors',
                     actions: 'scripts.buildScript.missing',
@@ -153,6 +164,7 @@ export const machine = createMachine(
                     guards: 'hasLintScript',
                     target: '/initials',
                   },
+
                   {
                     target: '/errors',
                     actions: 'scripts.lintScript.missing',
@@ -167,14 +179,17 @@ export const machine = createMachine(
       initials: {
         promises: {
           src: 'collectInitialDependencies',
+
           catch: {
             target: '/errors',
             actions: 'collectInitialDependencies.error',
           },
+
           then: {
             target: '/versions',
             actions: ['collectInitialDependencies.collect'],
           },
+
           finally: [
             {
               guards: 'verbose',
@@ -184,6 +199,7 @@ export const machine = createMachine(
                 'collectInitialDependencies.logLength',
               ],
             },
+
             {
               actions: [
                 'collectInitialDependencies.logTitle',
@@ -200,25 +216,33 @@ export const machine = createMachine(
           internet: {
             promises: {
               src: 'checkInternetConnection',
-              catch: { target: '/errors', actions: 'internet.error' },
               then: '/versions/fetch',
               max: 'INTERNET_PING',
+
+              catch: {
+                target: '/errors',
+                actions: 'internet.error',
+              },
             },
           },
 
           fetch: {
             promises: {
               src: 'fetchVersions',
+              max: '10min',
+
               catch: {
                 target: '/errors',
                 actions: 'fetchVersions.error',
               },
+
               then: [
                 {
                   guards: 'hasUpgradables',
                   target: '/upgrade',
                   actions: ['fetchVersions.collect'],
                 },
+
                 {
                   target: '/success',
                   actions: [
@@ -227,6 +251,7 @@ export const machine = createMachine(
                   ],
                 },
               ],
+
               finally: [
                 {
                   guards: 'verbose',
@@ -236,6 +261,7 @@ export const machine = createMachine(
                     'fetchVersions.logLength',
                   ],
                 },
+
                 {
                   actions: [
                     'fetchVersions.logTitle',
@@ -257,23 +283,30 @@ export const machine = createMachine(
               internet: {
                 promises: {
                   src: 'checkInternetConnection',
-                  catch: { target: '/errors', actions: 'internet.error' },
                   then: '/upgrade/all/fetch',
                   max: 'INTERNET_PING',
+
+                  catch: {
+                    target: '/errors',
+                    actions: 'internet.error',
+                  },
                 },
               },
               fetch: {
                 promises: {
                   max: '10min',
                   src: 'upgradeAll',
+
                   catch: {
                     target: '/upgrade/reset',
                     actions: 'upgradeAll.warning',
                   },
+
                   then: {
                     target: '/upgrade/peerDependencies',
                     actions: ['upgrade.collect'],
                   },
+
                   finally: [
                     {
                       guards: 'verbose',
@@ -283,6 +316,7 @@ export const machine = createMachine(
                         'upgrade.logLength',
                       ],
                     },
+
                     {
                       actions: [
                         'upgradeAll.logTitle',
@@ -299,11 +333,13 @@ export const machine = createMachine(
             promises: {
               src: 'resetDependencies',
               description: 'Resetting dependencies to initial state',
+              max: '10min',
+
               catch: {
                 target: '/errors',
                 actions: 'resetDependencies.error',
               },
-              // then: '/upgrade/decremental',
+
               then: [
                 {
                   target: '/upgrade/decremental',
@@ -312,7 +348,7 @@ export const machine = createMachine(
                 },
                 '/upgrade/decremental',
               ],
-              max: '10min',
+
               finally: [
                 {
                   guards: 'verbose',
@@ -335,28 +371,38 @@ export const machine = createMachine(
               internet: {
                 promises: {
                   src: 'checkInternetConnection',
-                  catch: { target: '/errors', actions: 'internet.error' },
+
+                  catch: {
+                    target: '/errors',
+                    actions: 'internet.error',
+                  },
+
                   then: '/upgrade/decremental/fetch',
                   max: 'INTERNET_PING',
                 },
               },
+
               fetch: {
                 promises: {
                   max: '2H',
                   src: 'upgradeDecrementally',
+
                   description: `
                     Very long-running process that attempts to upgrade each dependency
 
                     one at a time, starting from the highest version down to the lowest.
                     `,
+
                   catch: {
                     target: '/upgrade/decremental/reset',
                     actions: 'upgradeDecrementally.error',
                   },
+
                   then: {
                     target: '/upgrade/peerDependencies',
                     actions: ['upgrade.collect'],
                   },
+
                   finally: [
                     {
                       guards: 'verbose',
@@ -366,6 +412,7 @@ export const machine = createMachine(
                         'upgrade.logLength',
                       ],
                     },
+
                     {
                       actions: [
                         'upgradeDecrementally.logTitle',
@@ -380,19 +427,22 @@ export const machine = createMachine(
                 promises: {
                   src: 'resetDependencies',
                   description: 'Resetting dependencies to initial state',
+                  max: '10min',
+
                   catch: {
                     target: '/errors',
                     actions: ['resetDependencies.error'],
                   },
+
                   then: [
                     {
                       target: '/errors',
                       guards: 'verbose',
                       actions: ['resetDependencies.logCompletion'],
                     },
+
                     '/errors',
                   ],
-                  max: '10min',
                 },
               },
             },
@@ -403,11 +453,13 @@ export const machine = createMachine(
       errors: {
         entry: ['notifyWarnings', 'notifyErrors', 'exit'],
       },
+
       success: {
         entry: ['notifyWarnings', 'notifySuccess', 'exit'],
       },
     },
   },
+
   typings({
     eventsMap: {
       START: {
@@ -423,14 +475,18 @@ export const machine = createMachine(
           data: typings.custom<PackageJsonData>(),
           raw: 'string',
         }),
+
         workingDir: 'string',
         packageManager: typings.custom<PackageManager>(),
       }),
+
       verbose: 'boolean',
+
       dependencies: typings.partial({
         initials: [typings.custom<InitialDependency>()],
         upgradables: [typings.custom<UpgradableDependency>()],
       }),
+
       packageManager: typings.custom<PackageManager>(),
     }),
 
@@ -442,15 +498,18 @@ export const machine = createMachine(
             read: 'string',
             invalid: 'string',
           }),
+
           tsConfigJson: typings.partial({
             notFound: 'string',
           }),
         }),
+
         scripts: typings.partial({
           build: 'string',
           lint: 'string',
           test: 'string',
         }),
+
         collectInitialDependencies: 'string',
         resetDependencies: 'string',
         internet: 'string',
@@ -458,10 +517,12 @@ export const machine = createMachine(
         upgradeAll: 'string',
         upgradeDecrementally: 'string',
       }),
+
       warnings: typings.partial({
         upgradeAll: 'string',
         fetchVersions: 'string',
       }),
+
       upgradeds: [typings.custom<Upgraded>()],
     }),
 
