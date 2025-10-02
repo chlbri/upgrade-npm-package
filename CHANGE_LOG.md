@@ -4,6 +4,26 @@
 
 <summary>
 
+## Version [0.1.5] - fix(peerDependencies): correctly merge peerDependencies
+
+</summary>
+
+### 🚀 Fix
+
+- Upgrade dependencies
+- Add missing peerDependencies to package.json instead of overwriting (keep
+  initial if not upgraded)
+
+### **Coverage _85%_**
+
+</details>
+
+<br/>
+
+<details>
+
+<summary>
+
 ## Version [0.1.4] - Minor Fixes & Dependency Updates
 
 </summary>

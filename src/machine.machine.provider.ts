@@ -391,14 +391,18 @@ export const provider = machine.provideOptions(
           const path = `${pContext.files!.workingDir!}/package.json`;
           const file = editJsonFile(path);
 
-          file.set(
-            'peerDependencies',
-            Object.fromEntries(
-              currentPeers.map(
-                dep => [dep.name, `${dep.sign}${dep.to}`] as const,
-              ),
+          const previous = file.get('peerDependencies');
+          const current = Object.fromEntries(
+            currentPeers.map(
+              dep => [dep.name, `${dep.sign}${dep.to}`] as const,
             ),
           );
+          const value = {
+            ...previous,
+            ...current,
+          };
+
+          file.set('peerDependencies', value);
 
           file.save();
         },
